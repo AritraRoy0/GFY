@@ -1,10 +1,10 @@
 /*
-    path: ./src/app/signup.tsx
+    path: ./src/app/Signup.tsx
 */
 
 import React, { useState } from 'react';
 
-const signup: React.FC = () => {
+const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -91,4 +91,4 @@ const signup: React.FC = () => {
   );
 };
 
-export default signup;
+export default Signup;
