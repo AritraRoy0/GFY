@@ -1,0 +1,12 @@
+.
+├── app
+│   ├── common
+│   │   └── Footer.tsx
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── index.tsx
+│   ├── layout.tsx
+│   └── pages
+└── tree.txt
+
+4 directories, 6 files
