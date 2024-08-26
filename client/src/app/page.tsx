@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/react"
 const Hero: React.FC = () => {
   return (
     <div className="relative bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-20 px-4">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/path-to-your-image.jpg)' }}></div>
+{/*       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/path-to-your-image.jpg)' }}></div> */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 opacity-75"></div>
       <div className="relative max-w-7xl mx-auto text-center">
         <h1 className="text-5xl font-bold mb-4 text-black animate-bounce">Go Fund Yourself!</h1>

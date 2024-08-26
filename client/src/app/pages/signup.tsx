@@ -1,7 +1,4 @@
-/*
-    path: ./src/app/Signup.tsx
-*/
-
+// ./pages/signup.tsx
 import React, { useState } from 'react';
 
 const Signup: React.FC = () => {
