@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 
-const Signup: React.FC = () => {
+const signup: React.FC = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -91,4 +91,4 @@ const Signup: React.FC = () => {
   );
 };
 
-export default Signup;
+export default signup;
