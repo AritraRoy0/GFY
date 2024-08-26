@@ -14,7 +14,7 @@ const Hero: React.FC = () => {
           Instant, negotiable loans without bank approval over our secure network of peers.
         </p>
         <a
-          href="/signup"
+          href="/auth"
           className="bg-white text-purple-600 font-semibold py-2 px-6 rounded-md hover:bg-purple-100 transition-transform duration-300 hover:scale-105"
         >
           Get Started
