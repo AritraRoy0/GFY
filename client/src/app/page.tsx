@@ -1,6 +1,7 @@
 import React from 'react';
 import Footer from "./common/Footer";
 import { FaUserFriends, FaHandshake, FaShieldAlt, FaMobileAlt } from 'react-icons/fa';
+import { Analytics } from "@vercel/analytics/react"
 
 const Hero: React.FC = () => {
   return (
