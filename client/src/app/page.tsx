@@ -34,12 +34,12 @@ const Features: React.FC = () => {
   return (
     <div className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-4xl font-bold mb-12">Why Choose Our Platform?</h2>
+        <h2 className="text-4xl font-bold text-black mb-12">Why Choose Our Platform?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-transform duration-300 hover:scale-105">
               <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-2xl font-semibold mb-4">{feature.title}</h3>
+              <h3 className="text-2xl font-semibold mb-4 text-black">{feature.title}</h3>
               <p className="text-gray-700">{feature.description}</p>
             </div>
           ))}
