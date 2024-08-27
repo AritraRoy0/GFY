@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from "./common/Header";
 import Footer from "./common/Footer";
 import { FaUserFriends, FaHandshake, FaShieldAlt, FaMobileAlt } from 'react-icons/fa';
 
@@ -53,6 +54,7 @@ const Features: React.FC = () => {
 const Landing: React.FC = () => {
   return (
     <>
+      <Header />
       <Hero />
       <Features />
       <Footer />
