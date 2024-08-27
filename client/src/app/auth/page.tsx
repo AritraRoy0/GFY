@@ -1,5 +1,6 @@
 'use client';
 
+
 import React, { useReducer, useState } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
@@ -24,7 +25,7 @@ interface State {
 
 interface Action {
   type: string;
-  payload: any;
+  payload?: any; // Payload is optional
 }
 
 const ACTIONS = {
@@ -103,7 +104,6 @@ const Auth: React.FC = () => {
         const usernameExists = await checkUsernameExists(state.formData.username);
         if (usernameExists) {
           dispatch({ type: ACTIONS.SET_ERRORS, payload: { ...state.errors, username: 'Username already taken' } });
-          dispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
         }
 
