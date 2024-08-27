@@ -163,78 +163,76 @@ const Auth: React.FC = () => {
         </div>
 
         {/* Form Content */}
-        <div className="relative overflow-hidden">
-          <div
-            className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-              activeTab === 'signup' ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            {activeTab === 'signup' && (
-              <form className="mb-6">
-                {/* Username Input */}
-                <div className="mb-6">
-                  <label htmlFor="username" className="block text-gray-800 font-medium mb-2">Username</label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={state.formData.username}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
-                      state.errors.username ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    required
-                  />
-                  {state.errors.username && <div className="text-red-500 text-sm mt-2">{state.errors.username}</div>}
-                </div>
-                {/* Full Name Input */}
-                <div className="mb-6">
-                  <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={state.formData.fullName}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
-                      state.errors.fullName ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    required
-                  />
-                  {state.errors.fullName && <div className="text-red-500 text-sm mt-2">{state.errors.fullName}</div>}
-                </div>
-                {/* Sign Up with Google Button */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSignUp}
-                  className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300 mt-4"
-                  disabled={state.loading}
-                >
-                  {state.loading ? 'Signing up...' : 'Sign Up with Google'}
-                </button>
-              </form>
-            )}
-          </div>
-
-          <div
-            className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-              activeTab === 'login' ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            {activeTab === 'login' && (
+        <div
+          className={`transition-opacity duration-500 ease-in-out ${
+            activeTab === 'signup' ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {activeTab === 'signup' && (
+            <form className="mb-6">
+              {/* Username Input */}
               <div className="mb-6">
-                {/* No form fields for login */}
-                {/* Only Google sign-in */}
-                <button
-                  onClick={handleGoogleSignUp}
-                  className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
-                  disabled={state.loading}
-                >
-                  {state.loading ? 'Signing in...' : 'Sign in with Google'}
-                </button>
+                <label htmlFor="username" className="block text-gray-800 font-medium mb-2">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={state.formData.username}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
+                    state.errors.username ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                />
+                {state.errors.username && <div className="text-red-500 text-sm mt-2">{state.errors.username}</div>}
               </div>
-            )}
-          </div>
+              {/* Full Name Input */}
+              <div className="mb-6">
+                <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">Full Name</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={state.formData.fullName}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
+                    state.errors.fullName ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                />
+                {state.errors.fullName && <div className="text-red-500 text-sm mt-2">{state.errors.fullName}</div>}
+              </div>
+              {/* Sign Up with Google Button */}
+              <button
+                type="button"
+                onClick={handleGoogleSignUp}
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300 mt-4"
+                disabled={state.loading}
+              >
+                {state.loading ? 'Signing up...' : 'Sign Up with Google'}
+              </button>
+            </form>
+          )}
+        </div>
+
+        <div
+          className={`transition-opacity duration-500 ease-in-out ${
+            activeTab === 'login' ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {activeTab === 'login' && (
+            <div className="mb-6">
+              {/* No form fields for login */}
+              {/* Only Google sign-in */}
+              <button
+                onClick={handleGoogleSignUp}
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
+                disabled={state.loading}
+              >
+                {state.loading ? 'Signing in...' : 'Sign in with Google'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
