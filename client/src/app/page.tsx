@@ -6,8 +6,8 @@ import { FaUserFriends, FaHandshake, FaShieldAlt, FaMobileAlt } from 'react-icon
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-20 px-4">
-{/*       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/path-to-your-image.jpg)' }}></div> */}
+    <div className="relative bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-20 px-4 shadow-lg">
+      {/* <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/path-to-your-image.jpg)' }}></div> */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 opacity-75"></div>
       <div className="relative max-w-7xl mx-auto text-center">
         <h1 className="text-5xl font-bold mb-4 text-black animate-bounce">Go Fund Yourself!</h1>
@@ -16,7 +16,7 @@ const Hero: React.FC = () => {
         </p>
         <a
           href="/auth"
-          className="bg-white text-purple-600 font-semibold py-2 px-6 rounded-md hover:bg-purple-100 transition-transform duration-300 hover:scale-105"
+          className="bg-white text-purple-600 font-semibold py-2 px-6 rounded-md shadow-md hover:shadow-lg transition-transform duration-300 hover:scale-105"
         >
           Get Started
         </a>
