@@ -1,6 +1,5 @@
 'use client';
 
-
 import React, { useReducer, useState } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
@@ -93,7 +92,7 @@ const Auth: React.FC = () => {
   };
 
   const handleGoogleSignUp = async () => {
-    if (!validateForm()) return;
+    if (activeTab === 'signup' && !validateForm()) return;
 
     dispatch({ type: ACTIONS.SET_LOADING, payload: true });
     try {
