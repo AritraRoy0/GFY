@@ -1,8 +1,8 @@
 'use client';
-
 import React, { useState } from 'react';
-import { auth, provider } from '../../../firebaseConfig';
+import { auth, provider, firestore } from '../../../firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
 
 const Auth: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
@@ -48,6 +48,13 @@ const Auth: React.FC = () => {
     return valid;
   };
 
+  // Check if the username already exists
+  const checkUsernameExists = async (username: string) => {
+    const q = query(collection(firestore, 'users'), where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
+
   // Handle Google Sign-Up and link with username and full name
   const handleGoogleSignUp = async () => {
     if (!validateForm()) return;
@@ -57,13 +64,33 @@ const Auth: React.FC = () => {
       const result = await signInWithPopup(auth, provider);
       const { displayName, email, uid } = result.user;
 
-      // Link the username and full name with the Google account
-      console.log(`Username: ${formData.username}, Full Name: ${formData.fullName}`);
-      console.log(`Google Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+      if (activeTab === 'signup') {
+        // Check for duplicate username
+        const usernameExists = await checkUsernameExists(formData.username);
+        if (usernameExists) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            username: 'Username already taken',
+          }));
+          setLoading(false);
+          return;
+        }
+
+        // Save user data to Firestore
+        await setDoc(doc(firestore, 'users', uid), {
+          username: formData.username,
+          fullName: formData.fullName,
+          email: email,
+        });
+
+        console.log(`Username: ${formData.username}, Full Name: ${formData.fullName}`);
+        console.log(`Google Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+      } else {
+        // Handle login logic if needed
+        console.log(`Logged in with Google. Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+      }
       
-      // TODO: Implement backend API call to save the username, full name, email, and UID
-      // Example:
-      // await saveUserDataToDatabase(uid, formData.username, formData.fullName, email);
+      // TODO: Redirect or update state as needed
 
     } catch (error) {
       console.error('Error during Google Sign-Up:', error);
