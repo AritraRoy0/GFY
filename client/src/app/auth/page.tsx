@@ -1,34 +1,81 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
+import { auth, provider } from '../../../firebaseConfig';
+import { signInWithPopup } from 'firebase/auth';
 
-const AuthForm: React.FC = () => {
+const Auth: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: '',
   });
+  const [errors, setErrors] = useState({
+    username: '',
+    fullName: '',
+  });
+  const [loading, setLoading] = useState(false);
 
+  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-    console.log(`Field updated: ${name}, Value: ${value}`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add form submission logic here
-    console.log('Form submitted:', formData);
+  // Validate the form
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { ...errors };
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+      valid = false;
+    } else {
+      newErrors.username = '';
+    }
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+      valid = false;
+    } else {
+      newErrors.fullName = '';
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  // Handle Google Sign-Up and link with username and full name
+  const handleGoogleSignUp = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const { displayName, email, uid } = result.user;
+
+      // Link the username and full name with the Google account
+      console.log(`Username: ${formData.username}, Full Name: ${formData.fullName}`);
+      console.log(`Google Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+      
+      // TODO: Implement backend API call to save the username, full name, email, and UID
+      // Example:
+      // await saveUserDataToDatabase(uid, formData.username, formData.fullName, email);
+
+    } catch (error) {
+      console.error('Error during Google Sign-Up:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600">
-      <div className="relative bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md transition-transform duration-500">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 p-4">
+      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
+        {/* Tabs */}
         <div className="flex justify-center mb-8">
           <button
             className={`text-lg font-bold px-4 py-2 rounded-t-lg transition-colors duration-300 ${
@@ -48,13 +95,11 @@ const AuthForm: React.FC = () => {
           </button>
         </div>
 
-        <div className="overflow-hidden relative h-[24rem]">
-          <div
-            className={`absolute inset-0 transform transition-transform duration-500 ${
-              activeTab === 'signup' ? 'translate-x-0' : '-translate-x-full'
-            }`}
-          >
-            <form onSubmit={handleSubmit}>
+        {/* Form Content */}
+        {activeTab === 'signup' && (
+          <>
+            <form className="mb-6">
+              {/* Username Input */}
               <div className="mb-6">
                 <label htmlFor="username" className="block text-gray-800 font-medium mb-2">Username</label>
                 <input
@@ -63,97 +108,58 @@ const AuthForm: React.FC = () => {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
+                  className={`w-full px-4 py-3 border ${
+                    errors.username ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300`}
                   required
                 />
+                {errors.username && <div className="text-red-500 text-sm mt-2">{errors.username}</div>}
               </div>
+              {/* Full Name Input */}
               <div className="mb-6">
-                <label htmlFor="email" className="block text-gray-800 font-medium mb-2">Email</label>
+                <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">Full Name</label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
+                  className={`w-full px-4 py-3 border ${
+                    errors.fullName ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300`}
                   required
                 />
+                {errors.fullName && <div className="text-red-500 text-sm mt-2">{errors.fullName}</div>}
               </div>
-              <div className="mb-6">
-                <label htmlFor="password" className="block text-gray-800 font-medium mb-2">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
-                  required
-                />
-              </div>
-              <div className="mb-8">
-                <label htmlFor="confirmPassword" className="block text-gray-800 font-medium mb-2">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
-                  required
-                />
-              </div>
+              {/* Sign Up with Google Button */}
               <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
+                type="button"
+                onClick={handleGoogleSignUp}
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300 mt-4"
+                disabled={loading}
               >
-                Sign Up
+                {loading ? 'Signing up...' : 'Sign Up with Google'}
               </button>
             </form>
-          </div>
+          </>
+        )}
 
-          <div
-            className={`absolute inset-0 transform transition-transform duration-500 ${
-              activeTab === 'login' ? 'translate-x-0' : 'translate-x-full'
-            }`}
-          >
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label htmlFor="email" className="block text-gray-800 font-medium mb-2">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
-                  required
-                />
-              </div>
-              <div className="mb-8">
-                <label htmlFor="password" className="block text-gray-800 font-medium mb-2">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-colors duration-300"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
-              >
-                Login
-              </button>
-            </form>
+        {activeTab === 'login' && (
+          <div className="mb-6">
+            {/* No form fields for login */}
+            {/* Only Google sign-in */}
+            <button
+              onClick={handleGoogleSignUp}
+              className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign in with Google'}
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default AuthForm;
+export default Auth;
