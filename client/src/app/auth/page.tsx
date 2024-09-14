@@ -2,11 +2,11 @@
 
 import React, { useReducer, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust the import path if necessary
+import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust if necessary
 
+// Define interfaces
 interface FormData {
   username: string;
   fullName: string;
@@ -29,6 +29,7 @@ interface Action {
   payload?: any;
 }
 
+// Action constants
 const ACTIONS = {
   SET_ERRORS: 'SET_ERRORS',
   SET_LOADING: 'SET_LOADING',
@@ -36,6 +37,7 @@ const ACTIONS = {
   SET_FORM_DATA: 'SET_FORM_DATA',
 };
 
+// Reducer function
 const formReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case ACTIONS.SET_ERRORS:
@@ -53,18 +55,9 @@ const formReducer = (state: State, action: Action): State => {
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
-
-  // Use state to manage the active tab
   const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
 
-  useEffect(() => {
-    // Get the 'tab' parameter from the URL using window.location.search
-    const searchParams = new URLSearchParams(window.location.search);
-    const tabParam = searchParams.get('tab');
-    const initialTab = tabParam === 'login' ? 'login' : 'signup';
-    setActiveTab(initialTab);
-  }, []);
-
+  // Manage state with useReducer
   const [state, dispatch] = useReducer(formReducer, {
     formData: { username: '', fullName: '' },
     errors: { username: '', fullName: '' },
@@ -72,11 +65,20 @@ const AuthPage: React.FC = () => {
     alertMessage: null,
   });
 
+  useEffect(() => {
+    // Get the 'tab' parameter from URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const tabParam = searchParams.get('tab');
+    setActiveTab(tabParam === 'login' ? 'login' : 'signup');
+  }, []);
+
+  // Handle form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     dispatch({ type: ACTIONS.SET_FORM_DATA, payload: { ...state.formData, [name]: value } });
   };
 
+  // Form validation
   const validateForm = (): boolean => {
     let valid = true;
     const newErrors = { ...state.errors };
@@ -99,17 +101,20 @@ const AuthPage: React.FC = () => {
     return valid;
   };
 
+  // Check if username exists in Firestore
   const checkUsernameExists = async (username: string): Promise<boolean> => {
     const q = query(collection(firestore, 'users'), where('username', '==', username));
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
   };
 
+  // Check if user exists in Firestore
   const checkUserExists = async (uid: string): Promise<boolean> => {
     const userDoc = await getDoc(doc(firestore, 'users', uid));
     return userDoc.exists();
   };
 
+  // Handle Google sign-up/sign-in
   const handleGoogleSignUp = async () => {
     if (activeTab === 'signup' && !validateForm()) return;
 
@@ -129,6 +134,7 @@ const AuthPage: React.FC = () => {
           return;
         }
 
+        // Save user data in Firestore
         await setDoc(doc(firestore, 'users', uid), {
           username: state.formData.username,
           fullName: state.formData.fullName,
@@ -136,27 +142,17 @@ const AuthPage: React.FC = () => {
         });
 
         dispatch({ type: ACTIONS.SET_ALERT, payload: 'Sign-up successful!' });
-        console.log(`Username: ${state.formData.username}, Full Name: ${state.formData.fullName}`);
-        console.log(`Google Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
-
-        // Redirect to dashboard after signup
-        router.push('/dashboard');
+        router.push('/dashboard'); // Redirect after sign-up
       } else {
         const userExists = await checkUserExists(uid);
         if (!userExists) {
-          dispatch({
-            type: ACTIONS.SET_ALERT,
-            payload: 'No account found. Please sign up first.',
-          });
+          dispatch({ type: ACTIONS.SET_ALERT, payload: 'No account found. Please sign up first.' });
           await auth.signOut();
           dispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
         }
         dispatch({ type: ACTIONS.SET_ALERT, payload: 'Logged in successfully!' });
-        console.log(`Logged in with Google. Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
-
-        // Redirect to dashboard after login
-        router.push('/dashboard');
+        router.push('/dashboard'); // Redirect after login
       }
     } catch (error) {
       dispatch({ type: ACTIONS.SET_ALERT, payload: 'Error during authentication. Please try again.' });
@@ -182,7 +178,7 @@ const AuthPage: React.FC = () => {
           </div>
         )}
 
-        {/* Tabs */}
+        {/* Tabs for Login/Signup */}
         <div className="flex justify-center mb-8">
           <button
             className={`text-lg font-bold px-4 py-2 rounded-t-lg transition-colors duration-300 ${
@@ -206,10 +202,9 @@ const AuthPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Form Content */}
+        {/* Signup Form */}
         {activeTab === 'signup' && (
           <form className="mb-6">
-            {/* Username Input */}
             <div className="mb-6">
               <label htmlFor="username" className="block text-gray-800 font-medium mb-2">
                 Username
@@ -229,7 +224,7 @@ const AuthPage: React.FC = () => {
                 <div className="text-red-500 text-sm mt-2">{state.errors.username}</div>
               )}
             </div>
-            {/* Full Name Input */}
+
             <div className="mb-6">
               <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">
                 Full Name
@@ -249,7 +244,7 @@ const AuthPage: React.FC = () => {
                 <div className="text-red-500 text-sm mt-2">{state.errors.fullName}</div>
               )}
             </div>
-            {/* Sign Up with Google Button */}
+
             <button
               type="button"
               onClick={handleGoogleSignUp}
@@ -261,9 +256,9 @@ const AuthPage: React.FC = () => {
           </form>
         )}
 
+        {/* Login Form */}
         {activeTab === 'login' && (
           <div className="mb-6">
-            {/* Sign In with Google Button */}
             <button
               onClick={handleGoogleSignUp}
               className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
