@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useReducer, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation'; // Import useSearchParams
+import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust the import path if necessary
@@ -62,6 +62,8 @@ const Auth: React.FC = () => {
     loading: false,
     alertMessage: null,
   });
+
+  const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
     // Update activeTab if tabParam changes
@@ -134,6 +136,10 @@ const Auth: React.FC = () => {
         dispatch({ type: ACTIONS.SET_ALERT, payload: 'Sign-up successful!' });
         console.log(`Username: ${state.formData.username}, Full Name: ${state.formData.fullName}`);
         console.log(`Google Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+
+        // Redirect to dashboard after signup
+        router.push('/dashboard');
+
       } else {
         const userExists = await checkUserExists(uid);
         if (!userExists) {
@@ -147,6 +153,9 @@ const Auth: React.FC = () => {
         }
         dispatch({ type: ACTIONS.SET_ALERT, payload: 'Logged in successfully!' });
         console.log(`Logged in with Google. Display Name: ${displayName}, Email: ${email}, UID: ${uid}`);
+
+        // Redirect to dashboard after login
+        router.push('/dashboard');
       }
     } catch (error) {
       dispatch({ type: ACTIONS.SET_ALERT, payload: 'Error during authentication. Please try again.' });
