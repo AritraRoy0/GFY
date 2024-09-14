@@ -1,9 +1,7 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import React, { useReducer, useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
@@ -53,25 +51,26 @@ const formReducer = (state: State, action: Action): State => {
   }
 };
 
-const Auth: React.FC = () => {
-  const searchParams = useSearchParams();
-  const tabParam = searchParams.get('tab');
-  const initialTab = tabParam === 'login' ? 'login' : 'signup';
+const AuthPage: React.FC = () => {
+  const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<'signup' | 'login'>(initialTab);
+  // Use state to manage the active tab
+  const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
+
+  useEffect(() => {
+    // Get the 'tab' parameter from the URL using window.location.search
+    const searchParams = new URLSearchParams(window.location.search);
+    const tabParam = searchParams.get('tab');
+    const initialTab = tabParam === 'login' ? 'login' : 'signup';
+    setActiveTab(initialTab);
+  }, []);
+
   const [state, dispatch] = useReducer(formReducer, {
     formData: { username: '', fullName: '' },
     errors: { username: '', fullName: '' },
     loading: false,
     alertMessage: null,
   });
-
-  const router = useRouter(); // Initialize useRouter
-
-  useEffect(() => {
-    // Update activeTab if tabParam changes
-    setActiveTab(initialTab);
-  }, [initialTab]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -279,4 +278,4 @@ const Auth: React.FC = () => {
   );
 };
 
-export default Auth;
+export default AuthPage;
