@@ -2,6 +2,7 @@
 
 import React, { useReducer, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
+
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust the import path if necessary
