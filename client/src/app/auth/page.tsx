@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useReducer, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
 
@@ -140,7 +142,6 @@ const Auth: React.FC = () => {
 
         // Redirect to dashboard after signup
         router.push('/dashboard');
-
       } else {
         const userExists = await checkUserExists(uid);
         if (!userExists) {
