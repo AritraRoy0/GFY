@@ -10,6 +10,7 @@ import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust t
 
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from "../features/authSlice"; // Adjust the path
+import { FaGoogle } from 'react-icons/fa';
 
 // Define interfaces
 interface FormData {
@@ -231,7 +232,7 @@ const AuthPage: React.FC = () => {
             {state.alertMessage}
           </div>
         )}
-
+  
         {/* Tabs for Login/Signup */}
         <div className="flex justify-center mb-8">
           <button
@@ -255,7 +256,7 @@ const AuthPage: React.FC = () => {
             Login
           </button>
         </div>
-
+  
         {/* Signup Form */}
         {activeTab === 'signup' && (
           <form className="mb-6">
@@ -278,7 +279,7 @@ const AuthPage: React.FC = () => {
                 <div className="text-red-500 text-sm mt-2">{state.errors.username}</div>
               )}
             </div>
-
+  
             <div className="mb-6">
               <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">
                 Full Name
@@ -298,26 +299,28 @@ const AuthPage: React.FC = () => {
                 <div className="text-red-500 text-sm mt-2">{state.errors.fullName}</div>
               )}
             </div>
-
+  
             <button
               type="button"
               onClick={handleGoogleSignUp}
-              className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300 mt-4"
+              className="w-full flex items-center justify-center bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition-colors duration-300 mt-4"
               disabled={state.loading}
             >
+              <FaGoogle className="mr-2" />
               {state.loading ? 'Signing up...' : 'Sign Up with Google'}
             </button>
           </form>
         )}
-
+  
         {/* Login Form */}
         {activeTab === 'login' && (
           <div className="mb-6">
             <button
               onClick={handleGoogleSignUp}
-              className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300"
+              className="w-full flex items-center justify-center bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition-colors duration-300"
               disabled={state.loading}
             >
+              <FaGoogle className="mr-2" />
               {state.loading ? 'Signing in...' : 'Sign in with Google'}
             </button>
           </div>
@@ -325,6 +328,7 @@ const AuthPage: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default AuthPage;
