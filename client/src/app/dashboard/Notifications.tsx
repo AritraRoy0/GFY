@@ -167,9 +167,6 @@ export const Notifications: React.FC = () => {
     </div>
   );
 };
-
-export default Notifications;
-
 // Styles Object
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
