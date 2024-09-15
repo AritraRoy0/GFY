@@ -8,7 +8,7 @@ import { DashboardTable } from './DashboardTable';  // Import the dashboard tabl
 import { Notifications } from './Notifications';  // Import the notifications component
 
 // Remove the unused variable declaration
-const Dashboard = (): JSX.Element => {
+const DashboardPage = (): JSX.Element => {
   return (
     <div>
       <Header />
@@ -20,4 +20,4 @@ const Dashboard = (): JSX.Element => {
 };
 
 // Make sure to export the page as the default export
-export default Dashboard;
+export default DashboardPage;
