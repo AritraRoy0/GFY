@@ -1,5 +1,3 @@
-// app/dashboard/DashboardPage.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -80,24 +78,11 @@ export const DashboardTable = (): JSX.Element => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-600">Loanify</div>
-          <div className="flex items-center">
-            <div className="mr-4 text-gray-600">{user?.name}</div>
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold">
-              {user?.name?.split(' ').map((n) => n[0]).join('')}
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+          <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
           <p className="text-gray-600 mt-2">Overview of your loan activities</p>
         </div>
 
@@ -144,7 +129,9 @@ export const DashboardTable = (): JSX.Element => {
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z" />
+                  <path d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div>
