@@ -1,3 +1,5 @@
+// components/common/Header.tsx
+
 'use client';
 
 import React, { useState } from 'react';
@@ -10,14 +12,27 @@ import {
   FaSignOutAlt,      // Logout icon
   FaSignInAlt,       // Login icon
   FaUserPlus,        // Sign Up icon
-  FaHome,            // Home icon
   FaBriefcase,       // Dashboard icon
-  FaCog,             // Settings icon (optional for future use)
-} from 'react-icons/fa'; // Importing from React Icons (Font Awesome)
+} from 'react-icons/fa';
+import Image, { StaticImageData } from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../assets/logo.jpeg'; // Adjust the path based on your project structure
+
+// Define the shape of your Redux state for better TypeScript support
+interface RootState {
+  auth: {
+    user: any; // Replace `any` with your actual user type
+  };
+}
+
+// Define the props for Header component
+interface HeaderProps {
+  logo: StaticImageData;
+}
 
 const Header: React.FC = () => {
   // Access Redux state to determine if the user is logged in
-  const isLoggedIn = useSelector((state: any) => state.auth.user) ? true : false;
+  const isLoggedIn = useSelector((state: RootState) => state.auth.user) ? true : false;
 
   // State to manage mobile menu visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,21 +47,21 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/dashboard"
-        className={`flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300`}
+        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300"
       >
         <FaBriefcase className="h-5 w-5 mr-1" />
         Dashboard
       </Link>
       <Link
         href="/profile"
-        className={`flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300`}
+        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300"
       >
         <FaUser className="h-5 w-5 mr-1" />
         Profile
       </Link>
       <Link
         href="/logout"
-        className={`flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-red-500 transition duration-300`}
+        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-red-500 transition duration-300"
       >
         <FaSignOutAlt className="h-5 w-5 mr-1" />
         Logout
@@ -59,14 +74,14 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/auth?tab=login"
-        className={`flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-500 transition duration-300`}
+        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-500 transition duration-300"
       >
         <FaSignInAlt className="h-5 w-5 mr-1" />
         Login
       </Link>
       <Link
         href="/auth?tab=signup"
-        className={`flex items-center px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-300`}
+        className="flex items-center px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-300"
       >
         <FaUserPlus className="h-5 w-5 mr-1" />
         Sign Up
@@ -74,19 +89,22 @@ const Header: React.FC = () => {
     </>
   );
 
+  // Animation variants for mobile menu
+  const menuVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: { opacity: 1, height: 'auto' },
+  };
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link
-            href="/"
-            className="flex items-center text-2xl font-extrabold text-indigo-600 cursor-pointer hover:text-indigo-700 transition duration-300"
-          >
-            <FaHome className="h-8 w-8 mr-2" />
+        {/* Logo and Brand Name */}
+        <Link href="/" className="flex items-center">
+          <Image src={logo} alt="Go Fund Yourself Logo" width={150} height={50} priority />
+          <span className="hidden md:inline-block text-2xl font-extrabold text-indigo-600 ml-2">
             Go Fund Yourself!!
-          </Link>
-        </div>
+          </span>
+        </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6">
@@ -98,7 +116,7 @@ const Header: React.FC = () => {
           <button
             onClick={toggleMenu}
             type="button"
-            className="text-gray-700 hover:text-indigo-600 focus:outline-none focus:text-indigo-600"
+            className="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600"
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -112,14 +130,24 @@ const Header: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden" id="mobile-menu">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {isLoggedIn ? loggedInHeader : loggedOutHeader}
-          </div>
-        </div>
-      )}
+      {/* Mobile Menu with Animation */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            className="md:hidden bg-white shadow-md"
+            id="mobile-menu"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={menuVariants}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {isLoggedIn ? loggedInHeader : loggedOutHeader}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
