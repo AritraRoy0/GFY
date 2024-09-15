@@ -10,37 +10,47 @@ const Header: React.FC = () => {
 
   // Logged-in content for the header
   const loggedInHeader = (
-    <div className="space-x-4">
-      <Link href="/dashboard" className="text-gray-600 hover:text-indigo-600">
-        Dashboard
+    <div className="space-x-6 flex items-center">
+      <Link href="/dashboard">
+        <span className="px-4 py-2 rounded-md text-gray-700 hover:text-white hover:bg-indigo-600 transition duration-300 cursor-pointer">
+          Dashboard
+        </span>
       </Link>
-      <Link href="/profile" className="text-gray-600 hover:text-indigo-600">
-        Profile
+      <Link href="/profile">
+        <span className="px-4 py-2 rounded-md text-gray-700 hover:text-white hover:bg-indigo-600 transition duration-300 cursor-pointer">
+          Profile
+        </span>
       </Link>
-      <Link href="/logout" className="text-gray-600 hover:text-indigo-600">
-        Logout
+      <Link href="/logout">
+        <span className="px-4 py-2 rounded-md text-gray-700 hover:text-white hover:bg-red-500 transition duration-300 cursor-pointer">
+          Logout
+        </span>
       </Link>
     </div>
   );
 
   // Logged-out content for the header
   const loggedOutHeader = (
-    <div className="space-x-4">
-      <Link href="/auth?tab=login" className="text-gray-600 hover:text-indigo-600">
-        Login
+    <div className="space-x-6 flex items-center">
+      <Link href="/auth?tab=login">
+        <span className="px-4 py-2 rounded-md text-gray-700 hover:text-white hover:bg-indigo-600 transition duration-300 cursor-pointer">
+          Login
+        </span>
       </Link>
-      <Link href="/auth?tab=signup" className="text-gray-600 hover:text-indigo-600">
-        Sign Up
+      <Link href="/auth?tab=signup">
+        <span className="px-4 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition duration-300 cursor-pointer">
+          Sign Up
+        </span>
       </Link>
     </div>
   );
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
         <div>
           <Link href="/">
-            <span className="text-xl font-bold text-indigo-600 cursor-pointer">
+            <span className="text-2xl font-extrabold text-indigo-600 cursor-pointer hover:text-indigo-700 transition duration-300">
               Go Fund Yourself!!
             </span>
           </Link>
