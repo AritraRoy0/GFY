@@ -129,7 +129,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ message, iconType }
 };
 
 // Main Notifications Component
-export const Notifications: React.FC = () => {
+ const Notifications: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -235,3 +235,5 @@ const keyframes = `
   100% { transform: rotate(360deg); }
 }`;
 styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+
+export default Notifications;

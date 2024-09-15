@@ -76,7 +76,7 @@ const mockData = {
   ],
 };
 
-export const DashboardTable  = (): JSX.Element => {
+const DashboardTable  = (): JSX.Element => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(true);
@@ -399,3 +399,5 @@ export const DashboardTable  = (): JSX.Element => {
     </div>
   );
 };
+
+export default DashboardTable;
