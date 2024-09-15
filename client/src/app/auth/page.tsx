@@ -10,7 +10,6 @@ import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust t
 
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from "../features/authSlice"; // Adjust the path
-import { RootState } from '../store';
 
 // Define interfaces
 interface FormData {
