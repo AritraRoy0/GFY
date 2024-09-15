@@ -24,7 +24,7 @@ const mockLoans = {
   ],
 };
 
-export const DashboardTable = (): JSX.Element => {
+ const DashboardTable = (): JSX.Element => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(true);
@@ -184,6 +184,7 @@ export const DashboardTable = (): JSX.Element => {
   );
 };
 
+
 const Dashboard = (): JSX.Element => {
   return (
     <div>
@@ -194,4 +195,4 @@ const Dashboard = (): JSX.Element => {
   );
 };
 
-export default Dashboard;
+export default Dashboard; 
