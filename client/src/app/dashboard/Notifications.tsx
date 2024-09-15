@@ -3,11 +3,30 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 
-// Mock notifications data
-const mockNotifications: string[] = [
-  'Your loan #1 payment is due in 7 days.',
-  'Loan #2 has been completed.',
-  'New loan requests available for funding.',
+// Define the shape of a notification
+interface Notification {
+  id: number;
+  message: string;
+  iconType: 'paymentDue' | 'loanCompleted' | 'newRequests';
+}
+
+// Mock notifications data with iconType
+const mockNotifications: Notification[] = [
+  {
+    id: 1,
+    message: 'Your loan #1 payment is due in 7 days.',
+    iconType: 'paymentDue',
+  },
+  {
+    id: 2,
+    message: 'Loan #2 has been completed.',
+    iconType: 'loanCompleted',
+  },
+  {
+    id: 3,
+    message: 'New loan requests available for funding.',
+    iconType: 'newRequests',
+  },
 ];
 
 // Spinner Component
@@ -17,34 +36,95 @@ const Spinner: React.FC = () => (
   </div>
 );
 
+// Payment Due Icon
+const PaymentDueIcon: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg
+    style={{ ...styles.icon, ...style }}
+    fill="currentColor"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    {/* Example SVG Path for Payment Due */}
+    <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h14v2H3v-2zm0 4h14v2H3v-2z" />
+  </svg>
+);
+
+// Loan Completed Icon
+const LoanCompletedIcon: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg
+    style={{ ...styles.icon, ...style }}
+    fill="currentColor"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    {/* Example SVG Path for Loan Completed */}
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-11.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+// New Requests Icon
+const NewRequestsIcon: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg
+    style={{ ...styles.icon, ...style }}
+    fill="currentColor"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    {/* Example SVG Path for New Requests */}
+    <path
+      fillRule="evenodd"
+      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11V7a1 1 0 10-2 0v.5H7a1 1 0 100 2h2.5V13a1 1 0 102 0V11.5H13a1 1 0 100-2h-2.5z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 // Notification Item Component
 interface NotificationItemProps {
   message: string;
+  iconType: 'paymentDue' | 'loanCompleted' | 'newRequests';
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({ message }) => (
-  <li style={styles.notificationItem}>
-    <svg
-      style={styles.icon}
-      fill="currentColor"
-      viewBox="0 0 20 20"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 
-           10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 
-           0-2.263-1.124-1.703-2.484L8.257 3.1zM11 
-           14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 
-           00-.993.883L9 11v2a1 1 0 
-           001.993.117L11 13v-2a1 1 0 
-           00-1-1z"
-        clipRule="evenodd"
-      />
-    </svg>
-    <span>{message}</span>
-  </li>
-);
+const NotificationItem: React.FC<NotificationItemProps> = ({ message, iconType }) => {
+  // Define color based on iconType
+  const iconColor = (() => {
+    switch (iconType) {
+      case 'paymentDue':
+        return '#F59E0B'; // Amber
+      case 'loanCompleted':
+        return '#10B981'; // Green
+      case 'newRequests':
+        return '#3B82F6'; // Blue
+      default:
+        return '#F59E0B';
+    }
+  })();
+
+  // Select the appropriate icon based on iconType
+  const renderIcon = () => {
+    switch (iconType) {
+      case 'paymentDue':
+        return <PaymentDueIcon style={{ color: iconColor }} />;
+      case 'loanCompleted':
+        return <LoanCompletedIcon style={{ color: iconColor }} />;
+      case 'newRequests':
+        return <NewRequestsIcon style={{ color: iconColor }} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <li style={{ ...styles.notificationItem, borderLeftColor: iconColor }}>
+      {renderIcon()}
+      <span>{message}</span>
+    </li>
+  );
+};
 
 // Main Notifications Component
 export const Notifications: React.FC = () => {
@@ -52,7 +132,7 @@ export const Notifications: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Once user state is defined, stop loading
+    // Simulate loading delay or wait for user data
     if (typeof user !== 'undefined') {
       setIsLoading(false);
     }
@@ -69,8 +149,12 @@ export const Notifications: React.FC = () => {
           <h1 style={styles.title}>Notifications</h1>
           {mockNotifications.length > 0 ? (
             <ul style={styles.notificationList}>
-              {mockNotifications.map((notification, index) => (
-                <NotificationItem key={index} message={notification} />
+              {mockNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  message={notification.message}
+                  iconType={notification.iconType}
+                />
               ))}
             </ul>
           ) : (
@@ -110,19 +194,19 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   notificationItem: {
     backgroundColor: '#FEF3C7',
-    borderLeft: '4px solid #F59E0B',
+    borderLeft: '4px solid #F59E0B', // Default color, will be overridden
     padding: '1rem',
     marginBottom: '1rem',
     display: 'flex',
     alignItems: 'center',
     borderRadius: '0.5rem',
     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-    color: '#000', // Added color to make text black
+    color: '#000', // Text color
   },
   icon: {
     width: '24px',
     height: '24px',
-    color: '#F59E0B',
+    color: '#F59E0B', // Default color, will be overridden
     marginRight: '1rem',
   },
   noNotifications: {
@@ -146,9 +230,9 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 // Inject Spinner Keyframes
 const styleSheet = document.styleSheets[0];
-const keyframes =
-  `@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }`;
+const keyframes = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
 styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
