@@ -17,8 +17,7 @@ import {
   Legend,
 } from 'recharts';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import SummaryCard from './SummaryCard'; // Import the new SummaryCard component
+import SummarySection from './SummarySection'; // Corrected the import
 
 // Mock Data
 const mockData = {
@@ -147,45 +146,8 @@ const DashboardTable = (): JSX.Element => {
           <p className="text-lg text-gray-600">Overview of your loan activities</p>
         </div>
 
-        {/* Summary Cards */}
-        <div className="flex flex-wrap gap-6 mb-10">
-          <SummaryCard
-            title="Total Loans Owned"
-            value={`$${totalLoansOwned.toLocaleString()}`}
-            icon={(
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12h2V7H9v5z" />
-                <path
-                  fillRule="evenodd"
-                  d="M2 5a2 2 0 012-2h5.5a2 2 0 011.732 1H16a2 2 0 012 2v6a2 2 0 01-1 1.732V17a2 2 0 01-2 2H7a2 2 0 01-2-2v-2.268A2 2 0 014 13V7a2 2 0 01-2-2zm2 2v6a2 2 0 001 1.732V17h7v-2.268A2 2 0 0014 13V7H4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-            bgColor="bg-blue-500"
-          />
-          <SummaryCard
-            title="Total Loans Owed"
-            value={`$${totalLoansOwed.toLocaleString()}`}
-            icon={(
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a6 6 0 00-6 6v6h2v-6a4 4 0 018 0v6h2V8a6 6 0 00-6-6z" />
-                <path d="M2 13h16v2H2v-2z" />
-              </svg>
-            )}
-            bgColor="bg-green-500"
-          />
-          <SummaryCard
-            title="Net Profit"
-            value={`$${netProfit.toLocaleString()}`}
-            icon={(
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z" />
-              </svg>
-            )}
-            bgColor="bg-yellow-500"
-          />
-        </div>
+        {/* Summary Section */}
+        <SummarySection />
 
         {/* Loan Performance Line Charts */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-10">

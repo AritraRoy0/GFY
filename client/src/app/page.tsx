@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from './common/Header';
@@ -79,14 +80,15 @@ const Hero: React.FC = () => {
           Instant, negotiable loans without bank approval over our secure network of peers.
         </motion.p>
         <motion.a
-          href="/auth?tab=signup"
-          className="inline-block bg-white text-purple-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105"
-          variants={fadeInUp}
-          transition={{ duration: 1, delay: 0.6 }}
-          aria-label="Get Started"
+        href="/auth?tab=signup"
+        className="inline-block bg-white text-purple-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 text-sm md:text-base lg:text-lg md:py-4 md:px-10"
+        variants={fadeInUp}
+        transition={{ duration: 1, delay: 0.6 }}
+        aria-label="Get Started"
         >
           Get Started
         </motion.a>
+
       </div>
       {/* Animated Decorative SVG Waves */}
       <motion.div
