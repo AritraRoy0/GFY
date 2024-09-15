@@ -1,3 +1,5 @@
+'use client';
+
 // Notifications.tsx
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -127,7 +129,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ message, iconType }
 };
 
 // Main Notifications Component
-export const Notifications: React.FC = () => {
+ const Notifications: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -165,9 +167,6 @@ export const Notifications: React.FC = () => {
     </div>
   );
 };
-
-export default Notifications;
-
 // Styles Object
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
@@ -236,3 +235,5 @@ const keyframes = `
   100% { transform: rotate(360deg); }
 }`;
 styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+
+export default Notifications;
