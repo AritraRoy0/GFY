@@ -26,16 +26,30 @@ const fadeInUp = {
 
 const Hero: React.FC = () => {
   // Define animation variants for the waves
-  const waveAnimation = {
+  const waveAnimationLeft = {
     animate: {
-      x: ['0%', '-50%'], // Adjust based on the SVG width
+      x: ['0%', '100%', '0%'], // Moves from left to right and back to left
     },
     transition: {
       x: {
         repeat: Infinity,
         repeatType: 'loop',
         duration: 10, // Adjust the speed of the animation
-        ease: 'linear',
+        ease: 'easeInOut',
+      },
+    },
+  };
+
+  const waveAnimationRight = {
+    animate: {
+      x: ['0%', '-100%', '0%'], // Moves from right to left and back to right
+    },
+    transition: {
+      x: {
+        repeat: Infinity,
+        repeatType: 'loop',
+        duration: 10, // Adjust the speed of the animation
+        ease: 'easeInOut',
       },
     },
   };
@@ -74,12 +88,12 @@ const Hero: React.FC = () => {
           Get Started
         </motion.a>
       </div>
-      {/* Animated Decorative SVG Wave */}
+      {/* Animated Decorative SVG Waves */}
       <motion.div
-        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none"
-        {...waveAnimation}
+        className="absolute top-0 left-0 w-full overflow-hidden leading-none"
+        {...waveAnimationLeft}
       >
-        {/* First Wave */}
+        {/* Top Wave */}
         <svg
           className="block w-full h-24 md:h-40"
           xmlns="http://www.w3.org/2000/svg"
@@ -101,9 +115,14 @@ const Hero: React.FC = () => {
             fill="#ffffff"
           />
         </svg>
-        {/* Second Wave */}
+      </motion.div>
+      <motion.div
+        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none"
+        {...waveAnimationRight}
+      >
+        {/* Bottom Wave */}
         <svg
-          className="absolute top-0 left-full block w-full h-24 md:h-40"
+          className="block w-full h-24 md:h-40"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 1200 120"
