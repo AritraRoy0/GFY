@@ -1,47 +1,42 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Link from 'next/link';
 import {
-  FaBars,            // Hamburger menu icon
-  FaTimes,           // Close menu icon
-  FaUser,            // Profile icon
-  FaSignOutAlt,      // Logout icon
-  FaSignInAlt,       // Login icon
-  FaUserPlus,        // Sign Up icon
-  FaBriefcase,       // Dashboard icon
+  FaBars,
+  FaTimes,
+  FaUser,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+  FaBriefcase,
 } from 'react-icons/fa';
-import Image, { StaticImageData } from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/logo.jpeg'; // Adjust the path based on your project structure
+import Logo from './Logo';
 
 // Define the shape of your Redux state for better TypeScript support
-interface RootState {
-  auth: {
-    user: any; // Replace `any` with your actual user type
-  };
+interface User {
+  id: string;
+  name: string;
+  email: string;
 }
 
-// Define the props for Header component
-interface HeaderProps {
-  logo: StaticImageData;
+interface RootState {
+  auth: {
+    user: User | null;
+  };
 }
 
 const Header: React.FC = () => {
-  // Access Redux state to determine if the user is logged in
-  const isLoggedIn = useSelector((state: RootState) => state.auth.user) ? true : false;
-
-  // State to manage mobile menu visibility
+  const isLoggedIn = useSelector((state: RootState) => state.auth.user) !== null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Toggle mobile menu
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen((prevState) => !prevState);
+  }, []);
 
-  // Logged-in content for the header
-  const loggedInHeader = (
+  const loggedInHeader = useMemo(() => (
     <>
       <Link
         href="/dashboard"
@@ -65,10 +60,9 @@ const Header: React.FC = () => {
         Logout
       </Link>
     </>
-  );
+  ), []);
 
-  // Logged-out content for the header
-  const loggedOutHeader = (
+  const loggedOutHeader = useMemo(() => (
     <>
       <Link
         href="/auth?tab=login"
@@ -85,9 +79,8 @@ const Header: React.FC = () => {
         Sign Up
       </Link>
     </>
-  );
+  ), []);
 
-  // Animation variants for mobile menu
   const menuVariants = {
     hidden: { opacity: 0, height: 0 },
     visible: { opacity: 1, height: 'auto' },
@@ -97,17 +90,9 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-md sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
         {/* Logo and Brand Name */}
-        <Link href="/" className="flex items-center">
-          <div style={{ width: '120px', height: '40px' }} className="relative">
-            <Image
-              src={logo}
-              alt="Go Fund Yourself Logo"
-              layout="fill" // Makes the image fill the wrapper div
-              objectFit="contain" // Ensures the logo maintains aspect ratio
-              priority
-            />
-          </div>
-          <span className="hidden md:inline-block text-2xl font-extrabold text-indigo-600 ml-2">
+        <Link href="/" className="flex items-center space-x-2">
+          <Logo /> {/* Logo resizes within the flex container */}
+          <span className="hidden md:inline-block text-2xl font-extrabold text-indigo-600">
             Go Fund Yourself!!
           </span>
         </Link>
