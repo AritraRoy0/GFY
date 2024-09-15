@@ -218,15 +218,38 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 p-4">
-      <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-100">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-60 animate-parallax"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg className="absolute top-0 left-0 w-32 h-32 opacity-20 animate-rotate-scale" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4V2m8.49 4.078L21 6m-1.49 8.489L20 18m-8-8V2m-8 8v8m-2 0h8m-6.5-6.5L4 6m0 12l1.5-1.5M18 6l-1.5 1.5M18 18l1.5-1.5" />
+          </svg>
+          <svg className="absolute top-0 right-0 w-48 h-48 opacity-20 animate-rotate-scale" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v14h12V5H6z" />
+          </svg>
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 opacity-10 transform -translate-x-1/2 -translate-y-1/2">
+            <svg className="w-full h-full animate-pulse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2 2m0 0l2-2m-2 2V4m6 8l2 2m0 0l2-2m-2 2V4m6 8l2 2m0 0l2-2m-2 2V4" />
+            </svg>
+          </div>
+        </div>
+      </div>
+  
+      {/* Main Content */}
+      <div className="relative bg-white p-12 rounded-lg shadow-lg w-full max-w-md z-10">
         {/* Alert Message */}
         {state.alertMessage && (
           <div
-            className={`mb-4 p-4 rounded-lg text-center font-bold ${
+            className={`mb-4 p-4 rounded-lg text-center font-bold transition-transform transform ${
               state.alertMessage.startsWith('Error') || state.alertMessage.startsWith('No account')
                 ? 'bg-red-100 text-red-600'
                 : 'bg-green-100 text-green-600'
+            } ${
+              state.alertMessage.startsWith('Error') || state.alertMessage.startsWith('No account')
+                ? 'animate-shake'
+                : 'animate-bounce'
             }`}
           >
             {state.alertMessage}
@@ -236,9 +259,9 @@ const AuthPage: React.FC = () => {
         {/* Tabs for Login/Signup */}
         <div className="flex justify-center mb-8">
           <button
-            className={`text-lg font-bold px-4 py-2 rounded-t-lg transition-colors duration-300 ${
+            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 ${
               activeTab === 'signup'
-                ? 'text-indigo-600 border-b-4 border-indigo-600 shadow-lg'
+                ? 'text-blue-600 border-b-4 border-blue-600 shadow-lg transform scale-105'
                 : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('signup')}
@@ -246,9 +269,9 @@ const AuthPage: React.FC = () => {
             Sign Up
           </button>
           <button
-            className={`text-lg font-bold px-4 py-2 rounded-t-lg transition-colors duration-300 ${
+            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 ${
               activeTab === 'login'
-                ? 'text-indigo-600 border-b-4 border-indigo-600 shadow-lg'
+                ? 'text-blue-600 border-b-4 border-blue-600 shadow-lg transform scale-105'
                 : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('login')}
@@ -260,41 +283,47 @@ const AuthPage: React.FC = () => {
         {/* Signup Form */}
         {activeTab === 'signup' && (
           <form className="mb-6">
-            <div className="mb-6">
-              <label htmlFor="username" className="block text-gray-800 font-medium mb-2">
-                Username
-              </label>
+            <div className="relative mb-6">
               <input
                 type="text"
                 id="username"
                 name="username"
                 value={state.formData.username}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
-                  state.errors.username ? 'border-red-500' : 'border-gray-300'
+                className={`peer w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-300 ${
+                  state.errors.username ? 'border-red-500 animate-shake' : 'border-gray-300'
                 }`}
                 required
               />
+              <label
+                htmlFor="username"
+                className="absolute top-3 left-4 text-gray-700 peer-focus:-top-2 peer-focus:text-blue-600 transition-transform duration-300"
+              >
+                Username
+              </label>
               {state.errors.username && (
                 <div className="text-red-500 text-sm mt-2">{state.errors.username}</div>
               )}
             </div>
   
-            <div className="mb-6">
-              <label htmlFor="fullName" className="block text-gray-800 font-medium mb-2">
-                Full Name
-              </label>
+            <div className="relative mb-6">
               <input
                 type="text"
                 id="fullName"
                 name="fullName"
                 value={state.formData.fullName}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 ${
-                  state.errors.fullName ? 'border-red-500' : 'border-gray-300'
+                className={`peer w-full px-4 py-3 border text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-300 ${
+                  state.errors.fullName ? 'border-red-500 animate-shake' : 'border-gray-300'
                 }`}
                 required
               />
+              <label
+                htmlFor="fullName"
+                className="absolute top-3 left-4 text-gray-700 peer-focus:-top-2 peer-focus:text-blue-600 transition-transform duration-300"
+              >
+                Full Name
+              </label>
               {state.errors.fullName && (
                 <div className="text-red-500 text-sm mt-2">{state.errors.fullName}</div>
               )}
@@ -303,10 +332,10 @@ const AuthPage: React.FC = () => {
             <button
               type="button"
               onClick={handleGoogleSignUp}
-              className="w-full flex items-center justify-center bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition-colors duration-300 mt-4"
+              className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors duration-300 mt-4 transform hover:scale-105"
               disabled={state.loading}
             >
-              <FaGoogle className="mr-2" />
+              <FaGoogle className="mr-3 text-lg" />
               {state.loading ? 'Signing up...' : 'Sign Up with Google'}
             </button>
           </form>
@@ -317,10 +346,10 @@ const AuthPage: React.FC = () => {
           <div className="mb-6">
             <button
               onClick={handleGoogleSignUp}
-              className="w-full flex items-center justify-center bg-red-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition-colors duration-300"
+              className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
               disabled={state.loading}
             >
-              <FaGoogle className="mr-2" />
+              <FaGoogle className="mr-3 text-lg" />
               {state.loading ? 'Signing in...' : 'Sign in with Google'}
             </button>
           </div>
@@ -328,7 +357,6 @@ const AuthPage: React.FC = () => {
       </div>
     </div>
   );
-  
 };
 
 export default AuthPage;
