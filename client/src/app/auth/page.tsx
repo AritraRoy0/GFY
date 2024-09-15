@@ -1,10 +1,16 @@
+// pages/auth.tsx or app/auth/page.tsx
+
 'use client';
 
 import React, { useReducer, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust if necessary
+import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust the path if necessary
+
+import { useDispatch } from 'react-redux';
+import { setUser, clearUser } from "../features/authSlice"; // Adjust the path
+import { RootState } from '../store';
 
 // Define interfaces
 interface FormData {
@@ -55,10 +61,11 @@ const formReducer = (state: State, action: Action): State => {
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<'signup' | 'login'>('signup');
 
   // Manage state with useReducer
-  const [state, dispatch] = useReducer(formReducer, {
+  const [state, localDispatch] = useReducer(formReducer, {
     formData: { username: '', fullName: '' },
     errors: { username: '', fullName: '' },
     loading: false,
@@ -72,10 +79,43 @@ const AuthPage: React.FC = () => {
     setActiveTab(tabParam === 'login' ? 'login' : 'signup');
   }, []);
 
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const { displayName, email, uid } = firebaseUser;
+
+        // Fetch additional user data from Firestore
+        const userDoc = await getDoc(doc(firestore, 'users', uid));
+        let userData = {};
+
+        if (userDoc.exists()) {
+          userData = userDoc.data();
+        }
+
+        const fullUserData = {
+          id: uid,
+          name: displayName,
+          email: email,
+          ...userData,
+        };
+
+        // Dispatch setUser action
+        dispatch(setUser(fullUserData));
+      } else {
+        // User is signed out
+        dispatch(clearUser());
+      }
+    });
+
+    // Clean up the listener on unmount
+    return () => unsubscribe();
+  }, [dispatch]);
+
   // Handle form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    dispatch({ type: ACTIONS.SET_FORM_DATA, payload: { ...state.formData, [name]: value } });
+    localDispatch({ type: ACTIONS.SET_FORM_DATA, payload: { ...state.formData, [name]: value } });
   };
 
   // Form validation
@@ -97,7 +137,7 @@ const AuthPage: React.FC = () => {
       newErrors.fullName = '';
     }
 
-    dispatch({ type: ACTIONS.SET_ERRORS, payload: newErrors });
+    localDispatch({ type: ACTIONS.SET_ERRORS, payload: newErrors });
     return valid;
   };
 
@@ -108,57 +148,73 @@ const AuthPage: React.FC = () => {
     return !querySnapshot.empty;
   };
 
-  // Check if user exists in Firestore
-  const checkUserExists = async (uid: string): Promise<boolean> => {
-    const userDoc = await getDoc(doc(firestore, 'users', uid));
-    return userDoc.exists();
-  };
-
   // Handle Google sign-up/sign-in
   const handleGoogleSignUp = async () => {
     if (activeTab === 'signup' && !validateForm()) return;
 
-    dispatch({ type: ACTIONS.SET_LOADING, payload: true });
+    localDispatch({ type: ACTIONS.SET_LOADING, payload: true });
     try {
       const result = await signInWithPopup(auth, provider);
-      const { displayName, email, uid } = result.user;
+      const user = result.user;
+      const { displayName, email, uid } = user;
 
       if (activeTab === 'signup') {
         const usernameExists = await checkUsernameExists(state.formData.username);
         if (usernameExists) {
-          dispatch({
+          localDispatch({
             type: ACTIONS.SET_ERRORS,
             payload: { ...state.errors, username: 'Username already taken' },
           });
-          dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+          localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
         }
 
         // Save user data in Firestore
-        await setDoc(doc(firestore, 'users', uid), {
+        const userData = {
           username: state.formData.username,
           fullName: state.formData.fullName,
           email: email,
-        });
+        };
 
-        dispatch({ type: ACTIONS.SET_ALERT, payload: 'Sign-up successful!' });
-        router.push('/dashboard'); // Redirect after sign-up
+        await setDoc(doc(firestore, 'users', uid), userData);
+
+        // Dispatch setUser action
+        dispatch(setUser({
+          id: uid,
+          name: displayName,
+          email: email,
+          ...userData,
+        }));
+
+        localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Sign-up successful!' });
+        router.push('/dashboard');
       } else {
-        const userExists = await checkUserExists(uid);
-        if (!userExists) {
-          dispatch({ type: ACTIONS.SET_ALERT, payload: 'No account found. Please sign up first.' });
+        const userDoc = await getDoc(doc(firestore, 'users', uid));
+        if (!userDoc.exists()) {
+          localDispatch({ type: ACTIONS.SET_ALERT, payload: 'No account found. Please sign up first.' });
           await auth.signOut();
-          dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+          localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
         }
-        dispatch({ type: ACTIONS.SET_ALERT, payload: 'Logged in successfully!' });
-        router.push('/dashboard'); // Redirect after login
+
+        const userData = userDoc.data();
+
+        // Dispatch setUser action
+        dispatch(setUser({
+          id: uid,
+          name: displayName,
+          email: email,
+          ...userData,
+        }));
+
+        localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Logged in successfully!' });
+        router.push('/dashboard');
       }
     } catch (error) {
-      dispatch({ type: ACTIONS.SET_ALERT, payload: 'Error during authentication. Please try again.' });
+      localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Error during authentication. Please try again.' });
       console.error('Error during Google Sign-Up/Sign-In:', error);
     } finally {
-      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
+      localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
     }
   };
 
