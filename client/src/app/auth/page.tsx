@@ -182,7 +182,6 @@ const AuthPage: React.FC = () => {
         dispatch(setUser({
           id: uid,
           name: displayName,
-          email: email,
           ...userData,
         }));
 
