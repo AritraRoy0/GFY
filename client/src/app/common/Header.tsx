@@ -40,21 +40,21 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/dashboard"
-        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
       >
         <FaBriefcase className="h-5 w-5 mr-1" />
         Dashboard
       </Link>
       <Link
         href="/profile"
-        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-green-500 transition duration-300"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
       >
         <FaUser className="h-5 w-5 mr-1" />
         Profile
       </Link>
       <Link
         href="/logout"
-        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-red-500 transition duration-300"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 transition duration-300"
       >
         <FaSignOutAlt className="h-5 w-5 mr-1" />
         Logout
@@ -66,14 +66,14 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/auth?tab=login"
-        className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-500 transition duration-300"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
       >
         <FaSignInAlt className="h-5 w-5 mr-1" />
         Login
       </Link>
       <Link
         href="/auth?tab=signup"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-300"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
       >
         <FaUserPlus className="h-5 w-5 mr-1" />
         Sign Up
@@ -92,7 +92,7 @@ const Header: React.FC = () => {
         {/* Logo and Brand Name */}
         <Link href="/" className="flex items-center space-x-2">
           <Logo /> {/* Logo resizes within the flex container */}
-          <span className="hidden md:inline-block text-2xl font-extrabold text-indigo-600">
+          <span className="hidden md:inline-block text-2xl font-extrabold text-purple-700">
             Go Fund Yourself!!
           </span>
         </Link>
@@ -107,7 +107,7 @@ const Header: React.FC = () => {
           <button
             onClick={toggleMenu}
             type="button"
-            className="text-gray-700 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="text-gray-700 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-700"
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
