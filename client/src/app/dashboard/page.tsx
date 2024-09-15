@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';  // Adjust the path to your store
 
+import Header from '../common/Header';  // Adjust the path to your Header component
+import Footer from '../common/Footer';  // Adjust the path to your Footer component
+
 const mockLoans = {
   loansOwned: [
     { id: '1', amount: 300, interestRate: 5, duration: 12, status: 'active' },
@@ -21,13 +24,13 @@ const mockLoans = {
   ],
 };
 
-const Dashboard = () => {
+export const Dashboard = (): JSX.Element => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Add a safeguard to wait for the user state to be defined before redirecting
+    // Safeguard to wait for the user state to be defined before redirecting
     if (typeof user !== 'undefined') {
       if (!user) {
         // Redirect to auth page if no user is found
@@ -64,10 +67,7 @@ const Dashboard = () => {
         {/* User Profile Section */}
         <div className="flex items-center mb-8">
           <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold mr-4">
-            {user?.name
-              ?.split(' ')
-              .map((n) => n[0])
-              .join('')}
+            {user?.name?.split(' ').map((n) => n[0]).join('')}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.name}!</h1>
@@ -97,11 +97,7 @@ const Dashboard = () => {
                       </p>
                       <p className="text-gray-800">
                         <strong>Status:</strong>{' '}
-                        <span
-                          className={`font-semibold ${
-                            loan.status === 'active' ? 'text-green-600' : 'text-gray-800'
-                          }`}
-                        >
+                        <span className={`font-semibold ${loan.status === 'active' ? 'text-green-600' : 'text-gray-800'}`}>
                           {loan.status}
                         </span>
                       </p>
@@ -131,11 +127,7 @@ const Dashboard = () => {
                       </p>
                       <p className="text-gray-800">
                         <strong>Status:</strong>{' '}
-                        <span
-                          className={`font-semibold ${
-                            loan.status === 'active' ? 'text-green-600' : 'text-gray-800'
-                          }`}
-                        >
+                        <span className={`font-semibold ${loan.status === 'active' ? 'text-green-600' : 'text-gray-800'}`}>
                           {loan.status}
                         </span>
                       </p>
@@ -155,15 +147,8 @@ const Dashboard = () => {
           <ul>
             {mockLoans.notifications.length > 0 ? (
               mockLoans.notifications.map((notification, index) => (
-                <li
-                  key={index}
-                  className="flex items-center bg-yellow-50 p-3 mb-2 rounded-lg shadow-md"
-                >
-                  <svg
-                    className="w-6 h-6 text-yellow-600 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                <li key={index} className="flex items-center bg-yellow-50 p-3 mb-2 rounded-lg shadow-md">
+                  <svg className="w-6 h-6 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z"
@@ -199,4 +184,14 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+const DashboardPage = (): JSX.Element => {
+  return (
+    <div>
+      <Header />
+      <Dashboard />
+      <Footer />
+    </div>
+  );
+};
+
+export default DashboardPage;
