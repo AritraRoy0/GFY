@@ -6,7 +6,7 @@ import Header from '../common/Header';  // Adjust the path to your Header compon
 import Footer from '../common/Footer';  // Adjust the path to your Footer component
 import DashboardTable from './DashboardTable';  // Import the dashboard table component
 
-const DashboardPage = (): JSX.Element => {
+const Dashboard = (): JSX.Element => {
   return (
     <div>
       <Header />
@@ -17,4 +17,4 @@ const DashboardPage = (): JSX.Element => {
 };
 
 // Make sure to export the page as the default export
-export default DashboardPage;
+export default Dashboard;
