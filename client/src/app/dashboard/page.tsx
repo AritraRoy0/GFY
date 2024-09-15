@@ -4,7 +4,7 @@
 
 import Header from '../common/Header';  // Adjust the path to your Header component
 import Footer from '../common/Footer';  // Adjust the path to your Footer component
-import DashboardTable from './DashboardTable';  // Import the dashboard table component
+import {DashboardTable} from './DashboardTable';  // Import the dashboard table component
 
 const Dashboard = (): JSX.Element => {
   return (
