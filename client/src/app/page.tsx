@@ -9,7 +9,6 @@ import {
   FaLock,
   FaBolt,
 } from 'react-icons/fa'; // Updated icons
-import logo from './assets/logo.jpeg'; // Adjust the path as necessary
 
 // Animation Variants
 const container = {

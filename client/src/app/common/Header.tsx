@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import Image, { StaticImageData } from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import logoImage from '../assets/logo.jpeg'; // Adjust the path based on your project structure
+import logo from '../assets/logo.jpeg'; // Adjust the path based on your project structure
 
 // Define the shape of your Redux state for better TypeScript support
 interface RootState {
@@ -30,7 +30,7 @@ interface HeaderProps {
   logo: StaticImageData;
 }
 
-const Header: React.FC<HeaderProps> = ({ logo }) => {
+const Header: React.FC = () => {
   // Access Redux state to determine if the user is logged in
   const isLoggedIn = useSelector((state: RootState) => state.auth.user) ? true : false;
 
