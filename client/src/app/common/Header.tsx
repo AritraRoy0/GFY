@@ -1,5 +1,3 @@
-// components/common/Header.tsx
-
 'use client';
 
 import React, { useState } from 'react';
@@ -100,7 +98,15 @@ const Header: React.FC = () => {
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
         {/* Logo and Brand Name */}
         <Link href="/" className="flex items-center">
-          <Image src={logo} alt="Go Fund Yourself Logo" width={150} height={50} priority />
+          <div style={{ width: '120px', height: '40px' }} className="relative">
+            <Image
+              src={logo}
+              alt="Go Fund Yourself Logo"
+              layout="fill" // Makes the image fill the wrapper div
+              objectFit="contain" // Ensures the logo maintains aspect ratio
+              priority
+            />
+          </div>
           <span className="hidden md:inline-block text-2xl font-extrabold text-indigo-600 ml-2">
             Go Fund Yourself!!
           </span>

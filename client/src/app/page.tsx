@@ -25,9 +25,24 @@ const fadeInUp = {
 };
 
 const Hero: React.FC = () => {
+  // Define animation variants for the waves
+  const waveAnimation = {
+    animate: {
+      x: ['0%', '-50%'], // Adjust based on the SVG width
+    },
+    transition: {
+      x: {
+        repeat: Infinity,
+        repeatType: 'loop',
+        duration: 10, // Adjust the speed of the animation
+        ease: 'linear',
+      },
+    },
+  };
+
   return (
     <motion.div
-      className="relative bg-gradient-to-br from-purple-700 to-indigo-700 text-white py-32 px-4"
+      className="relative bg-gradient-to-br from-purple-700 to-indigo-700 text-white py-32 px-4 overflow-hidden"
       initial="hidden"
       animate="visible"
       variants={fadeInUp}
@@ -59,10 +74,14 @@ const Hero: React.FC = () => {
           Get Started
         </motion.a>
       </div>
-      {/* Decorative SVG Wave */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+      {/* Animated Decorative SVG Wave */}
+      <motion.div
+        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none"
+        {...waveAnimation}
+      >
+        {/* First Wave */}
         <svg
-          className="relative block w-full h-24 md:h-40"
+          className="block w-full h-24 md:h-40"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 1200 120"
@@ -82,7 +101,29 @@ const Hero: React.FC = () => {
             fill="#ffffff"
           />
         </svg>
-      </div>
+        {/* Second Wave */}
+        <svg
+          className="absolute top-0 left-full block w-full h-24 md:h-40"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          viewBox="0 0 1200 120"
+        >
+          <path
+            d="M0,0V46.29c47.31,22,103.65,29.39,158.16,23.07,70.77-8.19,136.88-35.62,207.67-40.29C429.92,23.28,492,44.19,561,58.77c70.84,14.95,140.29,6.15,209.26-13.58,60.87-17.65,115.75-45.46,177-54.74C996.63-18,1077.43-5.3,1155,16.55V0Z"
+            opacity=".25"
+            fill="#ffffff"
+          />
+          <path
+            d="M0,0V15.81C44.13,5.59,88.57-.87,132.72.1c64.51,1.47,127.05,16.81,191.56,23.81,60.5,6.56,119.75,1.49,178.44-10.61C556.81,1.23,617.69-5,678,1.51c57.6,6.21,112.08,24.41,169.75,29.36,59.23,5.09,116.48-6.71,173.13-18.16,55.06-11.1,111.22-22.21,166.12-9.25V0Z"
+            opacity=".5"
+            fill="#ffffff"
+          />
+          <path
+            d="M0,0V5.63C43,15.27,86,22.41,129.15,27c65.94,7.19,132.13,6.85,197.81-.91,55.71-6.55,111.19-18.85,166.89-24.42C554.44-3.23,611.39-2.32,668.26,3.07c60.8,5.92,121,16.87,181.34,22.99,63.08,6.46,126.48,6.31,189.61-1.8,51.85-6.36,103.85-17.47,155.79-25.26V0Z"
+            fill="#ffffff"
+          />
+        </svg>
+      </motion.div>
     </motion.div>
   );
 };
