@@ -52,6 +52,12 @@ const Header: React.FC = () => {
         Profile
       </Link>
       <Link
+        href="/about"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+      >
+        About
+      </Link>
+      <Link
         href="/logout"
         className="flex items-center px-3 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 transition duration-300"
       >
@@ -76,6 +82,12 @@ const Header: React.FC = () => {
       >
         <FaUserPlus className="h-5 w-5 mr-1" />
         Sign Up
+      </Link>
+      <Link
+        href="/about"
+        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+      >
+        About
       </Link>
     </>
   ), []);
@@ -102,11 +114,11 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex justify-between items-center w-full">
-        <Link href="/" className="flex items-center space-x-2">
-  <span className="text-2xl font-extrabold text-purple-700">
-    Go Fund Yourself!!
-  </span>
-</Link>
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-2xl font-extrabold text-purple-700">
+              Go Fund Yourself!!
+            </span>
+          </Link>
         
           <button
             onClick={toggleMenu}
@@ -142,7 +154,6 @@ const Header: React.FC = () => {
                 href="/"
                 className="flex items-center px-3 py-2 rounded-md text-purple-700 hover:bg-purple-100 transition duration-300"
               >
-            
               </Link>
               {isLoggedIn ? loggedInHeader : loggedOutHeader}
             </div>
