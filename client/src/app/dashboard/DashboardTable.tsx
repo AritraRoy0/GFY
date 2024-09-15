@@ -19,6 +19,14 @@ import {
 } from 'recharts';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+  HomeIcon,
+  CreditCardIcon,
+  CurrencyDollarIcon,
+  PlusCircleIcon,
+  ArrowUpCircleIcon,
+} from '@heroicons/react/24/outline';
+import 'tailwindcss/tailwind.css'; // Ensure Tailwind CSS is set up
 
 // Mock Data
 const mockData = {
@@ -31,7 +39,6 @@ const mockData = {
     { id: '3', amount: 2000, interestRate: 3, duration: 10, status: 'active' },
     { id: '5', amount: 2500, interestRate: 4, duration: 15, status: 'active' },
   ],
-  // Removed notifications as they are now handled separately
   loanPerformance: {
     owned: [
       { week: 'Week 1', amount: 500 },
@@ -116,8 +123,8 @@ export const DashboardTable = (): JSX.Element => {
 
   if (loading) {
     return (
-      <div style={styles.centerScreen}>
-        <div style={styles.spinner}></div>
+      <div className="flex justify-center items-center h-screen relative">
+        <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
         <ToastContainer />
       </div>
     );
@@ -134,321 +141,156 @@ export const DashboardTable = (): JSX.Element => {
   const { loanPerformance, profits } = mockData;
 
   return (
-    <div style={styles.container}>
+    <div className="min-h-screen bg-gray-100 font-sans">
       <ToastContainer />
-      <div id="dashboard-content" style={styles.innerContainer}>
+      <div id="dashboard-content" className="max-w-7xl mx-auto p-8">
         {/* Header Section */}
-        <div style={styles.section}>
-          <h1 style={styles.title}>Dashboard</h1>
-          <p style={styles.subTitle}>Overview of your loan activities</p>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
+          <p className="text-lg text-gray-500 mt-2">Overview of your loan activities</p>
         </div>
 
         {/* Cards Grid */}
-        <div style={styles.grid}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Total Loans Owned */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperBlue}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12h2V7H9v5z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M2 5a2 2 0 012-2h5.5a2 2 0 011.732 1H16a2 2 0 012 2v6a2 2 0 01-1 1.732V17a2 2 0 01-2 2H7a2 2 0 01-2-2v-2.268A2 2 0 014 13V7a2 2 0 01-2-2zm2 2v6a2 2 0 001 1.732V17h7v-2.268A2 2 0 0014 13V7H4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 text-blue-500 rounded-full">
+                <HomeIcon className="h-8 w-8" />
               </div>
-              <div>
-                <p style={styles.textGray}>Total Loans Owned</p>
-                <p style={styles.amount}>${totalLoansOwned.toLocaleString()}</p>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500">Total Loans Owned</p>
+                <p className="text-2xl font-semibold text-gray-800">
+                  ${totalLoansOwned.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Total Loans Owed */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperGreen}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a6 6 0 00-6 6v6h2v-6a4 4 0 018 0v6h2V8a6 6 0 00-6-6z" />
-                  <path d="M2 13h16v2H2v-2z" />
-                </svg>
+          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 text-green-500 rounded-full">
+                <CreditCardIcon className="h-8 w-8" />
               </div>
-              <div>
-                <p style={styles.textGray}>Total Loans Owed</p>
-                <p style={styles.amount}>${totalLoansOwed.toLocaleString()}</p>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500">Total Loans Owed</p>
+                <p className="text-2xl font-semibold text-gray-800">
+                  ${totalLoansOwed.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Net Profit */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperYellow}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z" />
-                </svg>
+          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 text-yellow-500 rounded-full">
+                <CurrencyDollarIcon className="h-8 w-8" />
               </div>
-              <div>
-                <p style={styles.textGray}>Net Profit</p>
-                <p style={styles.amount}>${netProfit.toLocaleString()}</p>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500">Net Profit</p>
+                <p className="text-2xl font-semibold text-gray-800">
+                  ${netProfit.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Loan Performance Line Charts */}
-        <div style={styles.chartContainer}>
-          <h2 style={styles.chartTitle}>Loan Performance (Last 12 Weeks)</h2>
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Loan Performance (Last 12 Weeks)
+          </h2>
           <ResponsiveContainer width="100%" height={chartHeight}>
             <LineChart data={loanPerformance.owned}>
-              <CartesianGrid stroke="#f5f5f5" />
-              <XAxis dataKey="week" stroke="#888888" />
-              <YAxis stroke="#888888" />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="week" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem' }} />
               <Legend />
               <Line
                 type="monotone"
                 dataKey="amount"
                 name="Loans Owned"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                fill="#3B82F6"
-                fillOpacity={0.1}
+                stroke="#3b82f6"
+                strokeWidth={3}
+                activeDot={{ r: 6 }}
+                animationDuration={1500}
               />
               <Line
                 type="monotone"
                 dataKey="amount"
                 data={loanPerformance.owed}
                 name="Loans Owed"
-                stroke="#10B981"
-                strokeWidth={2}
-                fill="#10B981"
-                fillOpacity={0.1}
+                stroke="#10b981"
+                strokeWidth={3}
+                activeDot={{ r: 6 }}
+                animationDuration={1500}
               />
               <Area
                 type="monotone"
                 dataKey="amount"
                 data={loanPerformance.owed}
-                stroke="#10B981"
-                fill="#10B981"
+                stroke="#10b981"
+                fill="#10b981"
                 fillOpacity={0.1}
+                animationDuration={1500}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Profits Bar Chart */}
-        <div style={styles.chartContainer}>
-          <h2 style={styles.chartTitle}>Monthly Profits</h2>
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Monthly Profits</h2>
           <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart data={profits}>
-              <CartesianGrid stroke="#f5f5f5" />
-              <XAxis dataKey="month" stroke="#888888" />
-              <YAxis stroke="#888888" />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip contentStyle={{ backgroundColor: '#f9fafb', borderRadius: '0.5rem' }} />
               <Legend />
-              <Bar dataKey="profit" name="Profit" fill="#F59E0B" />
+              <Bar dataKey="profit" name="Profit" fill="#f59e0b" barSize={30} animationDuration={1500}>
+                <animate
+                  attributeName="y"
+                  attributeType="XML"
+                  begin="0s"
+                  dur="1.5s"
+                  from={chartHeight}
+                  to={0}
+                  fill="freeze"
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Action Buttons */}
-        <div style={styles.buttonContainer}>
-          <button style={styles.primaryButton} onClick={handlePostNewLoan}>
+        <div className="flex justify-center space-x-6 mb-8">
+          <button
+            className="flex items-center px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-300 transform hover:scale-105"
+            onClick={handlePostNewLoan}
+          >
+            <PlusCircleIcon className="h-6 w-6 mr-2" />
             Post New Loan
           </button>
-          <button style={styles.secondaryButton} onClick={handleRequestLoan}>
+          <button
+            className="flex items-center px-6 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition-colors duration-300 transform hover:scale-105"
+            onClick={handleRequestLoan}
+          >
+            <ArrowUpCircleIcon className="h-6 w-6 mr-2" />
             Request a Loan
           </button>
         </div>
       </div>
-
-      {/* Spinner Keyframes */}
-      <style jsx global>{`
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 };
 
-// Enhanced Styles
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#F3F4F6',
-    fontFamily: 'Arial, sans-serif',
-  },
-  innerContainer: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '2rem',
-  },
-  section: {
-    marginBottom: '2rem',
-  },
-  title: {
-    fontSize: '2.5rem',
-    fontWeight: 700,
-    color: '#111827',
-    margin: 0,
-  },
-  subTitle: {
-    color: '#6B7280',
-    marginTop: '0.5rem',
-    fontSize: '1.125rem',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-    // Responsive grid layout
-    // For larger screens, display 3 columns
-    // For medium screens, display 2 columns
-    // For small screens, display 1 column
-    // Using media queries via CSS-in-JS
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: '1.5rem',
-    borderRadius: '0.75rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    cursor: 'pointer',
-  },
-  cardContent: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  iconWrapperBlue: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#E0F2FE',
-    color: '#3B82F6',
-    marginRight: '1rem',
-  },
-  iconWrapperGreen: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#D1FAE5',
-    color: '#10B981',
-    marginRight: '1rem',
-  },
-  iconWrapperYellow: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#FEF3C7',
-    color: '#F59E0B',
-    marginRight: '1rem',
-  },
-  icon: {
-    width: '32px',
-    height: '32px',
-  },
-  textGray: {
-    color: '#6B7280',
-    margin: 0,
-    fontSize: '1rem',
-  },
-  amount: {
-    fontSize: '1.75rem',
-    fontWeight: 700,
-    color: '#111827',
-    margin: 0,
-  },
-  chartContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: '1.5rem',
-    borderRadius: '0.75rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    marginBottom: '2rem',
-  },
-  chartTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#111827',
-    marginBottom: '1rem',
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-  },
-  primaryButton: {
-    padding: '0.75rem 2rem',
-    backgroundColor: '#3B82F6',
-    color: '#FFFFFF',
-    borderRadius: '0.5rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.4)',
-    transition: 'background-color 0.3s, transform 0.2s',
-  },
-  secondaryButton: {
-    padding: '0.75rem 2rem',
-    backgroundColor: '#10B981',
-    color: '#FFFFFF',
-    borderRadius: '0.5rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.4)',
-    transition: 'background-color 0.3s, transform 0.2s',
-  },
-  centerScreen: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    position: 'relative',
-  },
-  spinner: {
-    width: '64px',
-    height: '64px',
-    border: '8px solid #f3f3f3',
-    borderTop: '8px solid #3B82F6',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-};
-
-// Responsive Grid Layout using media queries
-const mediaQueries = `
-  @media (min-width: 640px) {
-    div[style*="grid"] {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    div[style*="grid"] {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-`;
-
-// Inject media queries into the global stylesheet
-const GlobalStyles = () => (
-  <style jsx global>{`
-    ${mediaQueries}
-  `}</style>
-);
+// Enhanced Styles with Tailwind CSS are incorporated directly into the JSX above
 
 export default function Dashboard() {
-  return (
-    <>
-      <DashboardTable />
-      <GlobalStyles />
-    </>
-  );
+  return <DashboardTable />;
 }
