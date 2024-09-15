@@ -1,4 +1,4 @@
-// pages/auth.tsx or app/auth/page.tsx
+// or app/auth/page.tsx
 
 'use client';
 
