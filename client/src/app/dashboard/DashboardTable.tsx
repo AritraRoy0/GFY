@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import styles from './DashboardTable.module.css'; // Import the CSS module
 
 // Mock Data
 const mockData = {
@@ -31,7 +32,6 @@ const mockData = {
     { id: '3', amount: 2000, interestRate: 3, duration: 10, status: 'active' },
     { id: '5', amount: 2500, interestRate: 4, duration: 15, status: 'active' },
   ],
-  // Removed notifications as they are now handled separately
   loanPerformance: {
     owned: [
       { week: 'Week 1', amount: 500 },
@@ -78,7 +78,7 @@ const mockData = {
   ],
 };
 
-export const DashboardTable = (): JSX.Element => {
+const DashboardTableComponent = (): JSX.Element => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(true);
@@ -88,6 +88,13 @@ export const DashboardTable = (): JSX.Element => {
   const totalLoansOwned = mockData.loansOwned.reduce((sum, loan) => sum + loan.amount, 0);
   const totalLoansOwed = mockData.loansOwed.reduce((sum, loan) => sum + loan.amount, 0);
   const netProfit = totalLoansOwned - totalLoansOwed;
+
+  // Combine loan performance data
+  const combinedLoanPerformance = mockData.loanPerformance.owned.map((ownedData, index) => ({
+    week: ownedData.week,
+    owned: ownedData.amount,
+    owed: mockData.loanPerformance.owed[index].amount,
+  }));
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -116,8 +123,8 @@ export const DashboardTable = (): JSX.Element => {
 
   if (loading) {
     return (
-      <div style={styles.centerScreen}>
-        <div style={styles.spinner}></div>
+      <div className={styles.centerScreen}>
+        <div className={styles.spinner}></div>
         <ToastContainer />
       </div>
     );
@@ -131,25 +138,25 @@ export const DashboardTable = (): JSX.Element => {
     router.push('/loans/request');
   };
 
-  const { loanPerformance, profits } = mockData;
+  const { profits } = mockData;
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
       <ToastContainer />
-      <div id="dashboard-content" style={styles.innerContainer}>
+      <div id="dashboard-content" className={styles.innerContainer}>
         {/* Header Section */}
-        <div style={styles.section}>
-          <h1 style={styles.title}>Dashboard</h1>
-          <p style={styles.subTitle}>Overview of your loan activities</p>
+        <div className={styles.section}>
+          <h1 className={styles.title}>Dashboard</h1>
+          <p className={styles.subTitle}>Overview of your loan activities</p>
         </div>
 
         {/* Cards Grid */}
-        <div style={styles.grid}>
+        <div className={styles.grid}>
           {/* Total Loans Owned */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperBlue}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
+          <div className={styles.card}>
+            <div className={styles.cardContent}>
+              <div className={styles.iconWrapperBlue}>
+                <svg className={styles.icon} fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 12h2V7H9v5z" />
                   <path
                     fillRule="evenodd"
@@ -159,49 +166,49 @@ export const DashboardTable = (): JSX.Element => {
                 </svg>
               </div>
               <div>
-                <p style={styles.textGray}>Total Loans Owned</p>
-                <p style={styles.amount}>${totalLoansOwned.toLocaleString()}</p>
+                <p className={styles.textGray}>Total Loans Owned</p>
+                <p className={styles.amount}>${totalLoansOwned.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
           {/* Total Loans Owed */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperGreen}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
+          <div className={styles.card}>
+            <div className={styles.cardContent}>
+              <div className={styles.iconWrapperGreen}>
+                <svg className={styles.icon} fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a6 6 0 00-6 6v6h2v-6a4 4 0 018 0v6h2V8a6 6 0 00-6-6z" />
                   <path d="M2 13h16v2H2v-2z" />
                 </svg>
               </div>
               <div>
-                <p style={styles.textGray}>Total Loans Owed</p>
-                <p style={styles.amount}>${totalLoansOwed.toLocaleString()}</p>
+                <p className={styles.textGray}>Total Loans Owed</p>
+                <p className={styles.amount}>${totalLoansOwed.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
           {/* Net Profit */}
-          <div style={styles.card}>
-            <div style={styles.cardContent}>
-              <div style={styles.iconWrapperYellow}>
-                <svg style={styles.icon} fill="currentColor" viewBox="0 0 20 20">
+          <div className={styles.card}>
+            <div className={styles.cardContent}>
+              <div className={styles.iconWrapperYellow}>
+                <svg className={styles.icon} fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8.257 3.099c.766-1.36 2.68-1.36 3.446 0l5.857 10.417C18.12 14.876 17.184 16 15.857 16H4.143c-1.327 0-2.263-1.124-1.703-2.484L8.257 3.1zM11 14a1 1 0 11-2 0 1 1 0 012 0zm-1-4a1 1 0 00-.993.883L9 11v2a1 1 0 001.993.117L11 13v-2a1 1 0 00-1-1z" />
                 </svg>
               </div>
               <div>
-                <p style={styles.textGray}>Net Profit</p>
-                <p style={styles.amount}>${netProfit.toLocaleString()}</p>
+                <p className={styles.textGray}>Net Profit</p>
+                <p className={styles.amount}>${netProfit.toLocaleString()}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Loan Performance Line Charts */}
-        <div style={styles.chartContainer}>
-          <h2 style={styles.chartTitle}>Loan Performance (Last 12 Weeks)</h2>
+        <div className={styles.chartContainer}>
+          <h2 className={styles.chartTitle}>Loan Performance (Last 12 Weeks)</h2>
           <ResponsiveContainer width="100%" height={chartHeight}>
-            <LineChart data={loanPerformance.owned}>
+            <LineChart data={combinedLoanPerformance}>
               <CartesianGrid stroke="#f5f5f5" />
               <XAxis dataKey="week" stroke="#888888" />
               <YAxis stroke="#888888" />
@@ -209,7 +216,7 @@ export const DashboardTable = (): JSX.Element => {
               <Legend />
               <Line
                 type="monotone"
-                dataKey="amount"
+                dataKey="owned"
                 name="Loans Owned"
                 stroke="#3B82F6"
                 strokeWidth={2}
@@ -218,8 +225,7 @@ export const DashboardTable = (): JSX.Element => {
               />
               <Line
                 type="monotone"
-                dataKey="amount"
-                data={loanPerformance.owed}
+                dataKey="owed"
                 name="Loans Owed"
                 stroke="#10B981"
                 strokeWidth={2}
@@ -228,8 +234,7 @@ export const DashboardTable = (): JSX.Element => {
               />
               <Area
                 type="monotone"
-                dataKey="amount"
-                data={loanPerformance.owed}
+                dataKey="owed"
                 stroke="#10B981"
                 fill="#10B981"
                 fillOpacity={0.1}
@@ -239,8 +244,8 @@ export const DashboardTable = (): JSX.Element => {
         </div>
 
         {/* Profits Bar Chart */}
-        <div style={styles.chartContainer}>
-          <h2 style={styles.chartTitle}>Monthly Profits</h2>
+        <div className={styles.chartContainer}>
+          <h2 className={styles.chartTitle}>Monthly Profits</h2>
           <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart data={profits}>
               <CartesianGrid stroke="#f5f5f5" />
@@ -254,11 +259,11 @@ export const DashboardTable = (): JSX.Element => {
         </div>
 
         {/* Action Buttons */}
-        <div style={styles.buttonContainer}>
-          <button style={styles.primaryButton} onClick={handlePostNewLoan}>
+        <div className={styles.buttonContainer}>
+          <button className={styles.primaryButton} onClick={handlePostNewLoan}>
             Post New Loan
           </button>
-          <button style={styles.secondaryButton} onClick={handleRequestLoan}>
+          <button className={styles.secondaryButton} onClick={handleRequestLoan}>
             Request a Loan
           </button>
         </div>
@@ -279,176 +284,6 @@ export const DashboardTable = (): JSX.Element => {
   );
 };
 
-// Enhanced Styles
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#F3F4F6',
-    fontFamily: 'Arial, sans-serif',
-  },
-  innerContainer: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '2rem',
-  },
-  section: {
-    marginBottom: '2rem',
-  },
-  title: {
-    fontSize: '2.5rem',
-    fontWeight: 700,
-    color: '#111827',
-    margin: 0,
-  },
-  subTitle: {
-    color: '#6B7280',
-    marginTop: '0.5rem',
-    fontSize: '1.125rem',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-    // Responsive grid layout
-    // For larger screens, display 3 columns
-    // For medium screens, display 2 columns
-    // For small screens, display 1 column
-    // Using media queries via CSS-in-JS
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: '1.5rem',
-    borderRadius: '0.75rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    cursor: 'pointer',
-  },
-  cardContent: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  iconWrapperBlue: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#E0F2FE',
-    color: '#3B82F6',
-    marginRight: '1rem',
-  },
-  iconWrapperGreen: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#D1FAE5',
-    color: '#10B981',
-    marginRight: '1rem',
-  },
-  iconWrapperYellow: {
-    padding: '0.75rem',
-    borderRadius: '50%',
-    backgroundColor: '#FEF3C7',
-    color: '#F59E0B',
-    marginRight: '1rem',
-  },
-  icon: {
-    width: '32px',
-    height: '32px',
-  },
-  textGray: {
-    color: '#6B7280',
-    margin: 0,
-    fontSize: '1rem',
-  },
-  amount: {
-    fontSize: '1.75rem',
-    fontWeight: 700,
-    color: '#111827',
-    margin: 0,
-  },
-  chartContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: '1.5rem',
-    borderRadius: '0.75rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    marginBottom: '2rem',
-  },
-  chartTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: '#111827',
-    marginBottom: '1rem',
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-  },
-  primaryButton: {
-    padding: '0.75rem 2rem',
-    backgroundColor: '#3B82F6',
-    color: '#FFFFFF',
-    borderRadius: '0.5rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.4)',
-    transition: 'background-color 0.3s, transform 0.2s',
-  },
-  secondaryButton: {
-    padding: '0.75rem 2rem',
-    backgroundColor: '#10B981',
-    color: '#FFFFFF',
-    borderRadius: '0.5rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.4)',
-    transition: 'background-color 0.3s, transform 0.2s',
-  },
-  centerScreen: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    position: 'relative',
-  },
-  spinner: {
-    width: '64px',
-    height: '64px',
-    border: '8px solid #f3f3f3',
-    borderTop: '8px solid #3B82F6',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-};
-
-// Responsive Grid Layout using media queries
-const mediaQueries = `
-  @media (min-width: 640px) {
-    div[style*="grid"] {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    div[style*="grid"] {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-`;
-
-// Inject media queries into the global stylesheet
-const GlobalStyles = () => (
-  <style jsx global>{`
-    ${mediaQueries}
-  `}</style>
-);
-
-export default function Dashboard() {
-  return (
-    <>
-      <DashboardTable />
-      <GlobalStyles />
-    </>
-  );
+export const DashboardTable = (): JSX.Element => {
+  return <DashboardTableComponent />;
 }
