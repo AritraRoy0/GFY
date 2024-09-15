@@ -1,31 +1,69 @@
 'use client';
 import React from 'react';
+import { motion } from 'framer-motion';
 import Header from './common/Header';
 import Footer from './common/Footer';
-import { FaUserFriends, FaHandshake, FaShieldAlt, FaMobileAlt } from 'react-icons/fa';
+import {
+  FaUsers,
+  FaHandsHelping,
+  FaLock,
+  FaBolt,
+} from 'react-icons/fa'; // Updated icons
+import logo from './assets/logo.jpeg'; // Adjust the path as necessary
+
+// Animation Variants
+const container = {
+  hidden: { opacity: 0 },
+  visible: (i = 1) => ({
+    opacity: 1,
+    transition: { staggerChildren: 0.2, delayChildren: i * 0.2 },
+  }),
+};
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative bg-gradient-to-br from-purple-600 to-indigo-600 text-white py-32 px-4">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="relative max-w-7xl mx-auto text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fadeInUp">
+    <motion.div
+      className="relative bg-gradient-to-br from-purple-700 to-indigo-700 text-white py-32 px-4"
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+      transition={{ duration: 1 }}
+    >
+      <div className="absolute inset-0 bg-black opacity-40"></div>
+      <div className="relative max-w-7xl mx-auto text-center z-10">
+        <motion.h1
+          className="text-5xl md:text-6xl font-extrabold mb-6"
+          variants={fadeInUp}
+          transition={{ duration: 1, delay: 0.2 }}
+        >
           Go Fund Yourself!
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 animate-fadeInUp delay-200">
+        </motion.h1>
+        <motion.p
+          className="text-xl md:text-2xl mb-8"
+          variants={fadeInUp}
+          transition={{ duration: 1, delay: 0.4 }}
+        >
           Instant, negotiable loans without bank approval over our secure network of peers.
-        </p>
-        <a
+        </motion.p>
+        <motion.a
           href="/auth?tab=signup"
-          className="inline-block bg-white text-purple-600 font-semibold py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-transform duration-300 hover:scale-105 animate-fadeInUp delay-400"
+          className="inline-block bg-white text-purple-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105"
+          variants={fadeInUp}
+          transition={{ duration: 1, delay: 0.6 }}
+          aria-label="Get Started"
         >
           Get Started
-        </a>
+        </motion.a>
       </div>
       {/* Decorative SVG Wave */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
         <svg
-          className="relative block w-full h-20 md:h-32"
+          className="relative block w-full h-24 md:h-40"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 1200 120"
@@ -46,7 +84,7 @@ const Hero: React.FC = () => {
           />
         </svg>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -55,48 +93,65 @@ const Features: React.FC = () => {
     {
       title: 'Peer-to-Peer Lending',
       description: 'Connect directly with other users to lend or borrow money without intermediaries.',
-      icon: <FaUserFriends className="text-purple-600 text-6xl mx-auto mb-6" />,
+      icon: <FaUsers className="text-purple-700 text-6xl mx-auto mb-6" />,
     },
     {
       title: 'Flexible Rates',
       description: 'Negotiate interest rates that suit both parties for a fair lending experience.',
-      icon: <FaHandshake className="text-purple-600 text-6xl mx-auto mb-6" />,
+      icon: <FaHandsHelping className="text-purple-700 text-6xl mx-auto mb-6" />,
     },
     {
       title: 'Secure & Reliable',
       description:
         'Utilize our built-in escrow services and security measures for safe transactions.',
-      icon: <FaShieldAlt className="text-purple-600 text-6xl mx-auto mb-6" />,
+      icon: <FaLock className="text-purple-700 text-6xl mx-auto mb-6" />,
     },
     {
       title: 'Instant Transactions',
       description:
         'Experience fast and transparent transactions with minimal fees using blockchain technology.',
-      icon: <FaMobileAlt className="text-purple-600 text-6xl mx-auto mb-6" />,
+      icon: <FaBolt className="text-purple-700 text-6xl mx-auto mb-6" />,
     },
   ];
 
   return (
-    <div className="py-24 px-4 bg-gray-50">
+    <motion.div
+      className="py-24 px-4 bg-gray-50"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={container}
+    >
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-12 animate-fadeInUp">
+        <motion.h2
+          className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12"
+          variants={fadeInUp}
+          transition={{ duration: 1 }}
+        >
           Why Choose Our Platform?
-        </h2>
+        </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white shadow-md rounded-lg p-8 hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fadeInUp"
-              style={{ animationDelay: `${index * 200}ms` }}
+              className="bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition-shadow duration-300 hover:scale-105"
+              variants={fadeInUp}
+              transition={{ duration: 1, delay: index * 0.2 }}
+              aria-labelledby={`feature-${index}-title`}
             >
               {feature.icon}
-              <h3 className="text-2xl font-semibold mb-4 text-gray-800">{feature.title}</h3>
+              <h3
+                id={`feature-${index}-title`}
+                className="text-2xl font-semibold mb-4 text-gray-800"
+              >
+                {feature.title}
+              </h3>
               <p className="text-gray-600">{feature.description}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
