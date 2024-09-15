@@ -64,14 +64,14 @@ const Dashboard = () => {
         {/* User Profile Section */}
         <div className="flex items-center mb-8">
           <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold mr-4">
-            {user.name
-              .split(' ')
+            {user?.name
+              ?.split(' ')
               .map((n) => n[0])
               .join('')}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Welcome, {user.name}!</h1>
-            <p className="text-gray-700">{user.email}</p>
+            <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.name}!</h1>
+            <p className="text-gray-700">{user?.email}</p>
           </div>
         </div>
 
