@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUsers,
   FaHandsHelping,
@@ -18,16 +18,44 @@ import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
 
+// Define TypeScript interfaces for animated elements
+interface AnimatedElement {
+  id: number;
+  type: "circle" | "triangle" | "square" | "icon";
+  color: string;
+  size: number;
+  initialPosition: { x: number; y: number };
+  animate: {
+    x: number;
+    y: number;
+    rotate?: number;
+    opacity: number;
+  };
+  transition: {
+    duration: number;
+    repeat: number;
+    repeatType: "reverse" | "loop";
+    delay: number;
+  };
+  icon?: JSX.Element;
+}
+
 // Animation Variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+// Custom animation variant for feature detail transitions
+const featureDetailVariants = {
+  hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 };
 
 // Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
   // Define animated elements with thematic relevance
-  const animatedElements = [
+  const animatedElements: AnimatedElement[] = [
     {
       id: 1,
       type: "circle",
@@ -113,7 +141,7 @@ const Hero: React.FC = () => {
             animate={{
               x: element.animate.x,
               y: element.animate.y,
-              rotate: element.animate.rotate,
+              rotate: element.animate.rotate || 0,
               opacity: element.animate.opacity,
             }}
             transition={element.transition}
@@ -152,15 +180,10 @@ const Hero: React.FC = () => {
         <motion.h1
           className="text-6xl md:text-8xl font-extrabold mb-8 text-white"
           initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: [0, -20, 0] }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
             opacity: { duration: 1 },
-            y: {
-              duration: 1,
-              repeat: Infinity,
-              repeatType: "loop",
-              ease: "easeInOut",
-            },
+            y: { duration: 1, delay: 0.3 },
           }}
         >
           Go Fund Yourself!!
@@ -169,17 +192,17 @@ const Hero: React.FC = () => {
           className="text-2xl md:text-3xl mb-12 text-gray-300"
           initial="hidden"
           animate="visible"
-          variants={fadeInUp}
+          variants={fadeIn}
           transition={{ duration: 1, delay: 0.3 }}
         >
           Instant, negotiable loans without bank approval over our secure network of peers.
         </motion.p>
         <motion.a
           href="#auth"
-          className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-xl"
+          className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 text-xl focus:outline-none focus:ring-2 focus:ring-gray-500"
           initial="hidden"
           animate="visible"
-          variants={fadeInUp}
+          variants={fadeIn}
           transition={{ duration: 1, delay: 0.6 }}
           aria-label="Get Started"
         >
@@ -286,18 +309,14 @@ const Features: React.FC = () => {
             <motion.div
               key={index}
               className={`bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition duration-500 cursor-pointer ${
-                activeFeature === index
-                  ? "shadow-2xl transform scale-105"
-                  : ""
+                activeFeature === index ? "shadow-2xl transform scale-105" : ""
               }`}
               onClick={() => setActiveFeature(index)}
               aria-labelledby={`feature-${index}-title`}
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="mb-6">
-                {feature.icon}
-              </div>
+              <div className="mb-6">{feature.icon}</div>
               <h3
                 id={`feature-${index}-title`}
                 className="text-3xl font-semibold mb-4 text-gray-800"
@@ -310,37 +329,41 @@ const Features: React.FC = () => {
         </div>
 
         {/* Detailed Feature Explanation with Navigation Arrows */}
-        <div className="mt-16 relative">
+        <div className="mt-16 relative flex items-center justify-center">
           {/* Left Arrow */}
           <button
             onClick={handlePrev}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg hover:bg-gray-600 transition duration-300"
+            className="absolute left-0 md:left-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             aria-label="Previous Feature"
           >
-            <FaArrowLeft />
+            <FaArrowLeft size={20} />
           </button>
 
           {/* Detailed Feature Content */}
-          <motion.div
-            key={activeFeature}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="bg-white shadow-lg rounded-lg p-10 max-w-4xl mx-auto"
-          >
-            <h3 className="text-3xl font-bold mb-6 text-gray-700">
-              {features[activeFeature].title}
-            </h3>
-            {features[activeFeature].details}
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeFeature}
+              variants={featureDetailVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={{ duration: 0.7 }}
+              className="bg-white shadow-lg rounded-lg p-10 max-w-4xl mx-auto"
+            >
+              <h3 className="text-3xl font-bold mb-6 text-gray-700">
+                {features[activeFeature].title}
+              </h3>
+              {features[activeFeature].details}
+            </motion.div>
+          </AnimatePresence>
 
           {/* Right Arrow */}
           <button
             onClick={handleNext}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full shadow-lg hover:bg-gray-600 transition duration-300"
+            className="absolute right-0 md:right-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
             aria-label="Next Feature"
           >
-            <FaArrowRight />
+            <FaArrowRight size={20} />
           </button>
         </div>
       </div>
@@ -383,8 +406,8 @@ const Testimonials: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="w-24 h-24 mx-auto mb-6">
-                {/* You can add user avatars or icons here */}
-                <FaStar className="text-gray-700 w-full h-full animate-spin-slow" />
+                {/* Replace with user avatars for personalization */}
+                <FaStar className="text-gray-700 w-full h-full" />
               </div>
               <p className="italic text-gray-600 mb-6">"{testimonial.quote}"</p>
               <h4 className="text-2xl font-semibold text-gray-800">{testimonial.name}</h4>
@@ -410,7 +433,7 @@ const CallToAction: React.FC = () => {
         </p>
         <motion.a
           href="#auth"
-          className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl"
+          className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl focus:outline-none focus:ring-2 focus:ring-gray-500"
           aria-label="Join Now"
           whileHover={{ scale: 1.1 }}
           transition={{ duration: 0.3 }}
