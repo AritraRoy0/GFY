@@ -1,4 +1,5 @@
-// components/LandingPage.tsx
+// src/components/LandingPage.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -176,14 +177,13 @@ const Hero: React.FC = () => {
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto text-center z-10">
-        {/* Hero Heading with Bounce Animation */}
+        {/* Hero Heading with Fade-In Animation */}
         <motion.h1
           className="text-6xl md:text-8xl font-extrabold mb-8 text-white"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{
             opacity: { duration: 1 },
-            y: { duration: 1, delay: 0.3 },
           }}
         >
           Go Fund Yourself!!
