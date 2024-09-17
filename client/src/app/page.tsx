@@ -242,7 +242,7 @@ const Hero: React.FC = () => {
 
 				{/* Get Started Button with Entrance Animation */}
 				<motion.a
-					href="#auth"
+					href="/auth"
 					className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 text-xl focus:outline-none focus:ring-2 focus:ring-gray-500"
 					initial={{ opacity: 0, scale: 0.8 }}
 					animate={{ opacity: 1, scale: 1 }}
