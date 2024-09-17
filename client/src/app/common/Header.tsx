@@ -107,13 +107,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex justify-between items-center w-full">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-extrabold text-white">
-              Go Fund Yourself!!
-            </span>
-          </Link>
-        
+        <div className="md:hidden flex items-center">
           <button
             onClick={toggleMenu}
             type="button"
@@ -144,16 +138,54 @@ const Header: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="px-4 pt-4 pb-3 space-y-2 sm:px-3">
-              {/* Mobile Logo */}
-              <Link
-                href="/"
-                className="flex items-center space-x-2"
-              >
-                <span className="text-2xl font-extrabold text-white">
-                  Go Fund Yourself!!
-                </span>
-              </Link>
-              {isLoggedIn ? loggedInHeader : loggedOutHeader}
+              {isLoggedIn ? (
+                <div className="flex flex-col space-y-2">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    <FaBriefcase className="h-5 w-5 mr-2 text-white" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    <FaUser className="h-5 w-5 mr-2 text-white" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    href="/logout"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
+                    Logout
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2">
+                  <Link
+                    href="/auth?tab=login"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth?tab=signup"
+                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+                  >
+                    <FaUserPlus className="h-5 w-5 mr-2 text-white" />
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
