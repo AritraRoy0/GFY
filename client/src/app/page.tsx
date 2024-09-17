@@ -512,7 +512,7 @@ const CallToAction: React.FC = () => {
 					Join Go Fund Yourself today and take control of your financial future.
 				</motion.p>
 				<motion.a
-					href="#auth"
+					href="/auth"
 					className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl focus:outline-none focus:ring-2 focus:ring-gray-500"
 					aria-label="Join Now"
 					whileHover={{ scale: 1.1 }}
