@@ -83,12 +83,7 @@ const Header: React.FC = () => {
         <FaUserPlus className="h-5 w-5 mr-1" />
         Sign Up
       </Link>
-      <Link
-        href="/about"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
-      >
-        About
-      </Link>
+
     </>
   ), []);
 
