@@ -6,7 +6,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { Provider } from "react-redux";
 import store from "./store"; // Adjust the path to your Redux store if necessary
-
+import Image from "next/image";
 const inter = Inter({ subsets: ["latin"] });
 
 const metadata: Metadata = {
@@ -26,11 +26,14 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{String(metadata.title)}</title>
         <meta name="description" content={metadata.description || ""} />
-        <link rel="icon" href="/favicon.ico" />
+        
         {/* Add any other meta tags here, like OpenGraph or Twitter */}
       </head>
       
       <body className={inter.className}>
+  
+     
+
         {/* Wrap the app with Redux Provider if using Redux */}
         <Provider store={store}>
           {children}

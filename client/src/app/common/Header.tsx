@@ -39,29 +39,29 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/dashboard"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
-        <FaBriefcase className="h-5 w-5 mr-1" />
+        <FaBriefcase className="h-5 w-5 mr-2 text-white" />
         Dashboard
       </Link>
       <Link
         href="/profile"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
-        <FaUser className="h-5 w-5 mr-1" />
+        <FaUser className="h-5 w-5 mr-2 text-white" />
         Profile
       </Link>
       <Link
         href="/about"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
         About
       </Link>
       <Link
         href="/logout"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
-        <FaSignOutAlt className="h-5 w-5 mr-1" />
+        <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
         Logout
       </Link>
     </>
@@ -71,23 +71,17 @@ const Header: React.FC = () => {
     <>
       <Link
         href="/auth?tab=login"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
-        <FaSignInAlt className="h-5 w-5 mr-1" />
+        <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
         Login
       </Link>
       <Link
         href="/auth?tab=signup"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
+        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
       >
-        <FaUserPlus className="h-5 w-5 mr-1" />
+        <FaUserPlus className="h-5 w-5 mr-2 text-white" />
         Sign Up
-      </Link>
-      <Link
-        href="/about"
-        className="flex items-center px-3 py-2 rounded-md text-white bg-purple-700 hover:bg-purple-800 transition duration-300"
-      >
-        About
       </Link>
     </>
   ), []);
@@ -98,24 +92,24 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-gray-800 shadow-md sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
         {/* Logo and Brand Name */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="hidden md:inline-block text-2xl font-extrabold text-purple-700">
+          <span className="text-2xl font-extrabold text-white">
             Go Fund Yourself!!
           </span>
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-4">
           {isLoggedIn ? loggedInHeader : loggedOutHeader}
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex justify-between items-center w-full">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-extrabold text-purple-700">
+            <span className="text-2xl font-extrabold text-white">
               Go Fund Yourself!!
             </span>
           </Link>
@@ -123,7 +117,7 @@ const Header: React.FC = () => {
           <button
             onClick={toggleMenu}
             type="button"
-            className="text-gray-700 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-700"
+            className="text-white hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-700"
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -141,7 +135,7 @@ const Header: React.FC = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            className="md:hidden bg-white shadow-md"
+            className="md:hidden bg-gray-800 shadow-md"
             id="mobile-menu"
             initial="hidden"
             animate="visible"
@@ -149,11 +143,15 @@ const Header: React.FC = () => {
             variants={menuVariants}
             transition={{ duration: 0.3 }}
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div className="px-4 pt-4 pb-3 space-y-2 sm:px-3">
+              {/* Mobile Logo */}
               <Link
                 href="/"
-                className="flex items-center px-3 py-2 rounded-md text-purple-700 hover:bg-purple-100 transition duration-300"
+                className="flex items-center space-x-2"
               >
+                <span className="text-2xl font-extrabold text-white">
+                  Go Fund Yourself!!
+                </span>
               </Link>
               {isLoggedIn ? loggedInHeader : loggedOutHeader}
             </div>

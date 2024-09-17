@@ -1,230 +1,550 @@
-'use client';
+// src/components/LandingPage.tsx
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import Header from './common/Header';
-import Footer from './common/Footer';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaUsers,
-  FaHandsHelping,
-  FaLock,
-  FaBolt,
-} from 'react-icons/fa'; // Updated icons
+	FaUsers,
+	FaHandsHelping,
+	FaShieldAlt,
+	FaBolt,
+	FaStar,
+	FaMoneyBillWave,
+	FaChartLine,
+	FaArrowLeft,
+	FaArrowRight,
+} from "react-icons/fa";
+import Header from "./common/Header";
+import Footer from "./common/Footer";
+import Head from "next/head";
+
+// Define TypeScript interfaces for animated elements
+interface AnimatedElement {
+	id: number;
+	type: "circle" | "triangle" | "square" | "icon";
+	color: string;
+	size: number;
+	initialPosition: { x: number; y: number };
+	animate: {
+		x: number;
+		y: number;
+		rotate?: number;
+		opacity: number;
+	};
+	transition: {
+		duration: number;
+		repeat: number;
+		repeatType: "reverse" | "loop";
+		delay: number;
+	};
+	icon?: JSX.Element;
+}
 
 // Animation Variants
-const container = {
-  hidden: { opacity: 0 },
-  visible: (i = 1) => ({
-    opacity: 1,
-    transition: { staggerChildren: 0.2, delayChildren: i * 0.2 },
-  }),
+const fadeIn = {
+	hidden: { opacity: 0 },
+	visible: { opacity: 1 },
 };
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
+// Custom animation variant for feature detail transitions
+const featureDetailVariants = {
+	hidden: { opacity: 0, y: 30 },
+	visible: { opacity: 1, y: 0 },
 };
 
+// Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
-  // Define animation variants for the waves
-  const waveAnimationLeft = {
-    animate: {
-      x: ['0%', '100%', '0%'], // Moves from left to right and back to left
-    },
-    transition: {
-      x: {
-        repeat: Infinity,
-        repeatType: 'loop',
-        duration: 10, // Adjust the speed of the animation
-        ease: 'easeInOut',
-      },
-    },
-  };
+	// Define animated elements with thematic relevance
+	const animatedElements: AnimatedElement[] = [
+		{
+			id: 1,
+			type: "circle",
+			color: "rgba(0, 0, 0, 0.2)", // Black with transparency
+			size: 200, // Increased size
+			initialPosition: { x: -100, y: -100 },
+			animate: { x: 100, y: 100, opacity: 0.4 },
+			transition: {
+				duration: 15,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 0,
+			},
+		},
+		{
+			id: 2,
+			type: "triangle",
+			color: "rgba(50, 50, 50, 0.15)", // Dark Gray with transparency
+			size: 140, // Increased size
+			initialPosition: { x: 200, y: -200 },
+			animate: { x: -200, y: 200, opacity: 0.3 },
+			transition: {
+				duration: 18,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 3,
+			},
+		},
+		{
+			id: 3,
+			type: "square",
+			color: "rgba(100, 100, 100, 0.1)", // Light Gray with transparency
+			size: 100, // Increased size
+			initialPosition: { x: -300, y: 300 },
+			animate: { x: 300, y: -300, opacity: 0.2 },
+			transition: {
+				duration: 20,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 5,
+			},
+		},
+		{
+			id: 4,
+			type: "icon",
+			color: "rgba(0, 0, 0, 0.25)", // Black with transparency
+			size: 80, // Increased size
+			initialPosition: { x: 350, y: 350 },
+			animate: { x: -350, y: -350, rotate: 720, opacity: 0.5 }, // Increased rotation
+			transition: {
+				duration: 25,
+				repeat: Infinity,
+				repeatType: "loop",
+				delay: 2,
+			},
+			icon: <FaMoneyBillWave />,
+		},
+		{
+			id: 5,
+			type: "icon",
+			color: "rgba(100, 100, 100, 0.25)", // Light Gray with transparency
+			size: 70, // Increased size
+			initialPosition: { x: -400, y: 150 },
+			animate: { x: 400, y: -150, rotate: 720, opacity: 0.5 }, // Increased rotation
+			transition: {
+				duration: 22,
+				repeat: Infinity,
+				repeatType: "loop",
+				delay: 4,
+			},
+			icon: <FaChartLine />,
+		},
+		// Additional animated elements to fill empty space
+		{
+			id: 6,
+			type: "circle",
+			color: "rgba(50, 50, 50, 0.1)",
+			size: 180, // Increased size
+			initialPosition: { x: 400, y: -250 },
+			animate: { x: -400, y: 250, opacity: 0.15 },
+			transition: {
+				duration: 25,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 1,
+			},
+		},
+		{
+			id: 7,
+			type: "square",
+			color: "rgba(80, 80, 80, 0.15)",
+			size: 130, // Increased size
+			initialPosition: { x: -350, y: 200 },
+			animate: { x: 350, y: -200, opacity: 0.2 },
+			transition: {
+				duration: 24,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 2,
+			},
+		},
+	];
 
-  const waveAnimationRight = {
-    animate: {
-      x: ['0%', '-100%', '0%'], // Moves from right to left and back to right
-    },
-    transition: {
-      x: {
-        repeat: Infinity,
-        repeatType: 'loop',
-        duration: 10, // Adjust the speed of the animation
-        ease: 'easeInOut',
-      },
-    },
-  };
+	return (
+		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-32 px-6 overflow-hidden">
+			{/* Background Overlay */}
+			<div className="absolute inset-0">
+				<div className="absolute inset-0 bg-black opacity-50"></div>
+			</div>
 
-  return (
-    <motion.div
-      className="relative bg-gradient-to-br from-purple-700 to-indigo-700 text-white py-32 px-4 overflow-hidden"
-      initial="hidden"
-      animate="visible"
-      variants={fadeInUp}
-      transition={{ duration: 1 }}
-    >
-      <div className="absolute inset-0 bg-black opacity-40"></div>
-      <div className="relative max-w-7xl mx-auto text-center z-10">
-        <motion.h1
-          className="text-5xl md:text-6xl font-extrabold mb-6"
-          variants={fadeInUp}
-          transition={{ duration: 1, delay: 0.2 }}
-        >
-          Go Fund Yourself!
-        </motion.h1>
-        <motion.p
-          className="text-xl md:text-2xl mb-8"
-          variants={fadeInUp}
-          transition={{ duration: 1, delay: 0.4 }}
-        >
-          Instant, negotiable loans without bank approval over our secure network of peers.
-        </motion.p>
-        <motion.a
-        href="/auth?tab=signup"
-        className="inline-block bg-white text-purple-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 text-sm md:text-base lg:text-lg md:py-4 md:px-10"
-        variants={fadeInUp}
-        transition={{ duration: 1, delay: 0.6 }}
-        aria-label="Get Started"
-        >
-          Get Started
-        </motion.a>
+			{/* Animated Elements Container */}
+			<div className="absolute inset-0">
+				{animatedElements.map((element) => (
+					<motion.div
+						key={element.id}
+						className="absolute"
+						initial={{
+							x: element.initialPosition.x,
+							y: element.initialPosition.y,
+						}}
+						animate={{
+							x: element.animate.x,
+							y: element.animate.y,
+							rotate: element.animate.rotate || 0,
+							opacity: element.animate.opacity,
+						}}
+						transition={element.transition}
+						style={{
+							width: element.size,
+							height: element.size,
+							backgroundColor:
+								element.type !== "icon" ? element.color : "transparent",
+							borderRadius: element.type === "circle" ? "50%" : "0%",
+							clipPath:
+								element.type === "triangle"
+									? "polygon(50% 0%, 0% 100%, 100% 100%)"
+									: "none",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							color: element.color,
+							fontSize: element.size / 2,
+							pointerEvents: "none", // Prevents interaction
+						}}
+					>
+						{element.type === "icon" && (
+							<motion.div
+								whileHover={{ scale: 1.3 }}
+								transition={{ duration: 0.3 }}
+							>
+								{element.icon}
+							</motion.div>
+						)}
+					</motion.div>
+				))}
+			</div>
 
-      </div>
-      {/* Animated Decorative SVG Waves */}
-      <motion.div
-        className="absolute top-0 left-0 w-full overflow-hidden leading-none"
-        {...waveAnimationLeft}
-      >
-        {/* Top Wave */}
-        <svg
-          className="block w-full h-24 md:h-40"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-          viewBox="0 0 1200 120"
-        >
-          <path
-            d="M0,0V46.29c47.31,22,103.65,29.39,158.16,23.07,70.77-8.19,136.88-35.62,207.67-40.29C429.92,23.28,492,44.19,561,58.77c70.84,14.95,140.29,6.15,209.26-13.58,60.87-17.65,115.75-45.46,177-54.74C996.63-18,1077.43-5.3,1155,16.55V0Z"
-            opacity=".25"
-            fill="#ffffff"
-          />
-          <path
-            d="M0,0V15.81C44.13,5.59,88.57-.87,132.72.1c64.51,1.47,127.05,16.81,191.56,23.81,60.5,6.56,119.75,1.49,178.44-10.61C556.81,1.23,617.69-5,678,1.51c57.6,6.21,112.08,24.41,169.75,29.36,59.23,5.09,116.48-6.71,173.13-18.16,55.06-11.1,111.22-22.21,166.12-9.25V0Z"
-            opacity=".5"
-            fill="#ffffff"
-          />
-          <path
-            d="M0,0V5.63C43,15.27,86,22.41,129.15,27c65.94,7.19,132.13,6.85,197.81-.91,55.71-6.55,111.19-18.85,166.89-24.42C554.44-3.23,611.39-2.32,668.26,3.07c60.8,5.92,121,16.87,181.34,22.99,63.08,6.46,126.48,6.31,189.61-1.8,51.85-6.36,103.85-17.47,155.79-25.26V0Z"
-            fill="#ffffff"
-          />
-        </svg>
-      </motion.div>
-      <motion.div
-        className="absolute bottom-0 left-0 w-full overflow-hidden leading-none"
-        {...waveAnimationRight}
-      >
-        {/* Bottom Wave */}
-        <svg
-          className="block w-full h-24 md:h-40"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-          viewBox="0 0 1200 120"
-        >
-          <path
-            d="M0,0V46.29c47.31,22,103.65,29.39,158.16,23.07,70.77-8.19,136.88-35.62,207.67-40.29C429.92,23.28,492,44.19,561,58.77c70.84,14.95,140.29,6.15,209.26-13.58,60.87-17.65,115.75-45.46,177-54.74C996.63-18,1077.43-5.3,1155,16.55V0Z"
-            opacity=".25"
-            fill="#ffffff"
-          />
-          <path
-            d="M0,0V15.81C44.13,5.59,88.57-.87,132.72.1c64.51,1.47,127.05,16.81,191.56,23.81,60.5,6.56,119.75,1.49,178.44-10.61C556.81,1.23,617.69-5,678,1.51c57.6,6.21,112.08,24.41,169.75,29.36,59.23,5.09,116.48-6.71,173.13-18.16,55.06-11.1,111.22-22.21,166.12-9.25V0Z"
-            opacity=".5"
-            fill="#ffffff"
-          />
-          <path
-            d="M0,0V5.63C43,15.27,86,22.41,129.15,27c65.94,7.19,132.13,6.85,197.81-.91,55.71-6.55,111.19-18.85,166.89-24.42C554.44-3.23,611.39-2.32,668.26,3.07c60.8,5.92,121,16.87,181.34,22.99,63.08,6.46,126.48,6.31,189.61-1.8,51.85-6.36,103.85-17.47,155.79-25.26V0Z"
-            fill="#ffffff"
-          />
-        </svg>
-      </motion.div>
-    </motion.div>
-  );
+			{/* Content */}
+			<div className="relative max-w-7xl mx-auto text-center z-10">
+				{/* Hero Heading with Bouncing Animation */}
+				<motion.h1
+					className="text-6xl md:text-8xl font-extrabold mb-8 text-white"
+					animate={{ opacity: 1, y: [0, -20, 0] }}
+					transition={{
+						opacity: { duration: 1 },
+						y: { duration: 1.5, repeat: Infinity, repeatType: "loop" },
+					}}
+				>
+					Go Fund Yourself!!
+				</motion.h1>
+
+				{/* Hero Subtitle with Fade-In and Slide-Up Animation */}
+				<motion.p
+					className="text-2xl md:text-3xl mb-12 text-gray-300"
+					initial="hidden"
+					animate="visible"
+					variants={fadeIn}
+					transition={{ duration: 1, delay: 0.5 }}
+				>
+					Instant, negotiable loans without bank approval over our secure
+					network of peers.
+				</motion.p>
+
+				{/* Get Started Button with Entrance Animation */}
+				<motion.a
+					href="#auth"
+					className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 text-xl focus:outline-none focus:ring-2 focus:ring-gray-500"
+					initial={{ opacity: 0, scale: 0.8 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ duration: 0.8, delay: 0.8 }}
+					aria-label="Get Started"
+				>
+					Get Started
+				</motion.a>
+			</div>
+		</div>
+	);
 };
 
+// Features Component with Enhanced Animations and Navigation Arrows
 const Features: React.FC = () => {
-  const features = [
-    {
-      title: 'Peer-to-Peer Lending',
-      description: 'Connect directly with other users to lend or borrow money without intermediaries.',
-      icon: <FaUsers className="text-purple-700 text-6xl mx-auto mb-6" />,
-    },
-    {
-      title: 'Flexible Rates',
-      description: 'Negotiate interest rates that suit both parties for a fair lending experience.',
-      icon: <FaHandsHelping className="text-purple-700 text-6xl mx-auto mb-6" />,
-    },
-    {
-      title: 'Secure & Reliable',
-      description:
-        'Utilize our built-in escrow services and security measures for safe transactions.',
-      icon: <FaLock className="text-purple-700 text-6xl mx-auto mb-6" />,
-    },
-    {
-      title: 'Instant Transactions',
-      description:
-        'Experience fast and transparent transactions with minimal fees using blockchain technology.',
-      icon: <FaBolt className="text-purple-700 text-6xl mx-auto mb-6" />,
-    },
-  ];
+	const features = [
+		{
+			title: "Peer-to-Peer Lending",
+			icon: <FaUsers className="text-gray-700 text-7xl mx-auto mb-6" />,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Our platform enables <strong>direct connections</strong> between
+						lenders and borrowers, eliminating the need for traditional banking
+						intermediaries. This means you can <strong>save on fees</strong> and
+						enjoy <strong>better rates</strong>.
+					</p>
+					<p className="text-gray-600">
+						By fostering a community-driven approach, we ensure that both
+						parties benefit from <strong>transparent</strong> and{" "}
+						<strong>fair transactions</strong>.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Flexible & Customizable",
+			icon: <FaHandsHelping className="text-gray-700 text-7xl mx-auto mb-6" />,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Take control of your financial agreements by{" "}
+						<strong>negotiating terms</strong> that meet your specific needs.
+						Our platform allows for <strong>customizable interest rates</strong>{" "}
+						and loan durations.
+					</p>
+					<p className="text-gray-600">
+						This flexibility ensures that both lenders and borrowers can find
+						mutually beneficial arrangements.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Secure & Transparent",
+			icon: <FaShieldAlt className="text-gray-700 text-7xl mx-auto mb-6" />,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Your security is our priority. We offer{" "}
+						<strong>built-in escrow services</strong> that protect both parties
+						during transactions.
+					</p>
+					<p className="text-gray-600">
+						Our platform uses advanced encryption and{" "}
+						<strong>security protocols</strong> to ensure your data and funds
+						are always safe.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Fast Transactions",
+			icon: <FaBolt className="text-gray-700 text-7xl mx-auto mb-6" />,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Say goodbye to lengthy approval processes. Our platform offers{" "}
+						<strong>quick approvals</strong> so you can access funds or start
+						lending without delay.
+					</p>
+					<p className="text-gray-600">
+						Enjoy <strong>instant transactions</strong> with minimal fees,
+						thanks to our efficient technology infrastructure.
+					</p>
+				</>
+			),
+		},
+	];
 
-  return (
-    <motion.div
-      className="py-24 px-4 bg-gray-50"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={container}
-    >
-      <div className="max-w-7xl mx-auto text-center">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12"
-          variants={fadeInUp}
-          transition={{ duration: 1 }}
-        >
-          Why Choose Our Platform?
-        </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition-shadow duration-300 hover:scale-105"
-              variants={fadeInUp}
-              transition={{ duration: 1, delay: index * 0.2 }}
-              aria-labelledby={`feature-${index}-title`}
-            >
-              {feature.icon}
-              <h3
-                id={`feature-${index}-title`}
-                className="text-2xl font-semibold mb-4 text-gray-800"
-              >
-                {feature.title}
-              </h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
+	// State to manage the active feature
+	const [activeFeature, setActiveFeature] = useState(0);
+
+	// Auto-cycle through features every 6 seconds
+	useEffect(() => {
+		const cycleInterval = setInterval(() => {
+			setActiveFeature((prevIndex) => (prevIndex + 1) % features.length);
+		}, 6000); // Change feature every 6 seconds
+
+		return () => clearInterval(cycleInterval); // Cleanup on unmount
+	}, [features.length]);
+
+	// Handler for navigating to the previous feature
+	const handlePrev = () => {
+		setActiveFeature((prevIndex) =>
+			prevIndex === 0 ? features.length - 1 : prevIndex - 1
+		);
+	};
+
+	// Handler for navigating to the next feature
+	const handleNext = () => {
+		setActiveFeature((prevIndex) => (prevIndex + 1) % features.length);
+	};
+
+	return (
+		<section className="py-20 px-6 bg-gray-200">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Why Choose Go Fund Yourself?
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+					{features.map((feature, index) => (
+						<motion.div
+							key={index}
+							className={`bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition duration-500 cursor-pointer ${
+								activeFeature === index ? "shadow-2xl transform scale-105" : ""
+							}`}
+							onClick={() => setActiveFeature(index)}
+							aria-labelledby={`feature-${index}-title`}
+							whileHover={{ scale: 1.05 }}
+							transition={{ duration: 0.3 }}
+						>
+							<div className="mb-6">{feature.icon}</div>
+							<h3
+								id={`feature-${index}-title`}
+								className="text-3xl font-semibold mb-4 text-gray-800"
+							>
+								{feature.title}
+							</h3>
+							{/* Optionally, you can add brief details here */}
+						</motion.div>
+					))}
+				</div>
+
+				{/* Detailed Feature Explanation with Navigation Arrows */}
+				<div className="mt-16 relative flex items-center justify-center">
+					{/* Left Arrow */}
+					<button
+						onClick={handlePrev}
+						className="absolute left-0 md:left-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+						aria-label="Previous Feature"
+					>
+						<FaArrowLeft size={20} />
+					</button>
+
+					{/* Detailed Feature Content */}
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={activeFeature}
+							variants={featureDetailVariants}
+							initial="hidden"
+							animate="visible"
+							exit="hidden"
+							transition={{ duration: 0.7 }}
+							className="bg-white shadow-lg rounded-lg p-10 max-w-4xl mx-auto"
+						>
+							<h3 className="text-3xl font-bold mb-6 text-gray-700">
+								{features[activeFeature].title}
+							</h3>
+							{features[activeFeature].details}
+						</motion.div>
+					</AnimatePresence>
+
+					{/* Right Arrow */}
+					<button
+						onClick={handleNext}
+						className="absolute right-0 md:right-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+						aria-label="Next Feature"
+					>
+						<FaArrowRight size={20} />
+					</button>
+				</div>
+			</div>
+		</section>
+	);
 };
 
-const Landing: React.FC = () => {
-  return (
-    <>
-      <Header />
-      <Hero />
-      <Features />
-      <Footer />
-    </>
-  );
+// Testimonials Component with Enhanced Animations
+const Testimonials: React.FC = () => {
+	const testimonials = [
+		{
+			name: "John Doe",
+			title: "Entrepreneur",
+			quote:
+				"Got my loan super quick, no bank hassles! This peer-to-peer thing rocks!",
+		},
+		{
+			name: "Jane Smith",
+			title: "Freelancer",
+			quote: "Loved lending on my own terms! So easy and secure.",
+		},
+		{
+			name: "Mike Johnson",
+			title: "Investor",
+			quote: "Diversified my investments easily. Flexibility is awesome!",
+		},
+	];
+
+	return (
+		<section className="py-20 px-6 bg-gray-100">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					What Our Users Say
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+					{testimonials.map((testimonial, index) => (
+						<motion.div
+							key={index}
+							className="bg-gray-50 shadow-md rounded-lg p-8"
+							whileHover={{ scale: 1.05 }}
+							transition={{ duration: 0.3 }}
+						>
+							<div className="w-24 h-24 mx-auto mb-6">
+								{/* Replace with user avatars for personalization */}
+								<FaStar className="text-gray-700 w-full h-full" />
+							</div>
+							<motion.p
+								className="italic text-gray-600 mb-6"
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5, delay: index * 0.2 }}
+							>
+								&quot;{testimonial.quote}&quot;
+							</motion.p>
+							<h4 className="text-2xl font-semibold text-gray-800">
+								{testimonial.name}
+							</h4>
+							<p className="text-gray-500">{testimonial.title}</p>
+						</motion.div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
 };
 
-export default Landing;
+// Call to Action Component with Enhanced Animations
+const CallToAction: React.FC = () => {
+	return (
+		<section className="py-20 px-6 bg-gray-800 text-white">
+			<div className="max-w-7xl mx-auto text-center">
+				<motion.h2
+					className="text-5xl md:text-6xl font-extrabold mb-8"
+					initial={{ opacity: 0, scale: 0.8 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ duration: 0.8, delay: 0.2 }}
+				>
+					Ready to Get Started?
+				</motion.h2>
+
+				<motion.p
+					className="text-2xl md:text-3xl mb-10"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.4 }}
+				>
+					Join Go Fund Yourself today and take control of your financial future.
+				</motion.p>
+				<motion.a
+					href="#auth"
+					className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl focus:outline-none focus:ring-2 focus:ring-gray-500"
+					aria-label="Join Now"
+					whileHover={{ scale: 1.1 }}
+					transition={{ duration: 0.3 }}
+				>
+					Join Now
+				</motion.a>
+			</div>
+		</section>
+	);
+};
+
+// Main Landing Page Component
+const LandingPage: React.FC = () => {
+	return (
+		<>
+			<Head>
+				<title>Go Fund Yourself</title>
+				<meta
+					name="description"
+					content="Instant, negotiable loans without bank approval over our secure network of peers."
+				/>
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+			</Head>
+			<Header />
+			<Hero />
+			<Features />
+			<Testimonials />
+			<CallToAction />
+			<Footer />
+		</>
+	);
+};
+
+export default LandingPage;
