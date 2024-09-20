@@ -1,4 +1,4 @@
-import { calculateWeeklyInstallment } from "../../models/Loan";
+import { calculateWeeklyInstallment } from "../models/Loan";
 
 const loans = [
     {

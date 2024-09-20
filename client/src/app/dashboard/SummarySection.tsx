@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { AccountBalance, TrendingUp, MoneyOff } from '@mui/icons-material'; // Added new icon
+import loans from './MockLoans'; // Importing the loans constant
 
 interface SummaryCardProps {
   title: string;
@@ -22,26 +25,37 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon, bgColor }
   );
 };
 
+// Calculate summary values from loans data
+const totalLoansIssued = loans.reduce((sum, loan) => sum + loan.principalAmount, 0);
+const totalInterestEarned = loans.reduce((sum, loan) => {
+  const totalInterest = loan.principalAmount * (loan.interestRate / 100) * (loan.termWeeks / 52);
+  return sum + totalInterest;
+}, 0);
+const debtsCurrentlyOwed = loans.reduce((sum, loan) => {
+  const totalPaid = loan.payments.reduce((pSum, payment) => pSum + payment.amount, 0);
+  return sum + (loan.principalAmount - totalPaid);
+}, 0);
+
 // Usage of the renamed component
-const SummarySection = () => {
+const SummarySection: React.FC = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <SummaryCard 
         title="Total Loans Issued" 
-        value="$10,500" 
+        value={`$${totalLoansIssued.toFixed(2)}`} 
         icon={<AccountBalance style={{ color: 'white', fontSize: 32 }} />} 
         bgColor="bg-blue-500"
       />
       <SummaryCard 
         title="Total Interest Earned" 
-        value="$2,300" 
+        value={`$${totalInterestEarned.toFixed(2)}`} 
         icon={<TrendingUp style={{ color: 'white', fontSize: 32 }} />} 
         bgColor="bg-green-500"
       />
       {/* New Card for Total Debt Owed */}
       <SummaryCard 
         title="Debts Currently Owed" 
-        value="$5,000" 
+        value={`$${debtsCurrentlyOwed.toFixed(2)}`} 
         icon={<MoneyOff style={{ color: 'white', fontSize: 32 }} />} 
         bgColor="bg-red-500"
       />
