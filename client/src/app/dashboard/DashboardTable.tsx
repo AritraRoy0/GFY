@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { ToastContainer } from 'react-toastify';
 import SummarySection from './SummarySection'; // Corrected the import
+import LoanProgress from './LoanProgress'; // Corrected the import
 
 // Mock Data
 const mockData = {
@@ -214,6 +215,14 @@ const DashboardTable = (): JSX.Element => {
               <Bar dataKey="profit" name="Profit" fill="#F59E0B" />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+
+          {/* Loan Progress Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-10">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Loan Progress</h2>
+          {mockData.loansOwned.map((loan) => (
+            <LoanProgress key={loan.id} loan={loan} />
+          ))}
         </div>
 
         {/* Action Buttons */}
