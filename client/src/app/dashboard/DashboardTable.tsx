@@ -139,6 +139,9 @@ const DashboardTable = (): JSX.Element => {
   return (
     <div className="font-sans bg-gray-50 min-h-screen p-5 text-gray-900">
       <ToastContainer />
+      <div style={{ padding: '10px', backgroundColor: '#FFEB3B', color: '#000', textAlign: 'center', fontWeight: 'bold' }}>
+        Warning: This is mock data to test the dashboard.
+      </div>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
