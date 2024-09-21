@@ -1,150 +1,95 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	Tooltip,
-	ResponsiveContainer,
-	CartesianGrid,
-	Legend,
-} from "recharts";
-import { ToastContainer } from "react-toastify";
-import loans from "./MockLoans"; // Importing the loans constant
+import { LineChart, Line, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import loansData from "./MockLoans"; // Importing the loans constant
+import { Loan } from "../models/Loan"; // Import the Loan model
 
 const Dashboard: React.FC = () => {
-	const router = useRouter();
-	const user = useSelector((state: RootState) => state.auth.user);
-	const [loading, setLoading] = useState(true);
-	const [chartHeight, setChartHeight] = useState(300);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [chartHeight, setChartHeight] = useState(300);
 
-	const combinedLoanPerformance = loans.map((loan, index) => ({
-		week: index + 1,
-		owned: loan.principalAmount,
-		owed: loan.payments.reduce((pSum, payment) => pSum + payment.amount, 0),
-	}));
+  const calculateRemainingBalance = (loan: Loan): number => {
+    const totalPaid = loan.payments.reduce((sum, payment) => sum + payment.amount, 0);
+    return loan.principalAmount - totalPaid;
+  };
 
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const updateChartHeight = () => {
-				setChartHeight(window.innerWidth < 768 ? 200 : 300);
-			};
+  const calculateTotalPaid = (loan: Loan): number => {
+    return loan.payments.reduce((sum, payment) => sum + payment.amount, 0);
+  };
 
-			updateChartHeight();
-			window.addEventListener("resize", updateChartHeight);
-			return () => window.removeEventListener("resize", updateChartHeight);
-		}
-	}, []);
+  const processedLoans = loans.map(loan => ({
+    ...loan,
+    remainingBalance: calculateRemainingBalance(loan),
+    totalPaid: calculateTotalPaid(loan)
+  }));
 
-	useEffect(() => {
-		if (typeof user !== "undefined") {
-			if (!user) {
-				const timeout = setTimeout(() => {
-					router.push("/auth");
-				}, 500);
-				return () => clearTimeout(timeout);
-			} else {
-				setLoading(false);
-			}
-		}
-	}, [user, router]);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const updateChartHeight = () => {
+        setChartHeight(window.innerWidth < 768 ? 200 : 300);
+      };
 
-	if (loading) {
-		return (
-			<div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-				<div className="w-15 h-15 border-8 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-				<ToastContainer />
-			</div>
-		);
-	}
+      updateChartHeight();
+      window.addEventListener("resize", updateChartHeight);
+      return () => window.removeEventListener("resize", updateChartHeight);
+    }
+  }, []);
 
-	const handlePostNewLoan = () => {
-		router.push("/loans/new");
-	};
+  useEffect(() => {
+    // Simulate data loading
+    setTimeout(() => {
+      setLoans(loansData);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-	const handleRequestLoan = () => {
-		router.push("/loans/request");
-	};
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+        <p className="text-lg font-semibold">Loading...</p>
+      </div>
+    );
+  }
 
-	return (
-		<div className="font-sans bg-gray-50 min-h-screen p-5 text-gray-900">
-			<ToastContainer />
-			<div
-				style={{
-					padding: "10px",
-					backgroundColor: "#FFEB3B",
-					color: "#000",
-					textAlign: "center",
-					fontWeight: "bold",
-				}}
-			>
-				Warning: This is mock data to test the dashboard.
-			</div>
-			<div className="max-w-6xl mx-auto">
-	
-				{/* Loan Performance Line Charts */}
-				<div className="bg-white rounded-lg shadow-md p-6 mb-10">
-					<h2 className="text-2xl font-semibold text-gray-900 mb-4">
-						Loan Performance (Last 12 Weeks)
-					</h2>
-					<ResponsiveContainer width="100%" height={chartHeight}>
-						<LineChart data={combinedLoanPerformance}>
-							<defs>
-								<linearGradient id="colorOwned" x1="0" y1="0" x2="0" y2="1">
-									<stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
-									<stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-								</linearGradient>
-								<linearGradient id="colorOwed" x1="0" y1="0" x2="0" y2="1">
-									<stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
-									<stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-								</linearGradient>
-							</defs>
-							<CartesianGrid stroke="#e5e7eb" />
-							<XAxis dataKey="week" stroke="#6B7280" />
-							<YAxis stroke="#6B7280" />
-							<Tooltip />
-							<Legend />
-							<Line
-								type="monotone"
-								dataKey="owned"
-								name="Loans Owned"
-								stroke="#3B82F6"
-								strokeWidth={2}
-								fill="url(#colorOwned)"
-								fillOpacity={0.1}
-								activeDot={{ r: 6 }}
-							/>
-							<Line
-								type="monotone"
-								dataKey="owed"
-								name="Loans Owed"
-								stroke="#10B981"
-								strokeWidth={2}
-								fill="url(#colorOwed)"
-								fillOpacity={0.1}
-								activeDot={{ r: 6 }}
-							/>
-						</LineChart>
-					</ResponsiveContainer>
-				</div>
-
-			</div>
-		</div>
-	);
+  return (
+    <div className="font-sans bg-gray-50 min-h-screen w-screen p-5 text-gray-900 flex flex-col">
+      <div className="max-w-6xl mx-auto flex-grow">
+        {/* Loan Performance Line Chart */}
+        <div className="chart-container h-full">
+          <ResponsiveContainer width="100%" height={chartHeight}>
+            <LineChart data={processedLoans}>
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="remainingBalance"
+                name="Remaining Balance"
+                stroke="#3B82F6"
+                strokeWidth={2}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="totalPaid"
+                name="Total Paid"
+                stroke="#EF4444"
+                strokeWidth={2}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const DashboardTable: React.FC = () => {
-	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-			<Dashboard />
-		</div>
-	);
-}
-
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <Dashboard />
+    </div>
+  );
+};
 
 export default DashboardTable;

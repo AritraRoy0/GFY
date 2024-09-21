@@ -1,6 +1,6 @@
 // models/Loan.ts
 export interface Loan {
-	loanId: string;
+	id: string;
 	borrowerId: string;
 	lenderId: string;
 	principalAmount: number;

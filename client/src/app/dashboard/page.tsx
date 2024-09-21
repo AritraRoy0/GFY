@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import React from "react";
-import Header from "../common/Header"; // Adjust the path to your Header component
-import Footer from "../common/Footer"; // Adjust the path to your Footer component
-import DashboardTable from "./DashboardTable"; // Import the dashboard table component
-import Notifications from "./Notifications"; // Import the notifications component
-import LoanProgress from "./LoanProgress";
-import SummarySection from "./SummarySection";
+import React from 'react';
+import Header from '../common/Header'; // Adjust the import path as necessary
+import Footer from '../common/Footer'; // Adjust the import path as necessary
+import SummarySection from './SummarySection'; // Adjust the import path as necessary
+import DashboardTable from './DashboardTable'; // Adjust the import path as necessary
+import Notifications from './Notifications'; // Adjust the import path as necessary
+import LoanProgress from './LoanProgress'; // Adjust the import path as necessary
 
 const DashboardPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="flex-grow w-full p-6 bg-gray-100">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          <section className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 xl:col-span-3">
+      <main className="flex-column w-full p-6">
+        <div className="flex-col">
+          <section className="bg-white p-6 rounded-lg shadow-md">
             <SummarySection />
           </section>
-          <section className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 xl:col-span-3">
+          <section className="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
             <DashboardTable />
           </section>
-          <section className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 xl:col-span-1">
-            <LoanProgress />
-          </section>
-          <section className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 xl:col-span-1">
+          <section className="bg-white p-6 rounded-lg shadow-md">
             <Notifications />
+          </section>
+          <section className="bg-white p-6 rounded-lg shadow-md">
+            <LoanProgress />
           </section>
         </div>
       </main>
@@ -33,6 +33,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-
-// Make sure to export the page as the default export
 export default DashboardPage;
