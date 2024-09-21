@@ -1,95 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { LineChart, Line, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import loansData from "./MockLoans"; // Importing the loans constant
-import { Loan } from "../models/Loan"; // Import the Loan model
+import React from "react";
+import loans from "./MockLoans";
+import { Loan } from "../models/Loan";
+import {
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	Legend,
+} from "recharts";
 
-const Dashboard: React.FC = () => {
-  const [loans, setLoans] = useState<Loan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [chartHeight, setChartHeight] = useState(300);
+interface WeeklyData {
+	week: number;
+	projectedIncoming: number;
+	projectedPayouts: number;
+	net: number;
+}
 
-  const calculateRemainingBalance = (loan: Loan): number => {
-    const totalPaid = loan.payments.reduce((sum, payment) => sum + payment.amount, 0);
-    return loan.principalAmount - totalPaid;
-  };
+const calculateWeeklyData = (loans: Loan[]): WeeklyData[] => {
+	const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
+	const weeklyData: WeeklyData[] = weeks.map((week) => ({
+		week,
+		projectedIncoming: 0,
+		projectedPayouts: 0,
+		net: 0,
+	}));
 
-  const calculateTotalPaid = (loan: Loan): number => {
-    return loan.payments.reduce((sum, payment) => sum + payment.amount, 0);
-  };
+	const loansOwned = loans.filter((loan) => loan.owner === "owned");
+	const loansOwed = loans.filter((loan) => loan.owner === "owed");
 
-  const processedLoans = loans.map(loan => ({
-    ...loan,
-    remainingBalance: calculateRemainingBalance(loan),
-    totalPaid: calculateTotalPaid(loan)
-  }));
+	const calculateIncoming = (loan: Loan, week: number): number => {
+		const payments = loan.paymentsMade.filter(
+			(payment) => payment.weekNumber <= week
+		);
+		return payments.reduce((acc, payment) => acc + payment.amount, 0);
+	}
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const updateChartHeight = () => {
-        setChartHeight(window.innerWidth < 768 ? 200 : 300);
-      };
+	const calculatePayouts = (loan: Loan, week: number): number => {
+		const remainingWeeks = loan.termWeeks - week;
+		return loan.weeklyInstallment * remainingWeeks;
+	}
 
-      updateChartHeight();
-      window.addEventListener("resize", updateChartHeight);
-      return () => window.removeEventListener("resize", updateChartHeight);
-    }
-  }, []);
+	weeks.forEach((week) => {
+		
+		weeklyData[week - 1].projectedIncoming = loansOwned.reduce(
+			(acc, loan) => acc + calculateIncoming(loan, week),
+			0
+		);
 
-  useEffect(() => {
-    // Simulate data loading
-    setTimeout(() => {
-      setLoans(loansData);
-      setLoading(false);
-    }, 1000);
-  }, []);
+		weeklyData[week - 1].projectedPayouts = loansOwed.reduce(
+			(acc, loan) => acc + calculatePayouts(loan, week),
+			0
+		);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-        <p className="text-lg font-semibold">Loading...</p>
-      </div>
-    );
-  }
+		weeklyData[week - 1].net =
+			weeklyData[week - 1].projectedIncoming -
+			weeklyData[week - 1].projectedPayouts;
+	});
 
-  return (
-    <div className="font-sans bg-gray-50 min-h-screen w-screen p-5 text-gray-900 flex flex-col">
-      <div className="max-w-6xl mx-auto flex-grow">
-        {/* Loan Performance Line Chart */}
-        <div className="chart-container h-full">
-          <ResponsiveContainer width="100%" height={chartHeight}>
-            <LineChart data={processedLoans}>
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="remainingBalance"
-                name="Remaining Balance"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                activeDot={{ r: 6 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="totalPaid"
-                name="Total Paid"
-                stroke="#EF4444"
-                strokeWidth={2}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-};
+	return weeklyData;
+}
+
+
+
+const Chart: React.FC<{ data: WeeklyData[] }> = ({ data }) => (
+	<LineChart width={600} height={300} data={data}>
+		<CartesianGrid strokeDasharray="3 3" />
+		<XAxis dataKey="week" />
+		<YAxis />
+		<Tooltip />
+		<Legend />
+		<Line type="monotone" dataKey="projectedIncoming" stroke="#82ca9d" />
+		<Line type="monotone" dataKey="projectedPayouts" stroke="#8884d8" />
+		<Line type="monotone" dataKey="net" stroke="#ff7300" />
+	</LineChart>
+);
 
 const DashboardTable: React.FC = () => {
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Dashboard />
-    </div>
-  );
+	const weeklyData = calculateWeeklyData(loans);
+
+	return (
+		<div style={{ padding: "20px" }}>
+			<h2>Projected Loan Payments and Payouts</h2>
+			<Chart data={weeklyData} />
+		</div>
+	);
 };
 
 export default DashboardTable;

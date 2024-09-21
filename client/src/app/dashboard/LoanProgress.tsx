@@ -102,7 +102,7 @@ const LoanProgress: React.FC = () => {
 	return (
 		<div className="container mx-auto p-4">
 			{loans.map((loan, index) => {
-				const totalPaid = loan.payments.reduce(
+				const totalPaid = loan.paymentsMade.reduce(
 					(sum, payment) => sum + payment.amount,
 					0
 				);

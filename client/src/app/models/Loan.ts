@@ -1,13 +1,12 @@
 // models/Loan.ts
 export interface Loan {
 	id: string;
-	borrowerId: string;
-	lenderId: string;
+	owner: string;
 	principalAmount: number;
 	interestRate: number;
 	termWeeks: number;
 	weeklyInstallment: number;
-	payments: Payment[];
+	paymentsMade: Payment[];
 }
 
 export interface Payment {
