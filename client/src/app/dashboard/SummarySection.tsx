@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AccountBalance, TrendingUp, MoneyOff } from '@mui/icons-material'; // Added new icon
+import { AccountBalance, TrendingUp, MoneyOff } from '@mui/icons-material';
 import loans from './MockLoans'; // Importing the loans constant
 
 interface SummaryCardProps {
@@ -25,41 +25,40 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon, bgColor }
   );
 };
 
-// Calculate summary values from loans data
-const totalLoansIssued = loans.reduce((sum, loan) => sum + loan.principalAmount, 0);
-const totalInterestEarned = loans.reduce((sum, loan) => {
-  const totalInterest = loan.principalAmount * (loan.interestRate / 100) * (loan.termWeeks / 52);
-  return sum + totalInterest;
-}, 0);
-const debtsCurrentlyOwed = loans.reduce((sum, loan) => {
-  const totalPaid = loan.payments.reduce((pSum, payment) => pSum + payment.amount, 0);
-  return sum + (loan.principalAmount - totalPaid);
-}, 0);
+const SummarySection: React.FC = () => {
+  const totalOwned = loans.reduce((sum, loan) => {
+    const totalPaid = loan.payments.reduce((sum, payment) => sum + payment.amount, 0);
+    return sum + (loan.principalAmount - totalPaid);
+  }, 0);
 
-const SummarySection = () => {
+  const totalOwed = loans.reduce((sum, loan) => {
+    return sum + loan.principalAmount;
+  }, 0);
+
+  const netCredit = totalOwned - totalOwed;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <SummaryCard
-        title="Total Balance"
-        value="$12,345"
+        title="Debts Owned by you"
+        value={`$${totalOwned.toLocaleString()}`}
         icon={<AccountBalance className="text-white" />}
         bgColor="bg-blue-500"
       />
       <SummaryCard
-        title="Earnings"
-        value="$1,234"
+        title="Debts you owe"
+        value={`$${totalOwed.toLocaleString()}`}
         icon={<TrendingUp className="text-white" />}
         bgColor="bg-green-500"
       />
       <SummaryCard
-        title="Expenses"
-        value="$567"
+        title="Net Credit"
+        value={`$${netCredit.toLocaleString()}`}
         icon={<MoneyOff className="text-white" />}
         bgColor="bg-red-500"
       />
     </div>
   );
 };
-
 
 export default SummarySection;

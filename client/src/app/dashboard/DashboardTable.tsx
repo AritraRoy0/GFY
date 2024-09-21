@@ -86,13 +86,7 @@ const Dashboard: React.FC = () => {
 				Warning: This is mock data to test the dashboard.
 			</div>
 			<div className="max-w-6xl mx-auto">
-				{/* Header */}
-				<div className="mb-8">
-					<h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-					<p className="text-lg text-gray-600">
-						Overview of your loan activities
-					</p>
-				</div>
+	
 				{/* Loan Performance Line Charts */}
 				<div className="bg-white rounded-lg shadow-md p-6 mb-10">
 					<h2 className="text-2xl font-semibold text-gray-900 mb-4">
@@ -138,21 +132,7 @@ const Dashboard: React.FC = () => {
 						</LineChart>
 					</ResponsiveContainer>
 				</div>
-				{/* Action Buttons */}
-				<div className="flex justify-center gap-6 mb-10">
-					<button
-						onClick={handlePostNewLoan}
-						className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors transform hover:-translate-y-0.5"
-					>
-						Post New Loan
-					</button>
-					<button
-						onClick={handleRequestLoan}
-						className="px-6 py-3 bg-white text-blue-500 border-2 border-blue-500 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition-colors transform hover:-translate-y-0.5"
-					>
-						Request a Loan
-					</button>
-				</div>
+
 			</div>
 		</div>
 	);
