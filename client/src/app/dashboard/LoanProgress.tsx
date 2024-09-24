@@ -9,14 +9,19 @@ import {
   FaCalendarAlt,
   FaUser,
 } from "react-icons/fa";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import loans from "./MockLoans"; // Importing the loans constant
 import {
-  calculateTotalAmountToBePaid,
-} from "./utils/loanUtils";
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import loans from "./MockLoans";
+import { calculateTotalAmountToBePaid } from "./utils/loanUtils";
 import { Loan } from "../models/Loan";
 
-interface LoanProgressProps {
+interface LoanDetailProps {
   loan: Loan;
 }
 
@@ -33,10 +38,24 @@ const capitalizeFirstLetter = (str: string): string => {
 };
 
 /**
- * Progress Component: Displays detailed progress for a single loan.
+ * LoanDetail Component: Displays detailed progress for a single loan.
  */
-const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
-  const { id, owner, principalAmount, interestRate, termWeeks, paymentsMade } = loan;
+const LoanDetail: React.FC<LoanDetailProps> = ({ loan }) => {
+  const {
+    id,
+    owner,
+    principalAmount,
+    interestRate,
+    termWeeks,
+    weeklyInstallment,
+    paymentsMade,
+  } = loan;
+
+  // Calculate total amount to be paid (principal + interest)
+  const totalAmountToBePaid = useMemo(
+    () => calculateTotalAmountToBePaid(loan),
+    [loan]
+  );
 
   // Calculate total paid
   const totalPaid = useMemo(
@@ -45,16 +64,16 @@ const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
   );
 
   // Calculate remaining amount
-  const remainingAmount = useMemo(() => principalAmount - totalPaid, [principalAmount, totalPaid]);
-
-  // Calculate total amount to be paid (principal + interest)
-  const totalAmountToBePaid = useMemo(() => calculateTotalAmountToBePaid(loan), [loan]);
+  const remainingAmount = useMemo(
+    () => totalAmountToBePaid - totalPaid,
+    [totalAmountToBePaid, totalPaid]
+  );
 
   // Calculate progress percentage
-  const progressPercentage = useMemo(
-    () => (totalPaid / totalAmountToBePaid) * 100,
-    [totalPaid, totalAmountToBePaid]
-  );
+  const progressPercentage = useMemo(() => {
+    const percentage = (totalPaid / totalAmountToBePaid) * 100;
+    return isNaN(percentage) ? 0 : percentage;
+  }, [totalPaid, totalAmountToBePaid]);
 
   // Prepare data for PieChart
   const data = useMemo(
@@ -72,7 +91,8 @@ const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
         <div className="mb-4 md:mb-0">
           <h2 className="text-xl font-bold text-gray-800">Loan ID: {id}</h2>
           <p className="text-gray-600 flex items-center">
-            <FaUser className="mr-2" /> <strong>Owner:</strong> {capitalizeFirstLetter(owner)}
+            <FaUser className="mr-2" /> <strong>Owner:</strong>{" "}
+            {capitalizeFirstLetter(owner)}
           </p>
         </div>
         <div className="flex space-x-6">
@@ -110,7 +130,7 @@ const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
           </p>
           <p className="text-gray-600 flex items-center mb-2">
             <FaDollarSign className="mr-2" /> <strong>Weekly Payment:</strong>{" "}
-            ${loan.weeklyInstallment.toFixed(2)}
+            ${weeklyInstallment.toFixed(2)}
           </p>
         </div>
 
@@ -147,7 +167,10 @@ const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
               }
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip
@@ -170,7 +193,7 @@ const LoanProgress: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Your Loans</h1>
       {loans.map((loan) => (
-        <Progress key={loan.id} loan={loan} />
+        <LoanDetail key={loan.id} loan={loan} />
       ))}
     </div>
   );

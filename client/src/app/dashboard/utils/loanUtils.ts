@@ -76,7 +76,7 @@ export const calculateTotalInterestToPay = (loans: Loan[]): number => {
 };
 
 /**
- * Calculates the total amount to be paid for a single loan.
+ * Calculates the total amount to be paid for a loan, including interest.
  * @param loan - A single Loan object.
  * @returns Total amount to be paid for the loan.
  */

@@ -16,21 +16,20 @@ export interface Payment {
   }
   
   /**
-   * Function to calculate weekly installment using the formula for an installment loan
-   * @param principal - Principal amount of the loan
-   * @param annualInterestRate - Annual interest rate in percentage
-   * @param termWeeks - Term of the loan in weeks
-   * @returns Weekly installment amount
+   * Calculates the weekly installment for a loan using the amortization formula.
+   * @param principalAmount - The principal amount of the loan.
+   * @param annualInterestRate - The annual interest rate in percentage.
+   * @param termWeeks - The loan term in weeks.
+   * @returns The weekly installment amount.
    */
-  export const calculateWeeklyInstallment = (
-	principal: number,
+  export function calculateWeeklyInstallment(
+	principalAmount: number,
 	annualInterestRate: number,
 	termWeeks: number
-  ): number => {
-	const weeklyInterestRate = annualInterestRate / 52 / 100;
-	const installment =
-	  (principal * weeklyInterestRate) /
-	  (1 - Math.pow(1 + weeklyInterestRate, -termWeeks));
-	return parseFloat(installment.toFixed(2));
-  };
+  ): number {
+	const weeklyInterestRate = annualInterestRate / 100 / 52;
+	const numerator = weeklyInterestRate * principalAmount;
+	const denominator = 1 - Math.pow(1 + weeklyInterestRate, -termWeeks);
+	return numerator / denominator;
+  }
   
