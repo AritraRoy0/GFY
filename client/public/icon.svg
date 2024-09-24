@@ -1,0 +1,17 @@
+      <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 100 100"
+          fill="none"
+          stroke="black"
+          strokeWidth="30"
+          className="w-full h-full"
+        >  <!-- White circle background -->
+            <circle cx="50" cy="50" r="80" fill="white" stroke="none" />
+            {/* Big triangle */}
+            <path d="M 0 100 L 100 100" />
+            <path d="M 0 100 L 30 40" />
+            <path d="M 100 100 L 70 40" />
+            {/* Small triangle above */}
+            <path d="M 50 0 L 35 25" />
+            <path d="M 50 0 L 65 25" />
+        </svg>
