@@ -1,123 +1,179 @@
+// src/components/LoanProgress.tsx
+
 "use client";
 
-import React from "react";
-import { FaDollarSign, FaPercentage, FaCalendarAlt } from "react-icons/fa";
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import React, { useMemo } from "react";
+import {
+  FaDollarSign,
+  FaPercentage,
+  FaCalendarAlt,
+  FaUser,
+} from "react-icons/fa";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import loans from "./MockLoans"; // Importing the loans constant
+import {
+  calculateTotalAmountToBePaid,
+} from "./utils/loanUtils";
+import { Loan } from "../models/Loan";
 
 interface LoanProgressProps {
-	loanAmount: number;
-	paidAmount: number;
-	interestRate: number;
-	loanTerm: number; // in weeks
+  loan: Loan;
 }
 
-const Progress: React.FC<LoanProgressProps> = ({
-	loanAmount,
-	paidAmount,
-	interestRate,
-	loanTerm,
-}) => {
-	const progressPercentage = (paidAmount / loanAmount) * 100;
-	const remainingAmount = loanAmount - paidAmount;
-	const weeklyInterestRate = interestRate / 52 / 100;
-	const weeklyPayment =
-		(loanAmount * weeklyInterestRate) /
-		(1 - Math.pow(1 + weeklyInterestRate, -loanTerm));
+const COLORS = ["#4CAF50", "#FF5722"];
 
-	const data = [
-		{ name: "Paid", value: paidAmount },
-		{ name: "Remaining", value: remainingAmount },
-	];
-
-	const COLORS = ["#4CAF50", "#FF5722"];
-
-	return (
-		<div className="border border-gray-300 p-6 my-4 rounded-lg bg-white shadow-md">
-			<h2 className="text-2xl font-bold mb-4 text-gray-800">Loan Progress</h2>
-			<div className="mb-4 text-gray-700">
-				<p className="mb-2">
-					<strong>Loan Amount:</strong> <FaDollarSign className="inline" />{" "}
-					{loanAmount}
-				</p>
-				<p className="mb-2">
-					<strong>Paid Amount:</strong> <FaDollarSign className="inline" />{" "}
-					{paidAmount}
-				</p>
-				<p className="mb-2">
-					<strong>Remaining Amount:</strong> <FaDollarSign className="inline" />{" "}
-					{remainingAmount}
-				</p>
-				<p className="mb-2">
-					<strong>Interest Rate:</strong> <FaPercentage className="inline" />{" "}
-					{interestRate}%
-				</p>
-				<p className="mb-2">
-					<strong>Loan Term:</strong> <FaCalendarAlt className="inline" />{" "}
-					{loanTerm} weeks
-				</p>
-				<p className="mb-2">
-					<strong>Weekly Payment:</strong> <FaDollarSign className="inline" />{" "}
-					{weeklyPayment.toFixed(2)}
-				</p>
-			</div>
-			<div className="w-full bg-gray-200 h-6 rounded-full overflow-hidden relative mb-4">
-				<div
-					className="bg-blue-500 h-full flex items-center justify-center text-white font-bold"
-					style={{ width: `${progressPercentage}%` }}
-				>
-					<span className="absolute w-full text-center text-sm text-white">
-						{progressPercentage.toFixed(2)}%
-					</span>
-				</div>
-			</div>
-			<div className="flex justify-center">
-				<PieChart width={300} height={300}>
-					<Pie
-						data={data}
-						cx="50%"
-						cy="50%"
-						innerRadius={60}
-						outerRadius={80}
-						fill="#8884d8"
-						paddingAngle={5}
-						dataKey="value"
-					>
-						{data.map((_, index) => (
-							<Cell
-								key={`cell-${index}`}
-								fill={COLORS[index % COLORS.length]}
-							/>
-						))}
-					</Pie>
-					<Tooltip />
-					<Legend />
-				</PieChart>
-			</div>
-		</div>
-	);
+/**
+ * Capitalizes the first letter of a string.
+ * @param str - The string to capitalize.
+ * @returns The capitalized string.
+ */
+const capitalizeFirstLetter = (str: string): string => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * Progress Component: Displays detailed progress for a single loan.
+ */
+const Progress: React.FC<LoanProgressProps> = ({ loan }) => {
+  const { id, owner, principalAmount, interestRate, termWeeks, paymentsMade } = loan;
+
+  // Calculate total paid
+  const totalPaid = useMemo(
+    () => paymentsMade.reduce((sum, payment) => sum + payment.amount, 0),
+    [paymentsMade]
+  );
+
+  // Calculate remaining amount
+  const remainingAmount = useMemo(() => principalAmount - totalPaid, [principalAmount, totalPaid]);
+
+  // Calculate total amount to be paid (principal + interest)
+  const totalAmountToBePaid = useMemo(() => calculateTotalAmountToBePaid(loan), [loan]);
+
+  // Calculate progress percentage
+  const progressPercentage = useMemo(
+    () => (totalPaid / totalAmountToBePaid) * 100,
+    [totalPaid, totalAmountToBePaid]
+  );
+
+  // Prepare data for PieChart
+  const data = useMemo(
+    () => [
+      { name: "Paid", value: totalPaid },
+      { name: "Remaining", value: remainingAmount },
+    ],
+    [totalPaid, remainingAmount]
+  );
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      {/* Loan Header */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+        <div className="mb-4 md:mb-0">
+          <h2 className="text-xl font-bold text-gray-800">Loan ID: {id}</h2>
+          <p className="text-gray-600 flex items-center">
+            <FaUser className="mr-2" /> <strong>Owner:</strong> {capitalizeFirstLetter(owner)}
+          </p>
+        </div>
+        <div className="flex space-x-6">
+          <div className="text-center">
+            <p className="text-gray-500">Principal Amount</p>
+            <p className="text-2xl font-semibold text-gray-800">
+              ${principalAmount.toLocaleString()}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-500">Total Paid</p>
+            <p className="text-2xl font-semibold text-green-600">
+              ${totalPaid.toLocaleString()}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-500">Remaining Amount</p>
+            <p className="text-2xl font-semibold text-red-600">
+              ${remainingAmount.toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Loan Details */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <p className="text-gray-600 flex items-center mb-2">
+            <FaPercentage className="mr-2" /> <strong>Interest Rate:</strong>{" "}
+            {interestRate}%
+          </p>
+          <p className="text-gray-600 flex items-center mb-2">
+            <FaCalendarAlt className="mr-2" /> <strong>Loan Term:</strong>{" "}
+            {termWeeks} weeks
+          </p>
+          <p className="text-gray-600 flex items-center mb-2">
+            <FaDollarSign className="mr-2" /> <strong>Weekly Payment:</strong>{" "}
+            ${loan.weeklyInstallment.toFixed(2)}
+          </p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="col-span-1 md:col-span-2">
+          <p className="text-gray-600 mb-2">
+            <strong>Progress:</strong> {progressPercentage.toFixed(2)}% paid
+          </p>
+          <div className="w-full bg-gray-200 h-6 rounded-full overflow-hidden relative">
+            <div
+              className="bg-blue-500 h-full rounded-full"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+            <span className="absolute left-0 top-0 w-full text-center text-sm text-white">
+              {progressPercentage.toFixed(2)}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Pie Chart */}
+      <div className="mt-6">
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={data}
+              innerRadius={80}
+              outerRadius={100}
+              fill="#8884d8"
+              paddingAngle={3}
+              dataKey="value"
+              label={({ name, percent }) =>
+                `${name}: ${(percent * 100).toFixed(0)}%`
+              }
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number) => `$${value.toLocaleString()}`}
+              contentStyle={{ fontSize: "14px" }}
+            />
+            <Legend verticalAlign="bottom" height={36} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * LoanProgress Component: Displays progress for all loans.
+ */
 const LoanProgress: React.FC = () => {
-	return (
-		<div className="container mx-auto p-4">
-			{loans.map((loan, index) => {
-				const totalPaid = loan.paymentsMade.reduce(
-					(sum, payment) => sum + payment.amount,
-					0
-				);
-				return (
-					<Progress
-						key={index}
-						loanAmount={loan.principalAmount}
-						paidAmount={totalPaid}
-						interestRate={loan.interestRate}
-						loanTerm={loan.termWeeks} // Term in weeks
-					/>
-				);
-			})}
-		</div>
-	);
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Your Loans</h1>
+      {loans.map((loan) => (
+        <Progress key={loan.id} loan={loan} />
+      ))}
+    </div>
+  );
 };
 
 export default LoanProgress;

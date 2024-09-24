@@ -27,7 +27,7 @@ export interface Payment {
 	annualInterestRate: number,
 	termWeeks: number
   ): number => {
-	const weeklyInterestRate = annualInterestRate / 100;
+	const weeklyInterestRate = annualInterestRate / 52 / 100;
 	const installment =
 	  (principal * weeklyInterestRate) /
 	  (1 - Math.pow(1 + weeklyInterestRate, -termWeeks));
