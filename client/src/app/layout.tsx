@@ -26,6 +26,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{String(metadata.title)}</title>
         <meta name="description" content={metadata.description || ""} />
+        <link rel="icon" href="./common/icon.png" />
         
         {/* Add any other meta tags here, like OpenGraph or Twitter */}
       </head>

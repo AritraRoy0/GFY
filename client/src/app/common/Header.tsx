@@ -14,6 +14,8 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import Logo from './Logo'; // Adjust the path to your Logo component if necessarys
+
 // Define the shape of your Redux state for better TypeScript support
 interface User {
   id: string;
@@ -95,6 +97,9 @@ const Header: React.FC = () => {
     <header className="bg-gray-800 shadow-md sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto flex justify-between items-center p-4">
         {/* Logo and Brand Name */}
+        <Link href="/" className="flex items-center space-x-2">
+          <Logo /> {/* Use the Logo component here */}
+        </Link>
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-extrabold text-white">
             Go Fund Yourself!!
