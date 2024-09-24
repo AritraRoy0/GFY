@@ -1,5 +1,5 @@
-import { calculateWeeklyInstallment } from "../models/Loan";
-import { Loan } from "../models/Loan";
+// MockLoans.ts
+import { calculateWeeklyInstallment, Loan } from "../models/Loan";
 
 const loans: Loan[] = [
   {
@@ -28,39 +28,32 @@ const loans: Loan[] = [
       // Add more payments as needed
     ],
   },
-
-  
-    {
-      id: "L003",
-      owner: "owned",
-      principalAmount: 15000,
-      interestRate: 15,
-      termWeeks: 12,
-      weeklyInstallment: calculateWeeklyInstallment(15000, 15, 36),
-      paymentsMade: [
-        { weekNumber: 1, amount: 1260 },
-        { weekNumber: 2, amount: 1260 },
-        // Add more payments as needed
-      ],
-    },
-
-    {
-      id: "L004",
-      owner: "owed",
-      principalAmount: 20000,
-      interestRate: 8,
-      termWeeks: 12,
-      weeklyInstallment: calculateWeeklyInstallment(20000, 20, 48),
-      paymentsMade: [
-        { weekNumber: 1, amount: 1680 },
-        { weekNumber: 2, amount: 1680 },
-        // Add more payments as needed
-      ],  
-    }
-  ];
-  // Add more loans as needed
-
-
-
+  {
+    id: "L003",
+    owner: "owned",
+    principalAmount: 15000,
+    interestRate: 15,
+    termWeeks: 12,
+    weeklyInstallment: calculateWeeklyInstallment(15000, 15, 36),
+    paymentsMade: [
+      { weekNumber: 1, amount: 1260 },
+      { weekNumber: 2, amount: 1260 },
+      // Add more payments as needed
+    ],
+  },
+  {
+    id: "L004",
+    owner: "owed",
+    principalAmount: 20000,
+    interestRate: 8,
+    termWeeks: 12,
+    weeklyInstallment: calculateWeeklyInstallment(20000, 8, 48),
+    paymentsMade: [
+      { weekNumber: 1, amount: 1680 },
+      { weekNumber: 2, amount: 1680 },
+      // Add more payments as needed
+    ],
+  },
+];
 
 export default loans;
