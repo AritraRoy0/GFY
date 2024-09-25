@@ -554,22 +554,22 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
 	{
-		name: "Alice Johnson",
+		name: "Roy Mazumder",
 		title: "Chief Executive Officer",
 		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-		bio: "Alice has over 20 years of experience in the financial industry and is committed to revolutionizing peer-to-peer lending.",
+		bio: "Leads the vision, and the long term strategy of our organization.",
 	},
 	{
-		name: "Bob Smith",
+		name: "Loren Ibsem",
 		title: "Chief Financial Officer",
-		icon: <FaUserSecret className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-		bio: "Bob is a financial expert with a passion for creating flexible financial solutions for everyone.",
+		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Responsible for overseeing the financial status, and operations of the firm.",
 	},
 	{
-		name: "Carol Davis",
+		name: "Andre Petion",
 		title: "Chief Operating Officer",
-		icon: <FaUserCog className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-		bio: "Carol oversees daily operations, ensuring that our platform runs smoothly and efficiently.",
+		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Manages the day to day operations of the company, and human capital of the group.",
 	},
 ];
 
