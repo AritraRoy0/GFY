@@ -18,6 +18,7 @@ import {
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
+import Image from "next/image";
 
 // Define TypeScript interfaces for animated elements
 interface AnimatedElement {
@@ -46,148 +47,182 @@ const featureDetailVariants = {
 	hidden: { opacity: 0, y: 30 },
 	visible: { opacity: 1, y: 0 },
 };
-// src/components/Hero.tsx
-// Define TypeScript interfaces for animated elements
-interface AnimatedElement {
-  id: number;
-  type: "circle" | "triangle" | "square" | "icon";
-  color: string;
-  size: number;
-  initialPosition: { x: number; y: number };
-  animate: {
-    x: number;
-    y: number;
-    rotate?: number;
-    opacity: number;
-  };
-  transition: {
-    duration: number;
-    repeat: number;
-    repeatType: "reverse" | "loop";
-    delay: number;
-  };
-  icon?: JSX.Element;
-}
 
 // Animation Variants
 const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
+	hidden: { opacity: 0, y: 20 },
+	visible: { opacity: 1, y: 0 },
 };
 
 // Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
-  // Define animated elements with thematic relevance
-  const animatedElements: AnimatedElement[] = [
-    // ... (keep your existing animated elements here)
-  ];
+	// Define animated elements with thematic relevance
+	const animatedElements: AnimatedElement[] = [
+		{
+			id: 1,
+			type: "circle",
+			color: "#F56565",
+			size: 80,
+			initialPosition: { x: -50, y: -50 },
+			animate: { x: 50, y: 50, opacity: 0.7 },
+			transition: {
+				duration: 6,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 0,
+			},
+		},
+		{
+			id: 2,
+			type: "square",
+			color: "#68D391",
+			size: 60,
+			initialPosition: { x: 200, y: -100 },
+			animate: { x: -100, y: 150, opacity: 0.5 },
+			transition: {
+				duration: 8,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 1,
+			},
+		},
+		{
+			id: 3,
+			type: "triangle",
+			color: "#4299E1",
+			size: 70,
+			initialPosition: { x: -150, y: 100 },
+			animate: { x: 150, y: -50, opacity: 0.6 },
+			transition: {
+				duration: 7,
+				repeat: Infinity,
+				repeatType: "reverse",
+				delay: 0.5,
+			},
+		},
+		{
+			id: 4,
+			type: "icon",
+			color: "#ECC94B",
+			size: 50,
+			initialPosition: { x: 100, y: -150 },
+			animate: { x: -100, y: 150, rotate: 360, opacity: 0.8 },
+			transition: {
+				duration: 9,
+				repeat: Infinity,
+				repeatType: "loop",
+				delay: 0,
+			},
+			icon: <FaMoneyBillWave />,
+		},
+	];
 
-  return (
-    <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
-      {/* Background Overlay */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-      </div>
+	return (
+		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
+			{/* Background Overlay */}
+			<div className="absolute inset-0">
+				<div className="absolute inset-0 bg-black opacity-50"></div>
+			</div>
 
-      {/* Animated Elements Container */}
-      <div className="absolute inset-0">
-        {animatedElements.map((element) => (
-          <motion.div
-            key={element.id}
-            className="absolute"
-            initial={{
-              x: element.initialPosition.x,
-              y: element.initialPosition.y,
-            }}
-            animate={{
-              x: element.animate.x,
-              y: element.animate.y,
-              rotate: element.animate.rotate || 0,
-              opacity: element.animate.opacity,
-            }}
-            transition={element.transition}
-            style={{
-              width: element.size,
-              height: element.size,
-              backgroundColor:
-                element.type !== "icon" ? element.color : "transparent",
-              borderRadius: element.type === "circle" ? "50%" : "0%",
-              clipPath:
-                element.type === "triangle"
-                  ? "polygon(50% 0%, 0% 100%, 100% 100%)"
-                  : "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: element.color,
-              fontSize: element.size / 2,
-              pointerEvents: "none", // Prevents interaction
-            }}
-          >
-            {element.type === "icon" && (
-              <motion.div
-                whileHover={{ scale: 1.3 }}
-                transition={{ duration: 0.3 }}
-              >
-                {element.icon}
-              </motion.div>
-            )}
-          </motion.div>
-        ))}
-      </div>
+			{/* Animated Elements Container */}
+			<div className="absolute inset-0">
+				{animatedElements.map((element) => (
+					<motion.div
+						key={element.id}
+						className="absolute"
+						initial={{
+							x: element.initialPosition.x,
+							y: element.initialPosition.y,
+						}}
+						animate={{
+							x: element.animate.x,
+							y: element.animate.y,
+							rotate: element.animate.rotate || 0,
+							opacity: element.animate.opacity,
+						}}
+						transition={element.transition}
+						style={{
+							width: element.size,
+							height: element.size,
+							backgroundColor:
+								element.type !== "icon" ? element.color : "transparent",
+							borderRadius: element.type === "circle" ? "50%" : "0%",
+							clipPath:
+								element.type === "triangle"
+									? "polygon(50% 0%, 0% 100%, 100% 100%)"
+									: "none",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							color: element.color,
+							fontSize: element.size / 2,
+							pointerEvents: "none", // Prevents interaction
+						}}
+					>
+						{element.type === "icon" && (
+							<motion.div
+								whileHover={{ scale: 1.3 }}
+								transition={{ duration: 0.3 }}
+							>
+								{element.icon}
+							</motion.div>
+						)}
+					</motion.div>
+				))}
+			</div>
 
-      {/* Content */}
-      <div className="relative max-w-4xl mx-auto text-center z-10">
-        {/* Hero Heading with Bouncing Animation */}
-        <motion.h1
-          className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight"
-          animate={{ opacity: 1, y: [0, -20, 0] }}
-          transition={{
-            opacity: { duration: 1 },
-            y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
-          }}
-        >
-          Go Fund Yourself!!
-        </motion.h1>
+			{/* Content */}
+			<div className="relative max-w-4xl mx-auto text-center z-10">
+				{/* Hero Heading with Bouncing Animation */}
+				<motion.h1
+					className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight"
+					animate={{ opacity: 1, y: [0, -20, 0] }}
+					transition={{
+						opacity: { duration: 1 },
+						y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
+					}}
+				>
+					Go Fund Yourself!!
+				</motion.h1>
 
-        {/* Hero Subheading with Fade-in Animation */}
-        <motion.h2
-          className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          Where you can do you
-        </motion.h2>
+				{/* Hero Subheading with Fade-in Animation */}
+				<motion.h2
+					className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200"
+					variants={fadeIn}
+					initial="hidden"
+					animate="visible"
+					transition={{ duration: 1, delay: 0.5 }}
+				>
+					Where you can do you
+				</motion.h2>
 
-        {/* Hero Subtitle with Fade-In and Slide-Up Animation */}
-        <motion.p
-          className="text-lg md:text-xl mb-10 text-gray-300"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 1, delay: 0.7 }}
-        >
-          Instant, negotiable loans without bank approval over our secure
-          network of peers.
-        </motion.p>
+				{/* Hero Subtitle with Fade-In and Slide-Up Animation */}
+				<motion.p
+					className="text-lg md:text-xl mb-10 text-gray-300"
+					variants={fadeIn}
+					initial="hidden"
+					animate="visible"
+					transition={{ duration: 1, delay: 0.7 }}
+				>
+					Instant, negotiable loans without bank approval over our secure
+					network of peers.
+				</motion.p>
 
-        {/* Get Started Button with Entrance Animation */}
-        <motion.a
-          href="/auth"
-          className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          aria-label="Get Started"
-          whileHover={{ scale: 1.05 }}
-        >
-          Get Started
-        </motion.a>
-      </div>
-    </div>
-  );
+				{/* Get Started Button with Entrance Animation */}
+				<motion.a
+					href="/auth"
+					className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+					initial={{ opacity: 0, scale: 0.8 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ duration: 0.8, delay: 0.9 }}
+					aria-label="Get Started"
+					whileHover={{ scale: 1.05 }}
+				>
+					Get Started
+				</motion.a>
+			</div>
+		</div>
+	);
 };
 
 // Features Component with Enhanced Animations and Navigation Arrows
@@ -462,6 +497,52 @@ const CallToAction: React.FC = () => {
 	);
 };
 
+const PoweredBy: React.FC = () => {
+	return (
+		<div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
+			<div className="flex flex-wrap items-center justify-center gap-10">
+				<a
+					href="https://google.com/"
+					aria-label="Google"
+					className="group"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<div className="relative w-16 h-16">
+						<Image
+							src="/google.svg"
+							alt="Google"
+							layout="fill"
+							objectFit="contain"
+							className="transition-transform duration-300 group-hover:scale-110"
+						/>
+					</div>
+				</a>
+				<h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
+					Powered By
+				</h2>
+				<a
+					href="https://stripe.com/"
+					aria-label="Stripe"
+					className="group"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<div className="relative w-16 h-16">
+						<Image
+							src="/stripe.svg"
+							alt="Stripe"
+							layout="fill"
+							objectFit="contain"
+							className="transition-transform duration-300 group-hover:scale-110"
+						/>
+					</div>
+				</a>
+			</div>
+		</div>
+	);
+};
+
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
 	return (
@@ -478,6 +559,7 @@ const LandingPage: React.FC = () => {
 			<Header />
 			<Hero />
 			<Features />
+			<PoweredBy />
 			<Testimonials />
 			<CallToAction />
 			<Footer />
