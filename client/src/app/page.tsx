@@ -18,6 +18,7 @@ import {
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
+import Image from "next/image";
 
 // Define TypeScript interfaces for animated elements
 interface AnimatedElement {
@@ -462,6 +463,51 @@ const CallToAction: React.FC = () => {
 	);
 };
 
+const PoweredBy: React.FC = () => {
+  return (
+    <footer className="bg-gray-900 text-gray-300 py-6">
+      <div className="container mx-auto text-center">
+        <p className="text-sm">
+          &copy; {new Date().getFullYear()} Go Fund Yourself. All rights reserved.
+        </p>
+        <div className="flex items-center justify-center mt-4 space-x-4">
+          <a href="https://firebase.google.com/" aria-label="Google Firebase">
+            <Image
+              src="/firebase.svg"
+              alt="Google Firebase"
+              width={40}
+              height={40}
+            />
+			 <Image
+              src="/google.svg"
+              alt="Google Firebase"
+              width={40}
+              height={40}
+            />
+          </a>
+          <a href="https://stripe.com/" aria-label="Stripe">
+            <Image
+              src="/stripe.svg"
+              alt="Stripe"
+              width={40}
+              height={40}
+            />
+          </a>
+          <a href="https://vercel.com/" aria-label="Vercel">
+            <Image
+              src="/aws.svg"
+              alt="Vercel"
+              width={40}
+              height={40}
+            />
+          </a>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
 	return (
@@ -478,6 +524,7 @@ const LandingPage: React.FC = () => {
 			<Header />
 			<Hero />
 			<Features />
+			<PoweredBy />
 			<Testimonials />
 			<CallToAction />
 			<Footer />
