@@ -295,7 +295,10 @@ const Features: React.FC = () => {
 		<section className="py-20 px-6 bg-gray-200">
 			<div className="max-w-7xl mx-auto text-center">
 				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-					Why Choose Go Fund Yourself?
+					Why choose to
+				</h2>
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Go Fund Yourself?
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 					{features.map((feature, index) => (
