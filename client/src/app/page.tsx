@@ -543,6 +543,63 @@ const PoweredBy: React.FC = () => {
 	);
 };
 
+import { FaUserTie, FaUserSecret, FaUserCog } from "react-icons/fa";
+
+interface TeamMember {
+	name: string;
+	title: string;
+	icon: JSX.Element;
+	bio: string;
+}
+
+const teamMembers: TeamMember[] = [
+	{
+		name: "Alice Johnson",
+		title: "Chief Executive Officer",
+		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Alice has over 20 years of experience in the financial industry and is committed to revolutionizing peer-to-peer lending.",
+	},
+	{
+		name: "Bob Smith",
+		title: "Chief Financial Officer",
+		icon: <FaUserSecret className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Bob is a financial expert with a passion for creating flexible financial solutions for everyone.",
+	},
+	{
+		name: "Carol Davis",
+		title: "Chief Operating Officer",
+		icon: <FaUserCog className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Carol oversees daily operations, ensuring that our platform runs smoothly and efficiently.",
+	},
+];
+
+const Team: React.FC = () => {
+	return (
+		<section className="py-20 px-6 bg-white">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Meet Our Team
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+					{teamMembers.map((member, index) => (
+						<div
+							key={index}
+							className="bg-gray-50 shadow-md rounded-lg p-6 hover:shadow-2xl transition duration-500"
+						>
+							<div className="mb-6">{member.icon}</div>
+							<h3 className="text-2xl font-semibold text-gray-800 mb-2">
+								{member.name}
+							</h3>
+							<p className="text-gray-500 mb-4">{member.title}</p>
+							<p className="text-gray-600">{member.bio}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
+};
+
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
 	return (
@@ -559,6 +616,7 @@ const LandingPage: React.FC = () => {
 			<Header />
 			<Hero />
 			<Features />
+			<Team />
 			<PoweredBy />
 			<Testimonials />
 			<CallToAction />
