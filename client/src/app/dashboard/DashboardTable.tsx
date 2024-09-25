@@ -1,8 +1,6 @@
-// src/components/DashboardTable.tsx
-
+// Import necessary hooks and components
 import React, { useMemo } from "react";
 import loans from "./MockLoans";
-import { Loan } from "../models/Loan";
 import {
   LineChart,
   Line,
@@ -15,6 +13,7 @@ import {
 } from "recharts";
 import {
   Typography,
+  Container,
   Paper,
   Grid,
   Table,
@@ -24,43 +23,40 @@ import {
   TableHead,
   TableRow,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   calculateWeeklyData,
   calculateCumulativeWeeklyData,
   CumulativeWeeklyData,
   getLoanSummary,
-} from "./utils/loanUtils"; // Corrected import path
+} from "./utils/loanUtils";
 
 const DashboardTable: React.FC = () => {
+  // Define theme and isMobile for responsive styles
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Memoize calculations for performance
-  const weeklyData = useMemo(() => calculateWeeklyData(loans), [loans]);
+  const weeklyData = useMemo(() => calculateWeeklyData(loans), []);
   const cumulativeWeeklyData: CumulativeWeeklyData[] = useMemo(
     () => calculateCumulativeWeeklyData(loans),
-    [loans]
+    []
   );
-  const loanSummary = useMemo(() => getLoanSummary(loans), [loans]);
+  const loanSummary = useMemo(() => getLoanSummary(loans), []);
 
   return (
-    <div
-      style={{
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: theme.spacing(4),
-      }}
-    >
+    <Container maxWidth="lg" sx={{ paddingY: { xs: 2, sm: 3, md: 4 } }}>
       <Typography variant="h4" gutterBottom>
         Projected Loan Payments and Payouts
       </Typography>
-      <Grid container spacing={4}>
+      <Grid container spacing={isMobile ? 2 : 4}>
         {/* Cumulative Projections Chart */}
         <Grid item xs={12} md={8}>
           <Paper
             elevation={3}
             sx={{
-              padding: theme.spacing(3),
+              padding: { xs: theme.spacing(2), md: theme.spacing(3) },
               backgroundColor: theme.palette.background.paper,
             }}
           >
@@ -71,7 +67,7 @@ const DashboardTable: React.FC = () => {
             >
               Cumulative Projections
             </Typography>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={isMobile ? 250 : 400}>
               <LineChart data={cumulativeWeeklyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
@@ -103,7 +99,7 @@ const DashboardTable: React.FC = () => {
                   dataKey="cumulativeIncoming"
                   name="Cumulative Incoming"
                   stroke={theme.palette.success.main}
-                  strokeWidth={3}
+                  strokeWidth={2}
                   dot={false}
                 />
                 <Line
@@ -111,7 +107,7 @@ const DashboardTable: React.FC = () => {
                   dataKey="cumulativePayouts"
                   name="Cumulative Payouts"
                   stroke={theme.palette.primary.main}
-                  strokeWidth={3}
+                  strokeWidth={2}
                   dot={false}
                 />
                 <Line
@@ -119,7 +115,7 @@ const DashboardTable: React.FC = () => {
                   dataKey="cumulativeNet"
                   name="Cumulative Net"
                   stroke={theme.palette.warning.main}
-                  strokeWidth={3}
+                  strokeWidth={2}
                   dot={false}
                 />
               </LineChart>
@@ -132,9 +128,9 @@ const DashboardTable: React.FC = () => {
           <Paper
             elevation={3}
             sx={{
-              padding: theme.spacing(3),
+              padding: { xs: theme.spacing(2), md: theme.spacing(3) },
               backgroundColor: theme.palette.background.paper,
-              maxHeight: 400,
+              maxHeight: isMobile ? 300 : 400,
               overflow: "auto",
             }}
           >
@@ -202,14 +198,15 @@ const DashboardTable: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           Loan Summary
         </Typography>
-        <Grid container spacing={4}>
+        <Grid container spacing={isMobile ? 2 : 4}>
           {/* Owned Loans Summary */}
           <Grid item xs={12} md={6}>
             <Paper
               elevation={3}
               sx={{
-                padding: theme.spacing(3),
+                padding: { xs: theme.spacing(2), md: theme.spacing(3) },
                 backgroundColor: theme.palette.background.paper,
+                height: "100%",
               }}
             >
               <Typography
@@ -255,8 +252,9 @@ const DashboardTable: React.FC = () => {
             <Paper
               elevation={3}
               sx={{
-                padding: theme.spacing(3),
+                padding: { xs: theme.spacing(2), md: theme.spacing(3) },
                 backgroundColor: theme.palette.background.paper,
+                height: "100%",
               }}
             >
               <Typography
@@ -298,58 +296,70 @@ const DashboardTable: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Net Credit */}
-        <Paper
-          elevation={3}
-          sx={{
-            padding: theme.spacing(3),
-            backgroundColor: theme.palette.background.paper,
-            marginTop: theme.spacing(4),
-          }}
+        {/* Net Credit and Total Reserves */}
+        <Grid
+          container
+          spacing={isMobile ? 2 : 4}
+          sx={{ marginTop: theme.spacing(4) }}
         >
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            Net Credit
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color:
-                loanSummary.netCredit >= 0
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
-            }}
-          >
-            <strong>Net Credit:</strong> ${loanSummary.netCredit.toLocaleString()}
-          </Typography>
-        </Paper>
+          {/* Net Credit */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={3}
+              sx={{
+                padding: { xs: theme.spacing(2), md: theme.spacing(3) },
+                backgroundColor: theme.palette.background.paper,
+                height: "100%",
+              }}
+            >
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ marginBottom: theme.spacing(2) }}
+              >
+                Net Credit
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color:
+                    loanSummary.netCredit >= 0
+                      ? theme.palette.success.main
+                      : theme.palette.error.main,
+                }}
+              >
+                <strong>Net Credit:</strong> $
+                {loanSummary.netCredit.toLocaleString()}
+              </Typography>
+            </Paper>
+          </Grid>
 
-        {/* Total Reserves */}
-        <Paper
-          elevation={3}
-          sx={{
-            padding: theme.spacing(3),
-            backgroundColor: theme.palette.background.paper,
-            marginTop: theme.spacing(4),
-          }}
-        >
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            Total Reserves
-          </Typography>
-          <Typography variant="body1">
-            <strong>Total Reserves (Interest):</strong>{" "}
-            ${loanSummary.totalReserves.toLocaleString()}
-          </Typography>
-        </Paper>
+          {/* Total Reserves */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={3}
+              sx={{
+                padding: { xs: theme.spacing(2), md: theme.spacing(3) },
+                backgroundColor: theme.palette.background.paper,
+                height: "100%",
+              }}
+            >
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ marginBottom: theme.spacing(2) }}
+              >
+                Total Reserves
+              </Typography>
+              <Typography variant="body1">
+                <strong>Total Reserves (Interest):</strong> $
+                {loanSummary.totalReserves.toLocaleString()}
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
       </div>
-    </div>
+    </Container>
   );
 };
 
