@@ -41,219 +41,153 @@ interface AnimatedElement {
 	icon?: JSX.Element;
 }
 
-// Animation Variants
-const fadeIn = {
-	hidden: { opacity: 0 },
-	visible: { opacity: 1 },
-};
-
 // Custom animation variant for feature detail transitions
 const featureDetailVariants = {
 	hidden: { opacity: 0, y: 30 },
 	visible: { opacity: 1, y: 0 },
 };
+// src/components/Hero.tsx
+// Define TypeScript interfaces for animated elements
+interface AnimatedElement {
+  id: number;
+  type: "circle" | "triangle" | "square" | "icon";
+  color: string;
+  size: number;
+  initialPosition: { x: number; y: number };
+  animate: {
+    x: number;
+    y: number;
+    rotate?: number;
+    opacity: number;
+  };
+  transition: {
+    duration: number;
+    repeat: number;
+    repeatType: "reverse" | "loop";
+    delay: number;
+  };
+  icon?: JSX.Element;
+}
+
+// Animation Variants
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 // Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
-	// Define animated elements with thematic relevance
-	const animatedElements: AnimatedElement[] = [
-		{
-			id: 1,
-			type: "circle",
-			color: "rgba(0, 0, 0, 0.2)", // Black with transparency
-			size: 200, // Increased size
-			initialPosition: { x: -100, y: -100 },
-			animate: { x: 100, y: 100, opacity: 0.4 },
-			transition: {
-				duration: 15,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 0,
-			},
-		},
-		{
-			id: 2,
-			type: "triangle",
-			color: "rgba(50, 50, 50, 0.15)", // Dark Gray with transparency
-			size: 140, // Increased size
-			initialPosition: { x: 200, y: -200 },
-			animate: { x: -200, y: 200, opacity: 0.3 },
-			transition: {
-				duration: 18,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 3,
-			},
-		},
-		{
-			id: 3,
-			type: "square",
-			color: "rgba(100, 100, 100, 0.1)", // Light Gray with transparency
-			size: 100, // Increased size
-			initialPosition: { x: -300, y: 300 },
-			animate: { x: 300, y: -300, opacity: 0.2 },
-			transition: {
-				duration: 20,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 5,
-			},
-		},
-		{
-			id: 4,
-			type: "icon",
-			color: "rgba(0, 0, 0, 0.25)", // Black with transparency
-			size: 80, // Increased size
-			initialPosition: { x: 350, y: 350 },
-			animate: { x: -350, y: -350, rotate: 720, opacity: 0.5 }, // Increased rotation
-			transition: {
-				duration: 25,
-				repeat: Infinity,
-				repeatType: "loop",
-				delay: 2,
-			},
-			icon: <FaMoneyBillWave />,
-		},
-		{
-			id: 5,
-			type: "icon",
-			color: "rgba(100, 100, 100, 0.25)", // Light Gray with transparency
-			size: 70, // Increased size
-			initialPosition: { x: -400, y: 150 },
-			animate: { x: 400, y: -150, rotate: 720, opacity: 0.5 }, // Increased rotation
-			transition: {
-				duration: 22,
-				repeat: Infinity,
-				repeatType: "loop",
-				delay: 4,
-			},
-			icon: <FaChartLine />,
-		},
-		// Additional animated elements to fill empty space
-		{
-			id: 6,
-			type: "circle",
-			color: "rgba(50, 50, 50, 0.1)",
-			size: 180, // Increased size
-			initialPosition: { x: 400, y: -250 },
-			animate: { x: -400, y: 250, opacity: 0.15 },
-			transition: {
-				duration: 25,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 1,
-			},
-		},
-		{
-			id: 7,
-			type: "square",
-			color: "rgba(80, 80, 80, 0.15)",
-			size: 130, // Increased size
-			initialPosition: { x: -350, y: 200 },
-			animate: { x: 350, y: -200, opacity: 0.2 },
-			transition: {
-				duration: 24,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 2,
-			},
-		},
-	];
+  // Define animated elements with thematic relevance
+  const animatedElements: AnimatedElement[] = [
+    // ... (keep your existing animated elements here)
+  ];
 
-	return (
-		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-32 px-6 overflow-hidden">
-			{/* Background Overlay */}
-			<div className="absolute inset-0">
-				<div className="absolute inset-0 bg-black opacity-50"></div>
-			</div>
+  return (
+    <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
+      {/* Background Overlay */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+      </div>
 
-			{/* Animated Elements Container */}
-			<div className="absolute inset-0">
-				{animatedElements.map((element) => (
-					<motion.div
-						key={element.id}
-						className="absolute"
-						initial={{
-							x: element.initialPosition.x,
-							y: element.initialPosition.y,
-						}}
-						animate={{
-							x: element.animate.x,
-							y: element.animate.y,
-							rotate: element.animate.rotate || 0,
-							opacity: element.animate.opacity,
-						}}
-						transition={element.transition}
-						style={{
-							width: element.size,
-							height: element.size,
-							backgroundColor:
-								element.type !== "icon" ? element.color : "transparent",
-							borderRadius: element.type === "circle" ? "50%" : "0%",
-							clipPath:
-								element.type === "triangle"
-									? "polygon(50% 0%, 0% 100%, 100% 100%)"
-									: "none",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							color: element.color,
-							fontSize: element.size / 2,
-							pointerEvents: "none", // Prevents interaction
-						}}
-					>
-						{element.type === "icon" && (
-							<motion.div
-								whileHover={{ scale: 1.3 }}
-								transition={{ duration: 0.3 }}
-							>
-								{element.icon}
-							</motion.div>
-						)}
-					</motion.div>
-				))}
-			</div>
+      {/* Animated Elements Container */}
+      <div className="absolute inset-0">
+        {animatedElements.map((element) => (
+          <motion.div
+            key={element.id}
+            className="absolute"
+            initial={{
+              x: element.initialPosition.x,
+              y: element.initialPosition.y,
+            }}
+            animate={{
+              x: element.animate.x,
+              y: element.animate.y,
+              rotate: element.animate.rotate || 0,
+              opacity: element.animate.opacity,
+            }}
+            transition={element.transition}
+            style={{
+              width: element.size,
+              height: element.size,
+              backgroundColor:
+                element.type !== "icon" ? element.color : "transparent",
+              borderRadius: element.type === "circle" ? "50%" : "0%",
+              clipPath:
+                element.type === "triangle"
+                  ? "polygon(50% 0%, 0% 100%, 100% 100%)"
+                  : "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: element.color,
+              fontSize: element.size / 2,
+              pointerEvents: "none", // Prevents interaction
+            }}
+          >
+            {element.type === "icon" && (
+              <motion.div
+                whileHover={{ scale: 1.3 }}
+                transition={{ duration: 0.3 }}
+              >
+                {element.icon}
+              </motion.div>
+            )}
+          </motion.div>
+        ))}
+      </div>
 
-			{/* Content */}
-			<div className="relative max-w-7xl mx-auto text-center z-10">
-				{/* Hero Heading with Bouncing Animation */}
-				<motion.h1
-					className="text-6xl md:text-8xl font-extrabold mb-8 text-white"
-					animate={{ opacity: 1, y: [0, -20, 0] }}
-					transition={{
-						opacity: { duration: 1 },
-						y: { duration: 1.5, repeat: Infinity, repeatType: "loop" },
-					}}
-				>
-					Go Fund Yourself!!
-				</motion.h1>
+      {/* Content */}
+      <div className="relative max-w-4xl mx-auto text-center z-10">
+        {/* Hero Heading with Bouncing Animation */}
+        <motion.h1
+          className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight"
+          animate={{ opacity: 1, y: [0, -20, 0] }}
+          transition={{
+            opacity: { duration: 1 },
+            y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
+          }}
+        >
+          Go Fund Yourself!!
+        </motion.h1>
 
-				{/* Hero Subtitle with Fade-In and Slide-Up Animation */}
-				<motion.p
-					className="text-2xl md:text-3xl mb-12 text-gray-300"
-					initial="hidden"
-					animate="visible"
-					variants={fadeIn}
-					transition={{ duration: 1, delay: 0.5 }}
-				>
-					Instant, negotiable loans without bank approval over our secure
-					network of peers.
-				</motion.p>
+        {/* Hero Subheading with Fade-in Animation */}
+        <motion.h2
+          className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 1, delay: 0.5 }}
+        >
+          Where you can do you
+        </motion.h2>
 
-				{/* Get Started Button with Entrance Animation */}
-				<motion.a
-					href="/auth"
-					className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 text-xl focus:outline-none focus:ring-2 focus:ring-gray-500"
-					initial={{ opacity: 0, scale: 0.8 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ duration: 0.8, delay: 0.8 }}
-					aria-label="Get Started"
-				>
-					Get Started
-				</motion.a>
-			</div>
-		</div>
-	);
+        {/* Hero Subtitle with Fade-In and Slide-Up Animation */}
+        <motion.p
+          className="text-lg md:text-xl mb-10 text-gray-300"
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 1, delay: 0.7 }}
+        >
+          Instant, negotiable loans without bank approval over our secure
+          network of peers.
+        </motion.p>
+
+        {/* Get Started Button with Entrance Animation */}
+        <motion.a
+          href="/auth"
+          className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          aria-label="Get Started"
+          whileHover={{ scale: 1.05 }}
+        >
+          Get Started
+        </motion.a>
+      </div>
+    </div>
+  );
 };
 
 // Features Component with Enhanced Animations and Navigation Arrows
@@ -530,11 +464,12 @@ const LandingPage: React.FC = () => {
 	return (
 		<>
 			<Head>
-				<title>Go Fund Yourself</title>
+				<title>Go Fund Yourself!!</title>
 				<meta
 					name="description"
 					content="Instant, negotiable loans without bank approval over our secure network of peers."
 				/>
+
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
 			<Header />
