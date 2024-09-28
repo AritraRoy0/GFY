@@ -14,6 +14,8 @@ import {
 	FaChartLine,
 	FaArrowLeft,
 	FaArrowRight,
+	FaUserFriends,
+	FaUserAlt,
 } from "react-icons/fa";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
@@ -553,22 +555,25 @@ interface TeamMember {
 }
 
 const teamMembers: TeamMember[] = [
+
+	{
+		name:"Edward Wu",
+		title: "Chief Technology Officer",
+		icon: <FaUserCog className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Oversees technical development within the company.",
+	},
+
 	{
 		name: "Roy Mazumder",
 		title: "Chief Executive Officer",
-		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		icon: <FaUserAlt className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
 		bio: "Leads the vision, and the long term strategy of our organization.",
 	},
-	{
-		name: "Loren Ibsem",
-		title: "Chief Financial Officer",
-		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-		bio: "Responsible for overseeing the financial status, and operations of the firm.",
-	},
+
 	{
 		name: "Andre Petion",
 		title: "Chief Operating Officer",
-		icon: <FaUserTie className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		icon: <FaUserFriends className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
 		bio: "Manages the day to day operations of the company, and human capital of the group.",
 	},
 ];
