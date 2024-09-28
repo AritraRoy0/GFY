@@ -11,7 +11,6 @@ import {
 	FaBolt,
 	FaStar,
 	FaMoneyBillWave,
-	FaChartLine,
 	FaArrowLeft,
 	FaArrowRight,
 	FaUserFriends,
