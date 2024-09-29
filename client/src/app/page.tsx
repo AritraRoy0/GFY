@@ -11,13 +11,15 @@ import {
 	FaBolt,
 	FaStar,
 	FaMoneyBillWave,
-	FaChartLine,
 	FaArrowLeft,
 	FaArrowRight,
+	FaUserFriends,
+	FaUserAlt,
 } from "react-icons/fa";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
+import Image from "next/image";
 
 // Define TypeScript interfaces for animated elements
 interface AnimatedElement {
@@ -41,15 +43,15 @@ interface AnimatedElement {
 	icon?: JSX.Element;
 }
 
-// Animation Variants
-const fadeIn = {
-	hidden: { opacity: 0 },
-	visible: { opacity: 1 },
-};
-
 // Custom animation variant for feature detail transitions
 const featureDetailVariants = {
 	hidden: { opacity: 0, y: 30 },
+	visible: { opacity: 1, y: 0 },
+};
+
+// Animation Variants
+const fadeIn = {
+	hidden: { opacity: 0, y: 20 },
 	visible: { opacity: 1, y: 0 },
 };
 
@@ -60,12 +62,12 @@ const Hero: React.FC = () => {
 		{
 			id: 1,
 			type: "circle",
-			color: "rgba(0, 0, 0, 0.2)", // Black with transparency
-			size: 200, // Increased size
-			initialPosition: { x: -100, y: -100 },
-			animate: { x: 100, y: 100, opacity: 0.4 },
+			color: "#F56565",
+			size: 80,
+			initialPosition: { x: -50, y: -50 },
+			animate: { x: 50, y: 50, opacity: 0.7 },
 			transition: {
-				duration: 15,
+				duration: 6,
 				repeat: Infinity,
 				repeatType: "reverse",
 				delay: 0,
@@ -73,95 +75,51 @@ const Hero: React.FC = () => {
 		},
 		{
 			id: 2,
-			type: "triangle",
-			color: "rgba(50, 50, 50, 0.15)", // Dark Gray with transparency
-			size: 140, // Increased size
-			initialPosition: { x: 200, y: -200 },
-			animate: { x: -200, y: 200, opacity: 0.3 },
-			transition: {
-				duration: 18,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 3,
-			},
-		},
-		{
-			id: 3,
 			type: "square",
-			color: "rgba(100, 100, 100, 0.1)", // Light Gray with transparency
-			size: 100, // Increased size
-			initialPosition: { x: -300, y: 300 },
-			animate: { x: 300, y: -300, opacity: 0.2 },
+			color: "#68D391",
+			size: 60,
+			initialPosition: { x: 200, y: -100 },
+			animate: { x: -100, y: 150, opacity: 0.5 },
 			transition: {
-				duration: 20,
-				repeat: Infinity,
-				repeatType: "reverse",
-				delay: 5,
-			},
-		},
-		{
-			id: 4,
-			type: "icon",
-			color: "rgba(0, 0, 0, 0.25)", // Black with transparency
-			size: 80, // Increased size
-			initialPosition: { x: 350, y: 350 },
-			animate: { x: -350, y: -350, rotate: 720, opacity: 0.5 }, // Increased rotation
-			transition: {
-				duration: 25,
-				repeat: Infinity,
-				repeatType: "loop",
-				delay: 2,
-			},
-			icon: <FaMoneyBillWave />,
-		},
-		{
-			id: 5,
-			type: "icon",
-			color: "rgba(100, 100, 100, 0.25)", // Light Gray with transparency
-			size: 70, // Increased size
-			initialPosition: { x: -400, y: 150 },
-			animate: { x: 400, y: -150, rotate: 720, opacity: 0.5 }, // Increased rotation
-			transition: {
-				duration: 22,
-				repeat: Infinity,
-				repeatType: "loop",
-				delay: 4,
-			},
-			icon: <FaChartLine />,
-		},
-		// Additional animated elements to fill empty space
-		{
-			id: 6,
-			type: "circle",
-			color: "rgba(50, 50, 50, 0.1)",
-			size: 180, // Increased size
-			initialPosition: { x: 400, y: -250 },
-			animate: { x: -400, y: 250, opacity: 0.15 },
-			transition: {
-				duration: 25,
+				duration: 8,
 				repeat: Infinity,
 				repeatType: "reverse",
 				delay: 1,
 			},
 		},
 		{
-			id: 7,
-			type: "square",
-			color: "rgba(80, 80, 80, 0.15)",
-			size: 130, // Increased size
-			initialPosition: { x: -350, y: 200 },
-			animate: { x: 350, y: -200, opacity: 0.2 },
+			id: 3,
+			type: "triangle",
+			color: "#4299E1",
+			size: 70,
+			initialPosition: { x: -150, y: 100 },
+			animate: { x: 150, y: -50, opacity: 0.6 },
 			transition: {
-				duration: 24,
+				duration: 7,
 				repeat: Infinity,
 				repeatType: "reverse",
-				delay: 2,
+				delay: 0.5,
 			},
+		},
+		{
+			id: 4,
+			type: "icon",
+			color: "#ECC94B",
+			size: 50,
+			initialPosition: { x: 100, y: -150 },
+			animate: { x: -100, y: 150, rotate: 360, opacity: 0.8 },
+			transition: {
+				duration: 9,
+				repeat: Infinity,
+				repeatType: "loop",
+				delay: 0,
+			},
+			icon: <FaMoneyBillWave />,
 		},
 	];
 
 	return (
-		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-32 px-6 overflow-hidden">
+		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
 			{/* Background Overlay */}
 			<div className="absolute inset-0">
 				<div className="absolute inset-0 bg-black opacity-50"></div>
@@ -215,26 +173,37 @@ const Hero: React.FC = () => {
 			</div>
 
 			{/* Content */}
-			<div className="relative max-w-7xl mx-auto text-center z-10">
+			<div className="relative max-w-4xl mx-auto text-center z-10">
 				{/* Hero Heading with Bouncing Animation */}
 				<motion.h1
-					className="text-6xl md:text-8xl font-extrabold mb-8 text-white"
+					className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight"
 					animate={{ opacity: 1, y: [0, -20, 0] }}
 					transition={{
 						opacity: { duration: 1 },
-						y: { duration: 1.5, repeat: Infinity, repeatType: "loop" },
+						y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
 					}}
 				>
 					Go Fund Yourself!!
 				</motion.h1>
 
-				{/* Hero Subtitle with Fade-In and Slide-Up Animation */}
-				<motion.p
-					className="text-2xl md:text-3xl mb-12 text-gray-300"
+				{/* Hero Subheading with Fade-in Animation */}
+				<motion.h2
+					className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200"
+					variants={fadeIn}
 					initial="hidden"
 					animate="visible"
-					variants={fadeIn}
 					transition={{ duration: 1, delay: 0.5 }}
+				>
+					Where you can do you
+				</motion.h2>
+
+				{/* Hero Subtitle with Fade-In and Slide-Up Animation */}
+				<motion.p
+					className="text-lg md:text-xl mb-10 text-gray-300"
+					variants={fadeIn}
+					initial="hidden"
+					animate="visible"
+					transition={{ duration: 1, delay: 0.7 }}
 				>
 					Instant, negotiable loans without bank approval over our secure
 					network of peers.
@@ -243,11 +212,12 @@ const Hero: React.FC = () => {
 				{/* Get Started Button with Entrance Animation */}
 				<motion.a
 					href="/auth"
-					className="inline-block bg-gray-700 text-white font-semibold py-5 px-14 rounded-full shadow-lg hover:bg-gray-600 text-xl focus:outline-none focus:ring-2 focus:ring-gray-500"
+					className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
 					initial={{ opacity: 0, scale: 0.8 }}
 					animate={{ opacity: 1, scale: 1 }}
-					transition={{ duration: 0.8, delay: 0.8 }}
+					transition={{ duration: 0.8, delay: 0.9 }}
 					aria-label="Get Started"
+					whileHover={{ scale: 1.05 }}
 				>
 					Get Started
 				</motion.a>
@@ -361,7 +331,10 @@ const Features: React.FC = () => {
 		<section className="py-20 px-6 bg-gray-200">
 			<div className="max-w-7xl mx-auto text-center">
 				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-					Why Choose Go Fund Yourself?
+					Why choose to
+				</h2>
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Go Fund Yourself?
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 					{features.map((feature, index) => (
@@ -525,21 +498,130 @@ const CallToAction: React.FC = () => {
 	);
 };
 
+const PoweredBy: React.FC = () => {
+	return (
+		<div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
+			<div className="flex flex-wrap items-center justify-center gap-10">
+				<a
+					href="https://google.com/"
+					aria-label="Google"
+					className="group"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<div className="relative w-16 h-16">
+						<Image
+							src="/google.svg"
+							alt="Google"
+							layout="fill"
+							objectFit="contain"
+							className="transition-transform duration-300 group-hover:scale-110"
+						/>
+					</div>
+				</a>
+				<h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
+					Powered By
+				</h2>
+				<a
+					href="https://stripe.com/"
+					aria-label="Stripe"
+					className="group"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<div className="relative w-16 h-16">
+						<Image
+							src="/stripe.svg"
+							alt="Stripe"
+							layout="fill"
+							objectFit="contain"
+							className="transition-transform duration-300 group-hover:scale-110"
+						/>
+					</div>
+				</a>
+			</div>
+		</div>
+	);
+};
+
+import { FaUserTie, FaUserSecret, FaUserCog } from "react-icons/fa";
+
+interface TeamMember {
+	name: string;
+	title: string;
+	icon: JSX.Element;
+	bio: string;
+}
+
+const teamMembers: TeamMember[] = [
+
+	{
+		name:"Edward Wu",
+		title: "Chief Technology Officer",
+		icon: <FaUserCog className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Oversees technical development within the company.",
+	},
+
+	{
+		name: "Roy Mazumder",
+		title: "Chief Executive Officer",
+		icon: <FaUserAlt className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Leads the vision, and the long term strategy of our organization.",
+	},
+
+	{
+		name: "Andre Petion",
+		title: "Chief Operating Officer",
+		icon: <FaUserFriends className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
+		bio: "Manages the day to day operations of the company, and human capital of the group.",
+	},
+];
+
+const Team: React.FC = () => {
+	return (
+		<section className="py-20 px-6 bg-white">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Meet Our Team
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+					{teamMembers.map((member, index) => (
+						<div
+							key={index}
+							className="bg-gray-50 shadow-md rounded-lg p-6 hover:shadow-2xl transition duration-500"
+						>
+							<div className="mb-6">{member.icon}</div>
+							<h3 className="text-2xl font-semibold text-gray-800 mb-2">
+								{member.name}
+							</h3>
+							<p className="text-gray-500 mb-4">{member.title}</p>
+							<p className="text-gray-600">{member.bio}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
+};
+
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
 	return (
 		<>
 			<Head>
-				<title>Go Fund Yourself</title>
+				<title>Go Fund Yourself!!</title>
 				<meta
 					name="description"
 					content="Instant, negotiable loans without bank approval over our secure network of peers."
 				/>
+
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
 			<Header />
 			<Hero />
 			<Features />
+			<Team />
+			<PoweredBy />
 			<Testimonials />
 			<CallToAction />
 			<Footer />
