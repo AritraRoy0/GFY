@@ -1,15 +1,23 @@
-// or app/auth/page.tsx
+// app/auth/page.tsx
 
 'use client';
 
 import React, { useReducer, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+} from 'firebase/firestore';
 import { auth, provider, firestore } from '../../../firebaseConfig'; // Adjust the path if necessary
 
 import { useDispatch } from 'react-redux';
-import { setUser, clearUser } from "../features/authSlice"; // Adjust the path
+import { setUser, clearUser } from '../features/authSlice'; // Adjust the path
 import { FaGoogle } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -66,9 +74,13 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0 },
 };
 
-const featureDetailVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+// Shake animation using framer-motion
+const shakeAnimation = {
+  hidden: { x: 0 },
+  visible: {
+    x: [0, -10, 10, -10, 10, 0],
+    transition: { duration: 0.5 },
+  },
 };
 
 const AuthPage: React.FC = () => {
@@ -85,10 +97,12 @@ const AuthPage: React.FC = () => {
   });
 
   useEffect(() => {
-    // Get the 'tab' parameter from URL
-    const searchParams = new URLSearchParams(window.location.search);
-    const tabParam = searchParams.get('tab');
-    setActiveTab(tabParam === 'login' ? 'login' : 'signup');
+    if (typeof window !== 'undefined') {
+      // Get the 'tab' parameter from URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const tabParam = searchParams.get('tab');
+      setActiveTab(tabParam === 'login' ? 'login' : 'signup');
+    }
   }, []);
 
   // Auth state listener
@@ -127,7 +141,15 @@ const AuthPage: React.FC = () => {
   // Handle form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    localDispatch({ type: ACTIONS.SET_FORM_DATA, payload: { ...state.formData, [name]: value } });
+    localDispatch({
+      type: ACTIONS.SET_FORM_DATA,
+      payload: { ...state.formData, [name]: value },
+    });
+    // Clear the error message for this field
+    localDispatch({
+      type: ACTIONS.SET_ERRORS,
+      payload: { ...state.errors, [name]: '' },
+    });
   };
 
   // Form validation
@@ -155,7 +177,10 @@ const AuthPage: React.FC = () => {
 
   // Check if username exists in Firestore
   const checkUsernameExists = async (username: string): Promise<boolean> => {
-    const q = query(collection(firestore, 'users'), where('username', '==', username));
+    const q = query(
+      collection(firestore, 'users'),
+      where('username', '==', username)
+    );
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
   };
@@ -171,11 +196,16 @@ const AuthPage: React.FC = () => {
       const { displayName, email, uid } = user;
 
       if (activeTab === 'signup') {
-        const usernameExists = await checkUsernameExists(state.formData.username);
+        const usernameExists = await checkUsernameExists(
+          state.formData.username
+        );
         if (usernameExists) {
           localDispatch({
             type: ACTIONS.SET_ERRORS,
-            payload: { ...state.errors, username: 'Username already taken' },
+            payload: {
+              ...state.errors,
+              username: 'Username already taken',
+            },
           });
           localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
@@ -191,18 +221,26 @@ const AuthPage: React.FC = () => {
         await setDoc(doc(firestore, 'users', uid), userData);
 
         // Dispatch setUser action
-        dispatch(setUser({
-          id: uid,
-          name: displayName,
-          ...userData,
-        }));
+        dispatch(
+          setUser({
+            id: uid,
+            name: displayName,
+            ...userData,
+          })
+        );
 
-        localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Sign-up successful!' });
+        localDispatch({
+          type: ACTIONS.SET_ALERT,
+          payload: 'Sign-up successful!',
+        });
         router.push('/dashboard');
       } else {
         const userDoc = await getDoc(doc(firestore, 'users', uid));
         if (!userDoc.exists()) {
-          localDispatch({ type: ACTIONS.SET_ALERT, payload: 'No account found. Please sign up first.' });
+          localDispatch({
+            type: ACTIONS.SET_ALERT,
+            payload: 'No account found. Please sign up first.',
+          });
           await auth.signOut();
           localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
           return;
@@ -211,18 +249,27 @@ const AuthPage: React.FC = () => {
         const userData = userDoc.data();
 
         // Dispatch setUser action
-        dispatch(setUser({
-          id: uid,
-          name: displayName,
-          email: email,
-          ...userData,
-        }));
+        dispatch(
+          setUser({
+            id: uid,
+            name: displayName,
+            email: email,
+            ...userData,
+          })
+        );
 
-        localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Logged in successfully!' });
+        localDispatch({
+          type: ACTIONS.SET_ALERT,
+          payload: 'Logged in successfully!',
+        });
         router.push('/dashboard');
       }
-    } catch (error) {
-      localDispatch({ type: ACTIONS.SET_ALERT, payload: 'Error during authentication. Please try again.' });
+    } catch (error: any) {
+      localDispatch({
+        type: ACTIONS.SET_ALERT,
+        payload:
+          error.message || 'Error during authentication. Please try again.',
+      });
       console.error('Error during Google Sign-Up/Sign-In:', error);
     } finally {
       localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
@@ -230,27 +277,30 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-100">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Subtle animated patterns or shapes can be added here if desired */}
       </div>
 
       {/* Main Content */}
-      <div className="relative bg-gray-800 p-12 rounded-lg shadow-lg w-full max-w-md z-10">
+      <div className="relative bg-white p-12 rounded-lg shadow-lg w-full max-w-md z-10">
         {/* Alert Message */}
         <AnimatePresence>
           {state.alertMessage && (
             <motion.div
               className={`mb-4 p-4 rounded-lg text-center font-bold transition-transform transform ${
-                state.alertMessage.startsWith('Error') || state.alertMessage.startsWith('No account')
-                  ? 'bg-red-600 text-white'
-                  : 'bg-green-600 text-white'
+                state.alertMessage.startsWith('Error') ||
+                state.alertMessage.startsWith('No account')
+                  ? 'bg-red-500 text-white'
+                  : 'bg-green-500 text-white'
               }`}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
+              role="alert"
+              aria-live="assertive"
             >
               {state.alertMessage}
             </motion.div>
@@ -259,43 +309,46 @@ const AuthPage: React.FC = () => {
 
         {/* Informative Text */}
         <motion.div
-          className="mb-6 text-center text-gray-300"
+          className="mb-6 text-center text-gray-600"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
           transition={{ duration: 1, delay: 0.3 }}
         >
           <p>
-            <strong>Google</strong> securely manages your authentication. We do not collect or store any signup information.
+            <strong>Google</strong> securely manages your authentication. We do
+            not collect or store any signup information.
           </p>
         </motion.div>
 
         {/* Tabs for Login/Signup */}
         <div className="flex justify-center mb-8">
           <button
-            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 ${
+            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 focus:outline-none ${
               activeTab === 'signup'
-                ? 'text-white bg-gray-700 border-b-4 border-white shadow-lg transform scale-105'
-                : 'text-gray-400 hover:text-white'
+                ? 'text-blue-600 border-b-4 border-blue-600 shadow-lg transform scale-105'
+                : 'text-gray-400 hover:text-blue-600'
             }`}
             onClick={() => setActiveTab('signup')}
+            aria-label="Sign Up Tab"
           >
             Sign Up
           </button>
           <button
-            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 ${
+            className={`text-lg font-bold px-6 py-3 rounded-t-lg transition-colors duration-300 focus:outline-none ${
               activeTab === 'login'
-                ? 'text-white bg-gray-700 border-b-4 border-white shadow-lg transform scale-105'
-                : 'text-gray-400 hover:text-white'
+                ? 'text-blue-600 border-b-4 border-blue-600 shadow-lg transform scale-105'
+                : 'text-gray-400 hover:text-blue-600'
             }`}
             onClick={() => setActiveTab('login')}
+            aria-label="Login Tab"
           >
             Login
           </button>
         </div>
 
         {/* Signup Form */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {activeTab === 'signup' && (
             <motion.form
               className="mb-6"
@@ -304,6 +357,7 @@ const AuthPage: React.FC = () => {
               animate="visible"
               exit="hidden"
               transition={{ duration: 0.7 }}
+              noValidate
             >
               <div className="relative mb-6">
                 <input
@@ -312,19 +366,30 @@ const AuthPage: React.FC = () => {
                   name="username"
                   value={state.formData.username}
                   onChange={handleChange}
-                  className={`peer w-full px-4 py-3 border rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-white transition-transform duration-300 ${
-                    state.errors.username ? 'border-red-500 animate-shake' : 'border-gray-500'
+                  className={`peer w-full px-4 py-3 border rounded-lg bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-transform duration-300 ${
+                    state.errors.username ? 'border-red-500' : 'border-gray-300'
                   }`}
+                  placeholder=" "
                   required
+                  aria-invalid={!!state.errors.username}
+                  aria-describedby="username-error"
                 />
                 <label
                   htmlFor="username"
-                  className="absolute top-3 left-4 text-gray-400 peer-focus:text-white transition-transform duration-300"
+                  className="absolute text-gray-500 duration-300 transform -translate-y-6 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-3 peer-focus:scale-75 peer-focus:-translate-y-6 left-2"
                 >
                   Username
                 </label>
                 {state.errors.username && (
-                  <div className="text-red-400 text-sm mt-2">{state.errors.username}</div>
+                  <motion.div
+                    className="text-red-500 text-sm mt-2"
+                    id="username-error"
+                    variants={shakeAnimation}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {state.errors.username}
+                  </motion.div>
                 )}
               </div>
 
@@ -335,27 +400,39 @@ const AuthPage: React.FC = () => {
                   name="fullName"
                   value={state.formData.fullName}
                   onChange={handleChange}
-                  className={`peer w-full px-4 py-3 border rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-white transition-transform duration-300 ${
-                    state.errors.fullName ? 'border-red-500 animate-shake' : 'border-gray-500'
+                  className={`peer w-full px-4 py-3 border rounded-lg bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-transform duration-300 ${
+                    state.errors.fullName ? 'border-red-500' : 'border-gray-300'
                   }`}
+                  placeholder=" "
                   required
+                  aria-invalid={!!state.errors.fullName}
+                  aria-describedby="fullName-error"
                 />
                 <label
                   htmlFor="fullName"
-                  className="absolute top-3 left-4 text-gray-400 peer-focus:text-white transition-transform duration-300"
+                  className="absolute text-gray-500 duration-300 transform -translate-y-6 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-3 peer-focus:scale-75 peer-focus:-translate-y-6 left-2"
                 >
                   Full Name
                 </label>
                 {state.errors.fullName && (
-                  <div className="text-red-400 text-sm mt-2">{state.errors.fullName}</div>
+                  <motion.div
+                    className="text-red-500 text-sm mt-2"
+                    id="fullName-error"
+                    variants={shakeAnimation}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {state.errors.fullName}
+                  </motion.div>
                 )}
               </div>
 
               <button
                 type="button"
                 onClick={handleGoogleSignUp}
-                className="w-full flex items-center justify-center bg-black text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors duration-300 mt-4 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors duration-300 mt-4 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={state.loading}
+                aria-label="Sign Up with Google"
               >
                 <FaGoogle className="mr-3 text-lg" />
                 {state.loading ? 'Signing up...' : 'Sign Up with Google'}
@@ -365,7 +442,7 @@ const AuthPage: React.FC = () => {
         </AnimatePresence>
 
         {/* Login Form */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {activeTab === 'login' && (
             <motion.div
               className="mb-6"
@@ -377,8 +454,9 @@ const AuthPage: React.FC = () => {
             >
               <button
                 onClick={handleGoogleSignUp}
-                className="w-full flex items-center justify-center bg-black text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={state.loading}
+                aria-label="Login with Google"
               >
                 <FaGoogle className="mr-3 text-lg" />
                 {state.loading ? 'Signing in...' : 'Login with Google'}
