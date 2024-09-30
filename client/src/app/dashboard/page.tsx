@@ -1,36 +1,36 @@
-  'use client';
+'use client';
 
-  import React from 'react';
-  import Header from '../common/Header'; // Adjust the import path as necessary
-  import Footer from '../common/Footer'; // Adjust the import path as necessary
-  import SummarySection from './SummarySection'; // Adjust the import path as necessary
-  import DashboardTable from './DashboardTable'; // Adjust the import path as necessary
-  import Notifications from './Notifications'; // Adjust the import path as necessary
-  import LoanProgress from './LoanProgress'; // Adjust the import path as necessary
+import React from 'react';
+import Header from '../common/Header';
+import Footer from '../common/Footer';
+import SummarySection from './SummarySection';
+import DashboardTable from './DashboardTable';
+import Notifications from './Notifications';
+import LoanProgress from './LoanProgress';
 
-  const DashboardPage: React.FC = () => {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        <main className="flex-column w-full p-6">
-          <div className="flex-col">
-            <section className="bg-white p-6 rounded-lg shadow-md">
-              <SummarySection />
-            </section>
-            <section className="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
-              <DashboardTable />
-            </section>
-            <section className="bg-white p-6 rounded-lg shadow-md">
-              <Notifications />
-            </section>
-            <section className="bg-white p-6 rounded-lg shadow-md">
-              <LoanProgress />
-            </section>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  };
+const DashboardPage: React.FC = () => {
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      <main className="flex-1 w-full p-4 md:p-6">
+        <div className="flex flex-col space-y-4">
+          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+            <SummarySection />
+          </section>
+          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+            <DashboardTable />
+          </section>
+          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+            <Notifications />
+          </section>
+          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+            <LoanProgress />
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
-  export default DashboardPage;
+export default DashboardPage;
