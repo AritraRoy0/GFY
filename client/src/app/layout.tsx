@@ -26,6 +26,7 @@ export default function RootLayout({
 				<title>{String(metadata.title)}</title>
 				<meta name="description" content={metadata.description || ""} />
 				<link rel="icon" href="./icon.svg" />
+				<Analytics />
 
 				{/* Add any other meta tags here, like OpenGraph or Twitter */}
 			</head>
