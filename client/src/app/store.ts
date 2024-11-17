@@ -1,11 +1,10 @@
-// src/store.ts
-
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './features/authSlice';  // Adjust according to your actual slice location
+import authReducer from './auth/authSlice'; // Adjust the pat
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,  // Add your reducers here
+    auth: authReducer,
+    // Add other reducers if necessary
   },
 });
 
