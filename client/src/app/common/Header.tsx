@@ -1,8 +1,10 @@
-'use client';
+// app/components/Header.tsx
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import Link from 'next/link';
+"use client";
+
+import React, { useState, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
+import Link from "next/link";
 import {
   FaBars,
   FaTimes,
@@ -11,15 +13,13 @@ import {
   FaSignInAlt,
   FaUserPlus,
   FaBriefcase,
-} from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-
-import Logo from './Logo'; // Adjust the path to your Logo component if necessarys
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import Logo from "./Logo"; // Adjust the path to your Logo component if necessary
 
 // Define the shape of your Redux state for better TypeScript support
 interface User {
   id: string;
-  name: string;
   email: string;
 }
 
@@ -37,60 +37,66 @@ const Header: React.FC = () => {
     setIsMenuOpen((prevState) => !prevState);
   }, []);
 
-  const loggedInHeader = useMemo(() => (
-    <>
-      <Link
-        href="/dashboard"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        <FaBriefcase className="h-5 w-5 mr-2 text-white" />
-        Dashboard
-      </Link>
-      <Link
-        href="/profile"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        <FaUser className="h-5 w-5 mr-2 text-white" />
-        Profile
-      </Link>
-      <Link
-        href="/about"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        About
-      </Link>
-      <Link
-        href="/logout"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
-        Logout
-      </Link>
-    </>
-  ), []);
+  const loggedInHeader = useMemo(
+    () => (
+      <>
+        <Link
+          href="/dashboard"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaBriefcase className="h-5 w-5 mr-2 text-white" />
+          Dashboard
+        </Link>
+        <Link
+          href="/profile"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaUser className="h-5 w-5 mr-2 text-white" />
+          Profile
+        </Link>
+        <Link
+          href="/about"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          About
+        </Link>
+        <Link
+          href="/logout"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
+          Logout
+        </Link>
+      </>
+    ),
+    []
+  );
 
-  const loggedOutHeader = useMemo(() => (
-    <>
-      <Link
-        href="/auth?tab=login"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
-        Login
-      </Link>
-      <Link
-        href="/auth?tab=signup"
-        className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-      >
-        <FaUserPlus className="h-5 w-5 mr-2 text-white" />
-        Sign Up
-      </Link>
-    </>
-  ), []);
+  const loggedOutHeader = useMemo(
+    () => (
+      <>
+        <Link
+          href="/auth?tab=login"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
+          Login
+        </Link>
+        <Link
+          href="/auth?tab=signup"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaUserPlus className="h-5 w-5 mr-2 text-white" />
+          Sign Up
+        </Link>
+      </>
+    ),
+    []
+  );
 
   const menuVariants = {
     hidden: { opacity: 0, height: 0 },
-    visible: { opacity: 1, height: 'auto' },
+    visible: { opacity: 1, height: "auto" },
   };
 
   return (
@@ -119,7 +125,7 @@ const Header: React.FC = () => {
             className="text-white hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-700"
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
               <FaTimes className="h-6 w-6" />
