@@ -9,13 +9,12 @@ import {
   FaHandsHelping,
   FaShieldAlt,
   FaBolt,
-  FaStar,
   FaMoneyBillWave,
   FaArrowLeft,
   FaArrowRight,
-  FaUserFriends,
-  FaUserAlt,
-  FaUserCog,
+  FaHeartbeat,
+  FaStore,
+  FaCreditCard
 } from "react-icons/fa";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
@@ -59,119 +58,10 @@ const fadeIn = {
 // Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
   // Define animated elements with thematic relevance
-  const animatedElements: AnimatedElement[] = [
-    {
-      id: 1,
-      type: "circle",
-      color: "#F56565",
-      size: 80,
-      initialPosition: { x: -50, y: -50 },
-      animate: { x: 50, y: 50, opacity: 0.7 },
-      transition: {
-        duration: 6,
-        repeat: Infinity,
-        repeatType: "reverse",
-        delay: 0,
-      },
-    },
-    {
-      id: 2,
-      type: "square",
-      color: "#68D391",
-      size: 60,
-      initialPosition: { x: 200, y: -100 },
-      animate: { x: -100, y: 150, opacity: 0.5 },
-      transition: {
-        duration: 8,
-        repeat: Infinity,
-        repeatType: "reverse",
-        delay: 1,
-      },
-    },
-    {
-      id: 3,
-      type: "triangle",
-      color: "#4299E1",
-      size: 70,
-      initialPosition: { x: -150, y: 100 },
-      animate: { x: 150, y: -50, opacity: 0.6 },
-      transition: {
-        duration: 7,
-        repeat: Infinity,
-        repeatType: "reverse",
-        delay: 0.5,
-      },
-    },
-    {
-      id: 4,
-      type: "icon",
-      color: "#ECC94B",
-      size: 50,
-      initialPosition: { x: 100, y: -150 },
-      animate: { x: -100, y: 150, rotate: 360, opacity: 0.8 },
-      transition: {
-        duration: 9,
-        repeat: Infinity,
-        repeatType: "loop",
-        delay: 0,
-      },
-      icon: <FaMoneyBillWave />,
-    },
-  ];
+  
 
   return (
     <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
-      {/* Background Overlay */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-      </div>
-
-      {/* Animated Elements Container */}
-      <div className="absolute inset-0">
-        {animatedElements.map((element) => (
-          <motion.div
-            key={element.id}
-            className="absolute"
-            initial={{
-              x: element.initialPosition.x,
-              y: element.initialPosition.y,
-            }}
-            animate={{
-              x: element.animate.x,
-              y: element.animate.y,
-              rotate: element.animate.rotate || 0,
-              opacity: element.animate.opacity,
-            }}
-            transition={element.transition}
-            style={{
-              width: element.size,
-              height: element.size,
-              backgroundColor:
-                element.type !== "icon" ? element.color : "transparent",
-              borderRadius: element.type === "circle" ? "50%" : "0%",
-              clipPath:
-                element.type === "triangle"
-                  ? "polygon(50% 0%, 0% 100%, 100% 100%)"
-                  : "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: element.color,
-              fontSize: element.size / 2,
-              pointerEvents: "none", // Prevents interaction
-            }}
-          >
-            {element.type === "icon" && (
-              <motion.div
-                whileHover={{ scale: 1.3 }}
-                transition={{ duration: 0.3 }}
-              >
-                {element.icon}
-              </motion.div>
-            )}
-          </motion.div>
-        ))}
-      </div>
 
       {/* Content */}
       <div className="relative max-w-4xl mx-auto text-center z-10">
@@ -406,24 +296,28 @@ const Features: React.FC = () => {
   );
 };
 
-// Testimonials Component with Enhanced Animations
 const Testimonials: React.FC = () => {
   const testimonials = [
     {
-      name: "John Doe",
-      title: "Entrepreneur",
+      name: "Carlos M.",
+      title: "Nurse",
       quote:
-        "Got my loan super quick, no bank hassles! This peer-to-peer thing rocks!",
+        "When unexpected medical bills came up, Go Fund Yourself helped me get the funds I needed quickly and stress-free.",
+      icon: <FaHeartbeat className="text-gray-700 w-full h-full" />,
     },
     {
-      name: "Jane Smith",
-      title: "Freelancer",
-      quote: "Loved lending on my own terms! So easy and secure.",
+      name: "Emily R.",
+      title: "Small Business Owner",
+      quote:
+        "Thanks to Go Fund Yourself, I secured a loan to start my own coffee shop. The peer-to-peer lending made it possible!",
+      icon: <FaStore className="text-gray-700 w-full h-full" />,
     },
     {
-      name: "Mike Johnson",
-      title: "Investor",
-      quote: "Diversified my investments easily. Flexibility is awesome!",
+      name: "Sophia L.",
+      title: "Graduate Student",
+      quote:
+        "I consolidated my credit card debt with a flexible loan from Go Fund Yourself. The process was seamless!",
+      icon: <FaCreditCard className="text-gray-700 w-full h-full" />,
     },
   ];
 
@@ -442,8 +336,7 @@ const Testimonials: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="w-24 h-24 mx-auto mb-6">
-                {/* Replace with user avatars for personalization */}
-                <FaStar className="text-gray-700 w-full h-full" />
+                {testimonial.icon}
               </div>
               <motion.p
                 className="italic text-gray-600 mb-6"
@@ -464,6 +357,7 @@ const Testimonials: React.FC = () => {
     </section>
   );
 };
+
 
 // Call to Action Component with Enhanced Animations
 const CallToAction: React.FC = () => {
@@ -548,64 +442,6 @@ const PoweredBy: React.FC = () => {
   );
 };
 
-// Team Members Data
-interface TeamMember {
-  name: string;
-  title: string;
-  icon: JSX.Element;
-  bio: string;
-}
-
-const teamMembers: TeamMember[] = [
-  {
-    name: "Edward Wu",
-    title: "Chief Technology Officer",
-    icon: <FaUserCog className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-    bio: "Oversees technical development within the company.",
-  },
-  {
-    name: "Roy Mazumder",
-    title: "Chief Executive Officer",
-    icon: <FaUserAlt className="text-gray-700 w-24 h-24 mx-auto mb-6" />,
-    bio: "Leads the vision, and the long term strategy of our organization.",
-  },
-  {
-    name: "Andre Petion",
-    title: "Chief Operating Officer",
-    icon: (
-      <FaUserFriends className="text-gray-700 w-24 h-24 mx-auto mb-6" />
-    ),
-    bio: "Manages the day to day operations of the company, and human capital of the group.",
-  },
-];
-
-// Team Component
-const Team: React.FC = () => {
-  return (
-    <section className="py-20 px-6 bg-white">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-          Meet Our Team
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {teamMembers.map((member, index) => (
-            <div
-              key={index}
-              className="bg-gray-50 shadow-md rounded-lg p-6 hover:shadow-2xl transition duration-500"
-            >
-              <div className="mb-6">{member.icon}</div>
-              <h3 className="text-2xl font-semibold text-gray-800 mb-2">
-                {member.name}
-              </h3>
-              <p className="text-gray-500 mb-4">{member.title}</p>
-              <p className="text-gray-600">{member.bio}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
@@ -622,7 +458,6 @@ const LandingPage: React.FC = () => {
       <Header />
       <Hero />
       <Features />
-      <Team />
       <PoweredBy />
       <Testimonials />
       <CallToAction />
