@@ -22,345 +22,316 @@ import { auth, firestore } from "../../../firebaseConfig"; // Adjust the path if
 
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+import {setUser, clearUser, logout} from "./authSlice"
 
 // Define interfaces
 interface FormData {
-  username: string;
-  email: string;
-  password: string;
-}
-
-interface Errors {
-  username: string;
-  email: string;
-  password: string;
-}
-
-interface State {
-  formData: FormData;
-  errors: Errors;
-  loading: boolean;
-  alertMessage: string | null;
-}
-
-interface Action {
-  type: string;
-  payload?: any;
-}
-
-interface User {
-  id: string;
-  email: string | null;
-  username?: string;
-  // Add other properties if needed
-}
-
-interface AuthState {
-  user: User | null;
-}
-
-// Action constants
-const ACTIONS = {
-  SET_ERRORS: "SET_ERRORS",
-  SET_LOADING: "SET_LOADING",
-  SET_ALERT: "SET_ALERT",
-  SET_FORM_DATA: "SET_FORM_DATA",
-};
-
-// Reducer function
-const formReducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case ACTIONS.SET_ERRORS:
-      return { ...state, errors: action.payload };
-    case ACTIONS.SET_LOADING:
-      return { ...state, loading: action.payload };
-    case ACTIONS.SET_ALERT:
-      return { ...state, alertMessage: action.payload };
-    case ACTIONS.SET_FORM_DATA:
-      return { ...state, formData: action.payload };
-    default:
-      return state;
+	username: string;
+	
+	email: string;
+	password: string;
   }
-};
-
-// Animation Variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
-};
-
-// Shake animation using framer-motion
-const shakeAnimation = {
-  hidden: { x: 0 },
-  visible: {
-    x: [0, -10, 10, -10, 10, 0],
-    transition: { duration: 0.5 },
-  },
-};
-
-// Auth slice
-const initialState: AuthState = {
-  user: null, // Initial state
-};
-
-const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
-    },
-    clearUser: (state) => {
-      state.user = null;
-    },
-  },
-});
-
-export const { setUser, clearUser } = authSlice.actions;
-
-const AuthPage: React.FC = () => {
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
-
-  // Manage state with useReducer
-  const [state, localDispatch] = useReducer(formReducer, {
-    formData: { username: "", email: "", password: "" },
-    errors: { username: "", email: "", password: "" },
-    loading: false,
-    alertMessage: null,
-  });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Get the 'tab' parameter from URL
-      const searchParams = new URLSearchParams(window.location.search);
-      const tabParam = searchParams.get("tab");
-      setActiveTab(tabParam === "login" ? "login" : "signup");
-    }
-  }, []);
-
-  // Auth state listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const { email, uid } = firebaseUser;
-
-        // Fetch additional user data from Firestore
-        const userDoc = await getDoc(doc(firestore, "users", uid));
-        let userData = {};
-
-        if (userDoc.exists()) {
-          userData = userDoc.data();
-        }
-
-        const fullUserData = {
-          id: uid,
-          email: email,
-          ...userData,
-        };
-
-        // Dispatch setUser action
-        dispatch(setUser(fullUserData));
-      } else {
-        // User is signed out
-        dispatch(clearUser());
-      }
-    });
-
-    // Clean up the listener on unmount
-    return () => unsubscribe();
-  }, [dispatch]);
-
-  // Handle form input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    localDispatch({
-      type: ACTIONS.SET_FORM_DATA,
-      payload: { ...state.formData, [name]: value },
-    });
-    // Clear the error message for this field
-    localDispatch({
-      type: ACTIONS.SET_ERRORS,
-      payload: { ...state.errors, [name]: "" },
-    });
+  
+  interface Errors {
+	username: string;
+	email: string;
+	password: string;
+  }
+  
+  interface State {
+	formData: FormData;
+	errors: Errors;
+	loading: boolean;
+	alertMessage: string | null;
+  }
+  
+  interface Action {
+	type: string;
+	payload?: any;
+  }
+  
+  // Action constants
+  const ACTIONS = {
+	SET_ERRORS: "SET_ERRORS",
+	SET_LOADING: "SET_LOADING",
+	SET_ALERT: "SET_ALERT",
+	SET_FORM_DATA: "SET_FORM_DATA",
   };
-
-  // Form validation
-  const validateForm = (): boolean => {
-    let valid = true;
-    const newErrors = { ...state.errors };
-
-    if (!state.formData.username.trim()) {
-      newErrors.username = "Username is required";
-      valid = false;
-    } else {
-      newErrors.username = "";
-    }
-
-    if (!state.formData.email.trim()) {
-      newErrors.email = "Email is required";
-      valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(state.formData.email)) {
-      newErrors.email = "Email is invalid";
-      valid = false;
-    } else {
-      newErrors.email = "";
-    }
-
-    if (!state.formData.password) {
-      newErrors.password = "Password is required";
-      valid = false;
-    } else if (state.formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-      valid = false;
-    } else {
-      newErrors.password = "";
-    }
-
-    localDispatch({ type: ACTIONS.SET_ERRORS, payload: newErrors });
-    return valid;
+  
+  // Reducer function
+  const formReducer = (state: State, action: Action): State => {
+	switch (action.type) {
+	  case ACTIONS.SET_ERRORS:
+		return { ...state, errors: action.payload };
+	  case ACTIONS.SET_LOADING:
+		return { ...state, loading: action.payload };
+	  case ACTIONS.SET_ALERT:
+		return { ...state, alertMessage: action.payload };
+	  case ACTIONS.SET_FORM_DATA:
+		return { ...state, formData: action.payload };
+	  default:
+		return state;
+	}
   };
-
-  // Check if username exists in Firestore
-  const checkUsernameExists = async (username: string): Promise<boolean> => {
-    const q = query(
-      collection(firestore, "users"),
-      where("username", "==", username)
-    );
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+  
+  // Animation Variants
+  const fadeInUp = {
+	hidden: { opacity: 0, y: 40 },
+	visible: { opacity: 1, y: 0 },
   };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    localDispatch({ type: ACTIONS.SET_LOADING, payload: true });
-    try {
-      const usernameExists = await checkUsernameExists(state.formData.username);
-      if (usernameExists) {
-        localDispatch({
-          type: ACTIONS.SET_ERRORS,
-          payload: {
-            ...state.errors,
-            username: "Username already taken",
-          },
-        });
-        localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
-        return;
-      }
-
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        state.formData.email,
-        state.formData.password
-      );
-      const user = userCredential.user;
-
-      // Save user data in Firestore
-      const userData = {
-        username: state.formData.username,
-        email: user.email,
-      };
-
-      await setDoc(doc(firestore, "users", user.uid), userData);
-
-      // Dispatch setUser action
-      dispatch(
-        setUser({
-          id: user.uid,
-          ...userData,
-        })
-      );
-
-      localDispatch({
-        type: ACTIONS.SET_ALERT,
-        payload: "Sign-up successful!",
-      });
-      router.push("/dashboard");
-    } catch (error: any) {
-      localDispatch({
-        type: ACTIONS.SET_ALERT,
-        payload: error.message || "Error during sign-up. Please try again.",
-      });
-      console.error("Error during sign-up:", error);
-    } finally {
-      localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
-    }
+  
+  // Shake animation using framer-motion
+  const shakeAnimation = {
+	hidden: { x: 0 },
+	visible: {
+	  x: [0, -10, 10, -10, 10, 0],
+	  transition: { duration: 0.5 },
+	},
   };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!state.formData.email.trim()) {
-      localDispatch({
-        type: ACTIONS.SET_ERRORS,
-        payload: {
-          ...state.errors,
-          email: "Email is required",
-        },
-      });
-      return;
-    }
-
-    if (!state.formData.password) {
-      localDispatch({
-        type: ACTIONS.SET_ERRORS,
-        payload: {
-          ...state.errors,
-          password: "Password is required",
-        },
-      });
-      return;
-    }
-
-    localDispatch({ type: ACTIONS.SET_LOADING, payload: true });
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        state.formData.email,
-        state.formData.password
-      );
-      const user = userCredential.user;
-
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
-      if (!userDoc.exists()) {
-        localDispatch({
-          type: ACTIONS.SET_ALERT,
-          payload: "No account found. Please sign up first.",
-        });
-        localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
-        return;
-      }
-
-      const userData = userDoc.data();
-
-      // Dispatch setUser action
-      dispatch(
-        setUser({
-          id: user.uid,
-          email: user.email,
-          ...userData,
-        })
-      );
-
-      localDispatch({
-        type: ACTIONS.SET_ALERT,
-        payload: "Logged in successfully!",
-      });
-      router.push("/dashboard");
-    } catch (error: any) {
-      localDispatch({
-        type: ACTIONS.SET_ALERT,
-        payload: error.message || "Error during login. Please try again.",
-      });
-      console.error("Error during login:", error);
-    } finally {
-      localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
-    }
-  };
+  
+  const AuthPage: React.FC = () => {
+	const router = useRouter();
+	const dispatch = useDispatch();
+	const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
+  
+	// Manage state with useReducer
+	const [state, localDispatch] = useReducer(formReducer, {
+	  formData: { username: "", email: "", password: "" },
+	  errors: { username: "", email: "", password: "" },
+	  loading: false,
+	  alertMessage: null,
+	});
+  
+	useEffect(() => {
+	  if (typeof window !== "undefined") {
+		// Get the 'tab' parameter from URL
+		const searchParams = new URLSearchParams(window.location.search);
+		const tabParam = searchParams.get("tab");
+		setActiveTab(tabParam === "login" ? "login" : "signup");
+	  }
+	}, []);
+  
+	// Auth state listener
+	useEffect(() => {
+	  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+		if (firebaseUser) {
+		  const { email, uid } = firebaseUser;
+  
+		  // Fetch additional user data from Firestore
+		  const userDoc = await getDoc(doc(firestore, "users", uid));
+		  let userData = {};
+  
+		  if (userDoc.exists()) {
+			userData = userDoc.data();
+		  }
+  
+		  const fullUserData = {
+			id: uid,
+			email: email,
+			...userData,
+		  };
+  
+		  // Dispatch setUser action
+		  dispatch(setUser(fullUserData));
+		} else {
+		  // User is signed out
+		  dispatch(clearUser());
+		}
+	  });
+  
+	  // Clean up the listener on unmount
+	  return () => unsubscribe();
+	}, [dispatch]);
+  
+	// Handle form input change
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	  const { name, value } = e.target;
+	  localDispatch({
+		type: ACTIONS.SET_FORM_DATA,
+		payload: { ...state.formData, [name]: value },
+	  });
+	  // Clear the error message for this field
+	  localDispatch({
+		type: ACTIONS.SET_ERRORS,
+		payload: { ...state.errors, [name]: "" },
+	  });
+	};
+  
+	// Form validation
+	const validateForm = (): boolean => {
+	  let valid = true;
+	  const newErrors = { ...state.errors };
+  
+	  if (!state.formData.username.trim()) {
+		newErrors.username = "Username is required";
+		valid = false;
+	  } else {
+		newErrors.username = "";
+	  }
+  
+	  if (!state.formData.email.trim()) {
+		newErrors.email = "Email is required";
+		valid = false;
+	  } else if (!/\S+@\S+\.\S+/.test(state.formData.email)) {
+		newErrors.email = "Email is invalid";
+		valid = false;
+	  } else {
+		newErrors.email = "";
+	  }
+  
+	  if (!state.formData.password) {
+		newErrors.password = "Password is required";
+		valid = false;
+	  } else if (state.formData.password.length < 6) {
+		newErrors.password = "Password must be at least 6 characters";
+		valid = false;
+	  } else {
+		newErrors.password = "";
+	  }
+  
+	  localDispatch({ type: ACTIONS.SET_ERRORS, payload: newErrors });
+	  return valid;
+	};
+  
+	// Check if username exists in Firestore
+	const checkUsernameExists = async (username: string): Promise<boolean> => {
+	  const q = query(
+		collection(firestore, "users"),
+		where("username", "==", username)
+	  );
+	  const querySnapshot = await getDocs(q);
+	  return !querySnapshot.empty;
+	};
+  
+	const handleSignUp = async (e: React.FormEvent) => {
+	  e.preventDefault();
+	  if (!validateForm()) return;
+  
+	  localDispatch({ type: ACTIONS.SET_LOADING, payload: true });
+	  try {
+		const usernameExists = await checkUsernameExists(state.formData.username);
+		if (usernameExists) {
+		  localDispatch({
+			type: ACTIONS.SET_ERRORS,
+			payload: {
+			  ...state.errors,
+			  username: "Username already taken",
+			},
+		  });
+		  localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
+		  return;
+		}
+  
+		const userCredential = await createUserWithEmailAndPassword(
+		  auth,
+		  state.formData.email,
+		  state.formData.password
+		);
+		const user = userCredential.user;
+  
+		// Save user data in Firestore
+		const userData = {
+		  username: state.formData.username,
+		  email: user.email,
+		};
+  
+		await setDoc(doc(firestore, "users", user.uid), userData);
+  
+		// Dispatch setUser action
+		dispatch(
+		  setUser({
+			id: user.uid,
+			...userData,
+		  })
+		);
+  
+		localDispatch({
+		  type: ACTIONS.SET_ALERT,
+		  payload: "Sign-up successful!",
+		});
+		router.push("/dashboard");
+	  } catch (error: any) {
+		localDispatch({
+		  type: ACTIONS.SET_ALERT,
+		  payload: error.message || "Error during sign-up. Please try again.",
+		});
+		console.error("Error during sign-up:", error);
+	  } finally {
+		localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
+	  }
+	};
+  
+	const handleLogin = async (e: React.FormEvent) => {
+	  e.preventDefault();
+  
+	  if (!state.formData.email.trim()) {
+		localDispatch({
+		  type: ACTIONS.SET_ERRORS,
+		  payload: {
+			...state.errors,
+			email: "Email is required",
+		  },
+		});
+		return;
+	  }
+  
+	  if (!state.formData.password) {
+		localDispatch({
+		  type: ACTIONS.SET_ERRORS,
+		  payload: {
+			...state.errors,
+			password: "Password is required",
+		  },
+		});
+		return;
+	  }
+  
+	  localDispatch({ type: ACTIONS.SET_LOADING, payload: true });
+	  try {
+		const userCredential = await signInWithEmailAndPassword(
+		  auth,
+		  state.formData.email,
+		  state.formData.password
+		);
+		const user = userCredential.user;
+  
+		const userDoc = await getDoc(doc(firestore, "users", user.uid));
+		if (!userDoc.exists()) {
+		  localDispatch({
+			type: ACTIONS.SET_ALERT,
+			payload: "No account found. Please sign up first.",
+		  });
+		  localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
+		  return;
+		}
+  
+		const userData = userDoc.data();
+  
+		// Dispatch setUser action
+		dispatch(
+		  setUser({
+			id: user.uid,
+			email: user.email,
+			...userData,
+		  })
+		);
+  
+		localDispatch({
+		  type: ACTIONS.SET_ALERT,
+		  payload: "Logged in successfully!",
+		});
+		router.push("/dashboard");
+	  } catch (error: any) {
+		localDispatch({
+		  type: ACTIONS.SET_ALERT,
+		  payload: error.message || "Error during login. Please try again.",
+		});
+		console.error("Error during login:", error);
+	  } finally {
+		localDispatch({ type: ACTIONS.SET_LOADING, payload: false });
+	  }
+	};
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-100">
