@@ -9,7 +9,6 @@ import { RootState, logout } from "./../store";
 
 const LogoutPage: React.FC = () => {
 	const router = useRouter();
-	const user = useSelector((state: RootState) => state.auth.user);
 	const dispatch = useDispatch();
 	useEffect(() => {
 		const logoutUser = async () => {
