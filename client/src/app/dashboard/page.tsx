@@ -4,9 +4,6 @@ import React from 'react';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import SummarySection from './SummarySection';
-import DashboardTable from './DashboardTable';
-import Notifications from './Notifications';
-import LoanProgress from './LoanProgress';
 
 const DashboardPage: React.FC = () => {
   return (
@@ -17,15 +14,12 @@ const DashboardPage: React.FC = () => {
           <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             <SummarySection />
           </section>
-          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+{/*           <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             <DashboardTable />
-          </section>
-          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-            <Notifications />
-          </section>
+          </section> 
           <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             <LoanProgress />
-          </section>
+          </section> */}
         </div>
       </main>
       <Footer />

@@ -8,7 +8,6 @@ import Link from "next/link";
 
 const ProfilePage: React.FC = () => {
 	const user = useSelector((state: RootState) => state.auth.user);
-	const router = useRouter();
 
 	if (!user) {
 		return null; // Or a loading indicator
