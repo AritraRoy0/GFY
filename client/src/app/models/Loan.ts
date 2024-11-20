@@ -7,12 +7,23 @@ export interface Payment {
   
   export interface Loan {
 	id: string;
-	owner: "owned" | "owed";
+	borrowedBy: string;
+	ownedBy: string;
 	principalAmount: number;
 	interestRate: number; // Annual interest rate in percentage
 	termWeeks: number;
-	weeklyInstallment: number;
 	paymentsMade: Payment[];
+  }
+
+
+  export interface LoanRequest {
+	id: string;
+	borrowedBy: string;
+	principalAmount: number;
+	interestRate: number; // Annual interest rate in percentage
+	termWeeks: number;
+	purpose: string;
+	timestamp: Date;
   }
   
   /**
@@ -22,7 +33,7 @@ export interface Payment {
    * @param termWeeks - The loan term in weeks.
    * @returns The weekly installment amount.
    */
-  export function calculateWeeklyInstallment(
+  export function calculateWeeklyAveragedInstallment(
 	principalAmount: number,
 	annualInterestRate: number,
 	termWeeks: number

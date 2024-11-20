@@ -6,8 +6,6 @@ import {
 	TrendingUp,
 	TrendingDown,
 } from "@mui/icons-material";
-import loans from "./MockLoans"; // Importing the loans constant
-import { calculateTotalOwed, calculateTotalOwned, calculateNetCredit } from "./utils/loanUtils";
 
 interface SummaryCardProps {
 	title: string;
@@ -31,9 +29,9 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon }) => {
 
 const SummarySection: React.FC = () => {
 
-	const totalOwned = calculateTotalOwned(loans);
-	const totalOwed = calculateTotalOwed(loans);
-	const totalReserves = calculateNetCredit(totalOwned, totalOwed);
+	const totalOwned = 30000;
+	const totalOwed = 20000;
+	const totalReserves = 10000;
 
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
