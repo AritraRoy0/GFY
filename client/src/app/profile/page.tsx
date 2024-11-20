@@ -1,99 +1,197 @@
 "use client";
 
-import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "./../store";
+import React, { useState, useEffect } from "react";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import Link from "next/link";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
-import LoanSummary from "./LoanSummary";
-
+import { fetchUserLoanRequests } from "../models/LoanRequestAPIs";
+import { LoanRequest } from "../models/LoanInterfaces";
 
 const ProfilePage: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  if (!user) {
+  // Fetch authenticated user
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+
+    return () => {
+      unsubscribeAuth();
+    };
+  }, []);
+
+  // Fetch loan requests associated with the current user
+  useEffect(() => {
+    if (currentUser) {
+      setLoading(true);
+      const unsubscribeLoanRequests = fetchUserLoanRequests(
+        currentUser.uid,
+        (userLoanRequests) => {
+          setLoanRequests(userLoanRequests);
+          setLoading(false);
+        }
+      );
+
+      return () => {
+        unsubscribeLoanRequests();
+      };
+    } else {
+      setLoanRequests([]);
+      setLoading(false);
+    }
+  }, [currentUser]);
+
+  if (!currentUser) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-gray-700 text-lg">Loading profile...</p>
+        <p className="text-gray-700 text-lg">
+          Please log in to view your profile.
+        </p>
       </div>
-    ); // Or a more sophisticated loading indicator
+    );
   }
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
       <Header />
-      
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col items-center justify-center bg-gradient-to-b from-indigo-100 to-white p-6">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-          <div className="flex flex-col items-center">
-            {/* Profile Icon */}
-            <div className="w-24 h-24 bg-indigo-500 text-white rounded-full mb-4 flex items-center justify-center">
-              <span className="text-4xl font-bold">
-                {user.username ? user.username.charAt(0).toUpperCase() : "U"}
-              </span>
+      <main className="flex-grow bg-gradient-to-b from-indigo-100 to-white p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Profile Section */}
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+            <div className="flex items-center">
+              {/* Profile Icon */}
+              <div className="w-24 h-24 bg-indigo-500 text-white rounded-full flex items-center justify-center">
+                <span className="text-4xl font-bold">
+                  {currentUser.displayName
+                    ? currentUser.displayName.charAt(0).toUpperCase()
+                    : "U"}
+                </span>
+              </div>
+
+              {/* Display User Information */}
+              <div className="ml-6">
+                <h1 className="text-2xl font-bold text-gray-800">
+                  {currentUser.displayName || "User Name"}
+                </h1>
+                <p className="text-gray-600">
+                  {currentUser.email || "user@example.com"}
+                </p>
+              </div>
             </div>
 
-            {/* Display User Information */}
-            <h1 className="text-2xl font-bold text-gray-800">
-              {user.username || "User Name"}
-            </h1>
-            <p className="text-gray-600">{user.email || "user@example.com"}</p>
+            {/* Additional Info */}
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center">
+                  {/* Email Icon */}
+                  <svg
+                    className="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M2.003 5.884L10 12l-7.997 6.116A1 1 0 012 17.116V6.884a1 1 0 01.003-.001zM12 12l7.997 6.116A1 1 0 0022 17.116V6.884a1 1 0 00-.003-.001L12 12z" />
+                  </svg>
+                </div>
+                <p className="ml-4 text-gray-700">
+                  <span className="font-medium">Email:</span>{" "}
+                  {currentUser.email || "user@example.com"}
+                </p>
+              </div>
+
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center">
+                  {/* User ID Icon */}
+                  <svg
+                    className="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-6a6 6 0 100 12A6 6 0 0010 4z" />
+                  </svg>
+                </div>
+                <p className="ml-4 text-gray-700">
+                  <span className="font-medium">User ID:</span>{" "}
+                  {currentUser.uid || "Placeholder ID"}
+                </p>
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <div className="mt-8">
+              <Link
+                href="/logout"
+                className="w-full inline-block text-center px-4 py-2 bg-red-500 text-white font-semibold rounded hover:bg-red-600 transition duration-300"
+              >
+                Logout
+              </Link>
+            </div>
           </div>
 
-          {/* Additional Info */}
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center">
-                {/* Email Icon */}
-                <svg
-                  className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path d="M2.003 5.884L10 12l-7.997 6.116A1 1 0 012 17.116V6.884a1 1 0 01.003-.001zM12 12l7.997 6.116A1 1 0 0022 17.116V6.884a1 1 0 00-.003-.001L12 12z" />
-                </svg>
-              </div>
-              <p className="ml-4 text-gray-700">
-                <span className="font-medium">Email:</span> {user.email || "user@example.com"}
+          {/* Loan Summary Section */}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+            </div>
+          ) : loanRequests.length === 0 ? (
+            <div className="text-center mt-8">
+              <p className="text-lg text-gray-700">
+                You have no loan requests.
               </p>
             </div>
-
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center">
-                {/* User ID Icon */}
-                <svg
-                  className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-6a6 6 0 100 12A6 6 0 0010 4z" />
-                </svg>
+          ) : (
+            <div className="bg-blue-50 rounded-lg p-8">
+              <h2 className="text-3xl font-semibold mb-8 text-center text-teal-800">
+                Your Loan Requests
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {loanRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
+                  >
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                        ${request.principalAmount.toLocaleString()}
+                      </h3>
+                      <p className="text-gray-600 mb-2">
+                        <span className="font-medium text-indigo-600">
+                          Interest Rate:
+                        </span>{" "}
+                        {request.interestRate}%
+                      </p>
+                      <p className="text-gray-600 mb-2">
+                        <span className="font-medium text-indigo-600">
+                          Term:
+                        </span>{" "}
+                        {request.termWeeks} weeks
+                      </p>
+                      <p className="text-gray-600 mb-4">
+                        <span className="font-medium text-indigo-600">
+                          Purpose:
+                        </span>{" "}
+                        {request.purpose}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        {new Date(request.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="ml-4 text-gray-700">
-                <span className="font-medium">User ID:</span> {user.id || "Placeholder ID"}
-              </p>
             </div>
-          </div>
-
-          {/* Logout Button */}
-          <div className="mt-8">
-            <Link
-              href="/logout"
-              className="w-full inline-block text-center px-4 py-2 bg-red-500 text-white font-semibold rounded hover:bg-red-600 transition duration-300"
-            >
-              Logout
-            </Link>
-          </div>
+          )}
         </div>
       </main>
-
-      <LoanSummary />
 
       {/* Footer */}
       <Footer />
