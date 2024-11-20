@@ -6,6 +6,8 @@ import { RootState } from "./../store";
 import Link from "next/link";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
+import LoanSummary from "./LoanSummary";
+
 
 const ProfilePage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -22,6 +24,7 @@ const ProfilePage: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       {/* Header */}
       <Header />
+      
 
       {/* Main Content */}
       <main className="flex-grow flex flex-col items-center justify-center bg-gradient-to-b from-indigo-100 to-white p-6">
@@ -89,6 +92,8 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      <LoanSummary />
 
       {/* Footer */}
       <Footer />

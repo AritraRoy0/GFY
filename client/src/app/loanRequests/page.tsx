@@ -5,7 +5,7 @@ import {
   uploadLoanRequest,
   fetchLoanRequests,
 } from "../models/LoanRequestAPIs";
-import { LoanRequest } from "../models/Loan";
+import { LoanRequest } from "../models/LoanInterfaces";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
