@@ -4,26 +4,8 @@ import React from "react";
 import {
 	AccountBalance,
 	TrendingUp,
-	MoneyOff,
-	AttachMoney,
-	ShowChart,
-	AccountBalanceWallet,
 	TrendingDown,
-
-
 } from "@mui/icons-material";
-import loans from "./MockLoans"; // Importing the loans constant
-
-import {
-	calculateTotalOwned,
-	calculateTotalOwed,
-	calculateNetCredit,
-	calculateTotalInterestExpected,
-	calculateTotalInterestToPay,
-	calculateAverageInterestRateOwned,
-	calculateAverageInterestRateOwed,
-	calculateTotalReserves,
-} from "./utils/loanUtils";
 
 interface SummaryCardProps {
 	title: string;
@@ -47,59 +29,29 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon }) => {
 
 const SummarySection: React.FC = () => {
 
-	const totalOwned = calculateTotalOwned(loans);
-	const totalOwed = calculateTotalOwed(loans);
-	const totalReserves = calculateTotalReserves(loans);
-
-	const netCredit = calculateNetCredit(totalOwned, totalOwed);
-	const totalInterestExpected = calculateTotalInterestExpected(loans);
-	const totalInterestToPay = calculateTotalInterestToPay(loans);
-	const averageInterestRateOwned = calculateAverageInterestRateOwned(loans);
-	const averageInterestRateOwed = calculateAverageInterestRateOwed(loans);
+	const totalOwned = 30000;
+	const totalOwed = 20000;
+	const totalReserves = 10000;
 
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			<SummaryCard
-				title="Total Loans Owned"
-				value={`$${totalOwned.toLocaleString()}`}
-				icon={<TrendingUp className="text-green-500" />}
-			/>
-			<SummaryCard
-				title="Total Reserves"
-				value={`$${totalReserves.toLocaleString()}`}
-				icon={<AccountBalance className="text-green-500" />}
-			/>
-			<SummaryCard
-				title="Total Loans Owed"
-				value={`$${totalOwed.toLocaleString()}`}
-				icon={<TrendingDown className="text-red-500" />}
-			/>
-			<SummaryCard
-				title="Net Credit"
-				value={`$${netCredit.toLocaleString()}`}
-				icon={<AccountBalanceWallet className="text-green-500" />}
-			/>
-			<SummaryCard
-				title="Interest Expected"
-				value={`$${totalInterestExpected.toLocaleString()}`}
-				icon={<AttachMoney className="text-purple-500" />}
-			/>
-			<SummaryCard
-				title="Interest to Pay"
-				value={`$${totalInterestToPay.toLocaleString()}`}
-				icon={<MoneyOff className="text-yellow-500" />}
-			/>
-			<SummaryCard
-				title="Avg Interest Rate (Owned)"
-				value={`${averageInterestRateOwned.toFixed(2)}%`}
-				icon={<ShowChart className="text-orange-500" />}
-			/>
-			<SummaryCard
-				title="Avg Interest Rate (Owed)"
-				value={`${averageInterestRateOwed.toFixed(2)}%`}
-				icon={<ShowChart className="text-pink-500" />}
-			/>
-		</div>
+		<SummaryCard
+		  title="Loans Owed to You"
+		  value={`$${totalOwned.toLocaleString()}`}
+		  icon={<TrendingUp className="text-green-500" />}
+		/>
+		<SummaryCard
+		  title="Your Balance Including Interest"
+		  value={`$${totalReserves.toLocaleString()}`}
+		  icon={<AccountBalance className="text-green-500" />}
+		/>
+		<SummaryCard
+		  title="Loans You Owe to Others"
+		  value={`$${totalOwed.toLocaleString()}`}
+		  icon={<TrendingDown className="text-red-500" />}
+		/>
+	  </div>
+
 	);
 };
 

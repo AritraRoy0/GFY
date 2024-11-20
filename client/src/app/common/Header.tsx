@@ -48,6 +48,13 @@ const Header: React.FC = () => {
           Dashboard
         </Link>
         <Link
+          href="/loanRequests"
+          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
+        >
+          <FaUser className="h-5 w-5 mr-2 text-white" />
+          Loan Requests
+        </Link>
+        <Link
           href="/profile"
           className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
         >
