@@ -13,6 +13,8 @@ import {
   FaSignInAlt,
   FaUserPlus,
   FaBriefcase,
+  FaHandHoldingUsd,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "./Logo"; // Adjust the path to your Logo component if necessary
@@ -37,40 +39,29 @@ const Header: React.FC = () => {
     setIsMenuOpen((prevState) => !prevState);
   }, []);
 
+  const linkClassNames =
+    "flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300";
+
   const loggedInHeader = useMemo(
     () => (
       <>
-        <Link
-          href="/dashboard"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/dashboard" className={linkClassNames}>
           <FaBriefcase className="h-5 w-5 mr-2 text-white" />
           Dashboard
         </Link>
-        <Link
-          href="/loanRequests"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
-          <FaUser className="h-5 w-5 mr-2 text-white" />
+        <Link href="/loanRequests" className={linkClassNames}>
+          <FaHandHoldingUsd className="h-5 w-5 mr-2 text-white" />
           Loan Requests
         </Link>
-        <Link
-          href="/profile"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/profile" className={linkClassNames}>
           <FaUser className="h-5 w-5 mr-2 text-white" />
           Profile
         </Link>
-        <Link
-          href="/about"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/about" className={linkClassNames}>
+          <FaInfoCircle className="h-5 w-5 mr-2 text-white" />
           About
         </Link>
-        <Link
-          href="/logout"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/logout" className={linkClassNames}>
           <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
           Logout
         </Link>
@@ -82,17 +73,15 @@ const Header: React.FC = () => {
   const loggedOutHeader = useMemo(
     () => (
       <>
-        <Link
-          href="/auth?tab=login"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/about" className={linkClassNames}>
+          <FaInfoCircle className="h-5 w-5 mr-2 text-white" />
+          About
+        </Link>
+        <Link href="/auth?tab=login" className={linkClassNames}>
           <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
           Login
         </Link>
-        <Link
-          href="/auth?tab=signup"
-          className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-        >
+        <Link href="/auth?tab=signup" className={linkClassNames}>
           <FaUserPlus className="h-5 w-5 mr-2 text-white" />
           Sign Up
         </Link>
@@ -112,8 +101,6 @@ const Header: React.FC = () => {
         {/* Logo and Brand Name */}
         <Link href="/" className="flex items-center space-x-2">
           <Logo /> {/* Use the Logo component here */}
-        </Link>
-        <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-extrabold text-white">
             Go Fund Yourself!!
           </span>
@@ -158,47 +145,38 @@ const Header: React.FC = () => {
             <div className="px-4 pt-4 pb-3 space-y-2 sm:px-3">
               {isLoggedIn ? (
                 <div className="flex flex-col space-y-2">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/dashboard" className={linkClassNames}>
                     <FaBriefcase className="h-5 w-5 mr-2 text-white" />
                     Dashboard
                   </Link>
-                  <Link
-                    href="/profile"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/loanRequests" className={linkClassNames}>
+                    <FaHandHoldingUsd className="h-5 w-5 mr-2 text-white" />
+                    Loan Requests
+                  </Link>
+                  <Link href="/profile" className={linkClassNames}>
                     <FaUser className="h-5 w-5 mr-2 text-white" />
                     Profile
                   </Link>
-                  <Link
-                    href="/about"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/about" className={linkClassNames}>
+                    <FaInfoCircle className="h-5 w-5 mr-2 text-white" />
                     About
                   </Link>
-                  <Link
-                    href="/logout"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/logout" className={linkClassNames}>
                     <FaSignOutAlt className="h-5 w-5 mr-2 text-white" />
                     Logout
                   </Link>
                 </div>
               ) : (
                 <div className="flex flex-col space-y-2">
-                  <Link
-                    href="/auth?tab=login"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/about" className={linkClassNames}>
+                    <FaInfoCircle className="h-5 w-5 mr-2 text-white" />
+                    About
+                  </Link>
+                  <Link href="/auth?tab=login" className={linkClassNames}>
                     <FaSignInAlt className="h-5 w-5 mr-2 text-white" />
                     Login
                   </Link>
-                  <Link
-                    href="/auth?tab=signup"
-                    className="flex items-center px-4 py-2 rounded-md text-white border border-white bg-transparent hover:bg-gray-700 hover:border-gray-700 transition duration-300"
-                  >
+                  <Link href="/auth?tab=signup" className={linkClassNames}>
                     <FaUserPlus className="h-5 w-5 mr-2 text-white" />
                     Sign Up
                   </Link>
