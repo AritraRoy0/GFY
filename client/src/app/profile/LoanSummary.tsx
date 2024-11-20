@@ -39,65 +39,59 @@ const LoanSummary: React.FC = () => {
   }, [currentUser]);
 
   if (loading) {
-    return <div>Loading loan requests...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (!currentUser) {
-    return <div>Please log in to view your loan requests.</div>;
+    return (
+      <div className="text-center mt-8">
+        <p className="text-lg text-gray-700">Please log in to view your loan requests.</p>
+      </div>
+    );
   }
 
   if (loanRequests.length === 0) {
-    return <div>You have no loan requests.</div>;
+    return (
+      <div className="text-center mt-8">
+        <p className="text-lg text-gray-700">You have no loan requests.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
-        Your Loan Requests
-      </h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Principal Amount
-              </th>
-              <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Interest Rate (%)
-              </th>
-              <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Term (Weeks)
-              </th>
-              <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Purpose
-              </th>
-              <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {loanRequests.map((request) => (
-              <tr key={request.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                  ${request.principalAmount.toLocaleString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                  {request.interestRate}%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                  {request.termWeeks}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                  {request.purpose}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                  {new Date(request.timestamp).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+<div className="container mx-auto px-4 py-12 bg-blue-50">
+  <h2 className="text-3xl font-semibold mb-8 text-center text-teal-800">
+    Your Loan Requests
+  </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {loanRequests.map((request) => (
+          <div
+            key={request.id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden"
+          >
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                ${request.principalAmount.toLocaleString()}
+              </h3>
+              <p className="text-gray-600 mb-2">
+                <span className="font-medium">Interest Rate:</span> {request.interestRate}%
+              </p>
+              <p className="text-gray-600 mb-2">
+                <span className="font-medium">Term:</span> {request.termWeeks} weeks
+              </p>
+              <p className="text-gray-600 mb-4">
+                <span className="font-medium">Purpose:</span> {request.purpose}
+              </p>
+              <p className="text-gray-500 text-sm">
+                {new Date(request.timestamp).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
