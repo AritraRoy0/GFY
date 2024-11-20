@@ -11,12 +11,16 @@ import Header from "../common/Header";
 import Footer from "../common/Footer";
 
 const LoanRequestForm: React.FC = () => {
-  const [principalAmount, setPrincipalAmount] = useState<number>(0);
-  const [interestRate, setInterestRate] = useState<number>(0);
-  const [termWeeks, setTermWeeks] = useState<number>(0);
+  // Changed state types from number | "" to string
+  const [principalAmount, setPrincipalAmount] = useState<string>("");
+  const [interestRate, setInterestRate] = useState<string>("");
+  const [termWeeks, setTermWeeks] = useState<string>("");
   const [purpose, setPurpose] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Validation state
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Fetch authenticated user
   useEffect(() => {
@@ -40,22 +44,51 @@ const LoanRequestForm: React.FC = () => {
     };
   }, []);
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Parse the string inputs to numbers for validation
+    const principal = parseFloat(principalAmount);
+    const interest = parseFloat(interestRate);
+    const term = parseFloat(termWeeks);
+
+    if (!principalAmount || isNaN(principal) || principal <= 0) {
+      newErrors.principalAmount = "Please enter a valid principal amount.";
+    }
+    if (!interestRate || isNaN(interest) || interest <= 0) {
+      newErrors.interestRate = "Please enter a valid interest rate.";
+    }
+    if (!termWeeks || isNaN(term) || term <= 0) {
+      newErrors.termWeeks = "Please enter a valid term in weeks.";
+    }
+    if (!purpose.trim()) {
+      newErrors.purpose = "Please provide a purpose for the loan.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     if (!currentUser) {
       alert("Please log in to submit a loan request.");
-      setLoading(false);
       return;
     }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
 
     const newLoanRequest: LoanRequest = {
       id: "",
       borrowedBy: currentUser.uid,
-      principalAmount,
-      interestRate,
-      termWeeks,
+      // Convert strings to numbers
+      principalAmount: parseFloat(principalAmount),
+      interestRate: parseFloat(interestRate),
+      termWeeks: parseFloat(termWeeks),
       purpose,
       timestamp: new Date(),
     };
@@ -63,10 +96,11 @@ const LoanRequestForm: React.FC = () => {
     try {
       await uploadLoanRequest(newLoanRequest);
       // Reset form fields
-      setPrincipalAmount(0);
-      setInterestRate(0);
-      setTermWeeks(0);
+      setPrincipalAmount("");
+      setInterestRate("");
+      setTermWeeks("");
       setPurpose("");
+      setErrors({});
     } catch (error) {
       console.error("Error submitting loan request:", error);
       alert(
@@ -78,23 +112,20 @@ const LoanRequestForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow bg-gray-50">
-        <div className="container mx-auto px-4 py-12">
-          <section className="bg-white shadow-lg rounded-lg p-8 mb-12">
-            <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
+        <div className="container px-6 py-12 mx-auto">
+          <section className="max-w-4xl p-8 mx-auto bg-white rounded-lg shadow-md">
+            <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">
               Submit a New Loan Request
             </h2>
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-8 max-w-2xl mx-auto"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="flex flex-col">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
                   <label
                     htmlFor="principalAmount"
-                    className="mb-2 font-semibold text-gray-700"
+                    className="block mb-2 text-sm font-medium text-gray-700"
                   >
                     Principal Amount
                   </label>
@@ -102,18 +133,24 @@ const LoanRequestForm: React.FC = () => {
                     type="number"
                     id="principalAmount"
                     value={principalAmount}
-                    onChange={(e) =>
-                      setPrincipalAmount(Number(e.target.value))
-                    }
-                    required
+                    onChange={(e) => setPrincipalAmount(e.target.value)}
                     placeholder="Enter principal amount"
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                    className={`block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.principalAmount
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {errors.principalAmount && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.principalAmount}
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col">
+                <div>
                   <label
                     htmlFor="interestRate"
-                    className="mb-2 font-semibold text-gray-700"
+                    className="block mb-2 text-sm font-medium text-gray-700"
                   >
                     Interest Rate (%)
                   </label>
@@ -121,20 +158,24 @@ const LoanRequestForm: React.FC = () => {
                     type="number"
                     id="interestRate"
                     value={interestRate}
-                    onChange={(e) =>
-                      setInterestRate(Number(e.target.value))
-                    }
-                    required
+                    onChange={(e) => setInterestRate(e.target.value)}
                     placeholder="Enter interest rate"
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                    className={`block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.interestRate ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {errors.interestRate && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.interestRate}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="flex flex-col">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
                   <label
                     htmlFor="termWeeks"
-                    className="mb-2 font-semibold text-gray-700"
+                    className="block mb-2 text-sm font-medium text-gray-700"
                   >
                     Term (Weeks)
                   </label>
@@ -142,16 +183,22 @@ const LoanRequestForm: React.FC = () => {
                     type="number"
                     id="termWeeks"
                     value={termWeeks}
-                    onChange={(e) => setTermWeeks(Number(e.target.value))}
-                    required
+                    onChange={(e) => setTermWeeks(e.target.value)}
                     placeholder="Enter term in weeks"
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                    className={`block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.termWeeks ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {errors.termWeeks && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.termWeeks}
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col">
+                <div>
                   <label
                     htmlFor="purpose"
-                    className="mb-2 font-semibold text-gray-700"
+                    className="block mb-2 text-sm font-medium text-gray-700"
                   >
                     Purpose
                   </label>
@@ -159,33 +206,37 @@ const LoanRequestForm: React.FC = () => {
                     id="purpose"
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
-                    required
                     placeholder="Describe the purpose of the loan"
-                    className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none bg-white text-gray-800"
+                    className={`block w-full px-4 py-2 text-gray-700 bg-white border rounded-md focus:ring-blue-500 focus:border-blue-500 h-28 ${
+                      errors.purpose ? "border-red-500" : "border-gray-300"
+                    }`}
                   ></textarea>
+                  {errors.purpose && (
+                    <p className="mt-1 text-sm text-red-600">{errors.purpose}</p>
+                  )}
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={loading || !currentUser}
-                className={`w-full py-3 px-6 bg-blue-600 text-white font-bold rounded-lg transition duration-300 ${
+                className={`w-full px-6 py-3 text-white font-semibold rounded-md transition-colors duration-300 ${
                   loading || !currentUser
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-blue-700"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
                 {loading ? "Submitting..." : "Submit Request"}
               </button>
               {!currentUser && (
-                <p className="text-red-600 mt-4 text-center font-medium">
+                <p className="mt-4 text-sm font-medium text-center text-red-600">
                   Please log in to submit a loan request.
                 </p>
               )}
             </form>
           </section>
 
-          <section>
-            <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
+          <section className="max-w-6xl px-4 mx-auto mt-12">
+            <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">
               Existing Loan Requests
             </h2>
             {loanRequests.length === 0 ? (
@@ -194,48 +245,48 @@ const LoanRequestForm: React.FC = () => {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-                  <thead>
+                <table className="w-full overflow-hidden bg-white rounded-lg shadow-md">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Borrowed By
                       </th>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Principal Amount
                       </th>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Interest Rate (%)
                       </th>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Term (Weeks)
                       </th>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Purpose
                       </th>
-                      <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">
                         Timestamp
                       </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {loanRequests.map((request) => (
-                      <tr key={request.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                      <tr key={request.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-gray-800">
                           {request.borrowedBy}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                        <td className="px-4 py-3 text-gray-800">
                           ${request.principalAmount.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                        <td className="px-4 py-3 text-gray-800">
                           {request.interestRate}%
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                        <td className="px-4 py-3 text-gray-800">
                           {request.termWeeks}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                        <td className="px-4 py-3 text-gray-800">
                           {request.purpose}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                        <td className="px-4 py-3 text-gray-800">
                           {request.timestamp.toLocaleString()}
                         </td>
                       </tr>

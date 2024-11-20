@@ -20,7 +20,7 @@ import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
 import Image from "next/image";
-
+import LoanTerminal from "./common/LoanTerminal"
 // Define TypeScript interfaces for animated elements
 interface AnimatedElement {
   id: number;
@@ -457,6 +457,7 @@ const LandingPage: React.FC = () => {
       </Head>
       <Header />
       <Hero />
+      <LoanTerminal />
       <Features />
       <PoweredBy />
       <Testimonials />
