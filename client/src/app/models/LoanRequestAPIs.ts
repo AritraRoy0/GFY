@@ -17,10 +17,12 @@ const db = firestore;
 /**
  * Fetches all loan requests and listens for real-time updates.
  * @param callback - Function to call with the array of LoanRequests.
+ * @param errorCallback - Optional function to call if an error occurs.
  * @returns A function to unsubscribe from the listener.
  */
 export function fetchLoanRequests(
-	callback: (loanRequests: LoanRequest[]) => void
+	callback: (loanRequests: LoanRequest[]) => void,
+	errorCallback?: (error: any) => void
 ) {
 	const loanRequestsCollection = collection(db, "loanRequests");
 
@@ -57,6 +59,11 @@ export function fetchLoanRequests(
 		});
 
 		callback(loanRequests);
+	}, (error) => {
+		console.error("Error fetching loan requests:", error);
+		if (errorCallback) {
+			errorCallback(error);
+		}
 	});
 }
 
@@ -64,11 +71,13 @@ export function fetchLoanRequests(
  * Fetches loan requests made by the specified user and listens for real-time updates.
  * @param userId - The UID of the user.
  * @param callback - Function to call with the array of LoanRequests.
+ * @param errorCallback - Optional function to call if an error occurs.
  * @returns A function to unsubscribe from the listener.
  */
 export function fetchUserLoanRequests(
 	userId: string,
-	callback: (loanRequests: LoanRequest[]) => void
+	callback: (loanRequests: LoanRequest[]) => void,
+	errorCallback?: (error: any) => void
 ) {
 	const loanRequestsCollection = collection(db, "loanRequests");
 	const qBorrowed = query(loanRequestsCollection, where("borrowedBy", "==", userId));
@@ -106,6 +115,11 @@ export function fetchUserLoanRequests(
 		});
 
 		callback(userLoanRequests);
+	}, (error) => {
+		console.error("Error fetching user loan requests:", error);
+		if (errorCallback) {
+			errorCallback(error);
+		}
 	});
 
 	return () => {
