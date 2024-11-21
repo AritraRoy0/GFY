@@ -1,107 +1,154 @@
+// src/models/LoanRequestAPIs.ts
+
 import {
 	onSnapshot,
 	collection,
 	addDoc,
 	query,
 	where,
+	serverTimestamp,
+	Timestamp,
 } from "firebase/firestore";
-import { LoanRequest, Loan } from "./LoanInterfaces";
-import { firestore } from "./../../../firebaseConfig";
+import { LoanRequest, NewLoanRequest } from "./LoanInterfaces"; // Ensure the correct path
+import { firestore } from "../../../firebaseConfig"; // Adjust the path as necessary
+
 const db = firestore;
 
 /**
- * Fetches loan requests and listens for real-time updates.
+ * Fetches all loan requests and listens for real-time updates.
  * @param callback - Function to call with the array of LoanRequests.
+ * @param errorCallback - Optional function to call if an error occurs.
  * @returns A function to unsubscribe from the listener.
  */
-
 export function fetchLoanRequests(
-	callback: (loanRequests: LoanRequest[]) => void
+	callback: (loanRequests: LoanRequest[]) => void,
+	errorCallback?: (error: any) => void
 ) {
 	const loanRequestsCollection = collection(db, "loanRequests");
-	return onSnapshot(loanRequestsCollection, async (snapshot) => {
-		const loanRequests: LoanRequest[] = [];
 
-		for (const doc of snapshot.docs) {
+	return onSnapshot(loanRequestsCollection, (snapshot) => {
+		const loanRequests: LoanRequest[] = snapshot.docs.map((doc) => {
 			const data = doc.data();
 
 			let borrowedBy = data.borrowedBy;
 
-			// If borrowedBy is a DocumentReference, get its ID or fetch user data
+			// If borrowedBy is a DocumentReference, extract its ID
 			if (borrowedBy && typeof borrowedBy === "object" && "id" in borrowedBy) {
-				// Option A: Get the UID from the DocumentReference
 				borrowedBy = borrowedBy.id;
-
-				// Option B (Optional): Fetch user data if you need more details
-				// const userDoc = await getDoc(borrowedBy);
-				// borrowedBy = userDoc.exists() ? userDoc.data().displayName : "Unknown User";
 			}
 
-			loanRequests.push({
+			// Ensure timestamp is a Firestore Timestamp object or Date
+			let timestampField: Timestamp | Date | null = null;
+			if (data.timestamp instanceof Timestamp) {
+				timestampField = data.timestamp;
+			} else if (data.timestamp instanceof Date) {
+				// This scenario shouldn't occur if serverTimestamp() is used correctly
+				timestampField = data.timestamp;
+			}
+			// If timestamp is missing or invalid, leave it as null
+
+			return {
 				id: doc.id,
 				borrowedBy: borrowedBy,
 				principalAmount: data.principalAmount,
 				interestRate: data.interestRate,
 				termWeeks: data.termWeeks,
 				purpose: data.purpose,
-				timestamp: new Date(data.timestamp),
-			});
-		}
+				timestamp: timestampField,
+			} as LoanRequest;
+		});
 
 		callback(loanRequests);
+	}, (error) => {
+		console.error("Error fetching loan requests:", error);
+		if (errorCallback) {
+			errorCallback(error);
+		}
 	});
 }
-
-/**
- * Uploads a single loan request to Firestore.
- * @param loanRequest - The LoanRequest object to upload.
- * @returns A promise that resolves when the loan request is added.
- */
-export async function uploadLoanRequest(
-	loanRequest: LoanRequest
-): Promise<void> {
-	const loanRequestsCollection = collection(db, "loanRequests");
-	try {
-		await addDoc(loanRequestsCollection, loanRequest);
-		console.log("Loan request uploaded successfully.");
-	} catch (error) {
-		console.error("Error uploading loan request:", error);
-	}
-}
-
 
 /**
  * Fetches loan requests made by the specified user and listens for real-time updates.
  * @param userId - The UID of the user.
  * @param callback - Function to call with the array of LoanRequests.
+ * @param errorCallback - Optional function to call if an error occurs.
  * @returns A function to unsubscribe from the listener.
  */
 export function fetchUserLoanRequests(
-  userId: string,
-  callback: (loanRequests: LoanRequest[]) => void
+	userId: string,
+	callback: (loanRequests: LoanRequest[]) => void,
+	errorCallback?: (error: any) => void
 ) {
-  const loanRequestsCollection = collection(db, "loanRequests");
-  const qBorrowed = query(loanRequestsCollection, where("borrowedBy", "==", userId));
+	const loanRequestsCollection = collection(db, "loanRequests");
+	const qBorrowed = query(loanRequestsCollection, where("borrowedBy", "==", userId));
 
-  const unsubscribe = onSnapshot(qBorrowed, (snapshot) => {
-    const userLoanRequests: LoanRequest[] = snapshot.docs.map((doc) => {
-      const data = doc.data();
+	const unsubscribe = onSnapshot(qBorrowed, (snapshot) => {
+		const userLoanRequests: LoanRequest[] = snapshot.docs.map((doc) => {
+			const data = doc.data();
 
-      return {
-        id: doc.id,
-        borrowedBy: data.borrowedBy,
-        principalAmount: data.principalAmount,
-        interestRate: data.interestRate,
-        termWeeks: data.termWeeks,
-        purpose: data.purpose,
-        timestamp: new Date(data.timestamp) ? new Date(data.timestamp) : new Date(data.timestamp),
-      } as LoanRequest;
-    });
+			let borrowedBy = data.borrowedBy;
 
-    callback(userLoanRequests);
-  });
+			// If borrowedBy is a DocumentReference, extract its ID
+			if (borrowedBy && typeof borrowedBy === "object" && "id" in borrowedBy) {
+				borrowedBy = borrowedBy.id;
+			}
 
-  return () => {
-    unsubscribe();
-  };
+			// Ensure timestamp is a Firestore Timestamp object or Date
+			let timestampField: Timestamp | Date | null = null;
+			if (data.timestamp instanceof Timestamp) {
+				timestampField = data.timestamp;
+			} else if (data.timestamp instanceof Date) {
+				// This scenario shouldn't occur if serverTimestamp() is used correctly
+				timestampField = data.timestamp;
+			}
+			// If timestamp is missing or invalid, leave it as null
+
+			return {
+				id: doc.id,
+				borrowedBy: borrowedBy,
+				principalAmount: data.principalAmount,
+				interestRate: data.interestRate,
+				termWeeks: data.termWeeks,
+				purpose: data.purpose,
+				timestamp: timestampField,
+			} as LoanRequest;
+		});
+
+		callback(userLoanRequests);
+	}, (error) => {
+		console.error("Error fetching user loan requests:", error);
+		if (errorCallback) {
+			errorCallback(error);
+		}
+	});
+
+	return () => {
+		unsubscribe();
+	};
+}
+
+/**
+ * Uploads a new loan request to Firestore.
+ * @param newLoanRequest - The NewLoanRequest object to upload.
+ * @returns A promise that resolves when the loan request is added.
+ */
+export async function uploadLoanRequest(
+	newLoanRequest: NewLoanRequest
+): Promise<void> {
+	const loanRequestsCollection = collection(db, "loanRequests");
+
+	try {
+		await addDoc(loanRequestsCollection, {
+			borrowedBy: newLoanRequest.borrowedBy,
+			principalAmount: newLoanRequest.principalAmount,
+			interestRate: newLoanRequest.interestRate,
+			termWeeks: newLoanRequest.termWeeks,
+			purpose: newLoanRequest.purpose,
+			timestamp: serverTimestamp(), // Set timestamp server-side
+		});
+		console.log("Loan request uploaded successfully.");
+	} catch (error) {
+		console.error("Error uploading loan request:", error);
+		throw error; // Rethrow to handle in the component
+	}
 }
