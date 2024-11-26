@@ -9,7 +9,6 @@ import {
   FaHandsHelping,
   FaShieldAlt,
   FaBolt,
-  FaMoneyBillWave,
   FaArrowLeft,
   FaArrowRight,
   FaHeartbeat,
@@ -21,27 +20,8 @@ import Footer from "./common/Footer";
 import Head from "next/head";
 import Image from "next/image";
 import LoanTerminal from "./common/LoanTerminal"
-// Define TypeScript interfaces for animated elements
-interface AnimatedElement {
-  id: number;
-  type: "circle" | "triangle" | "square" | "icon";
-  color: string;
-  size: number;
-  initialPosition: { x: number; y: number };
-  animate: {
-    x: number;
-    y: number;
-    rotate?: number;
-    opacity: number;
-  };
-  transition: {
-    duration: number;
-    repeat: number;
-    repeatType: "reverse" | "loop";
-    delay: number;
-  };
-  icon?: JSX.Element;
-}
+
+
 
 // Custom animation variant for feature detail transitions
 const featureDetailVariants = {
@@ -58,8 +38,6 @@ const fadeIn = {
 // Hero Component with Enhanced Animations
 const Hero: React.FC = () => {
   // Define animated elements with thematic relevance
-  
-
   return (
     <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
 
