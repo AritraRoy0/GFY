@@ -9,6 +9,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } fro
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
+type ButtonProps = {
+	onClick: () => void;
+	disabled?: boolean;
+	variant: "primary" | "secondary";
+	children?: React.ReactNode;
+};
+
 const ViewLoan: React.FC = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const loanRequest = useSelector((state: RootState) => state.loanRequest);
@@ -143,9 +150,12 @@ const ViewLoan: React.FC = () => {
 
 					{/* Action Buttons */}
 					<div className="mt-8 flex justify-end gap-4">
-						<Button onClick={handleApprove} disabled={loading} variant="primary" label={loading ? "Processing..." : "Approve and Pay"} />
-						<Button onClick={() => { console.log("Reject Loan"); }} variant="secondary" label="Reject Loan" />
-
+						<Button onClick={handleApprove} disabled={loading} variant="primary">
+							{loading ? "Processing..." : "Approve and Pay"}
+						</Button>
+						<Button onClick={() => console.log("Reject Loan")} variant="secondary">
+							Reject Loan
+						</Button>
 					</div>
 				</div>
 			</div>
@@ -163,12 +173,7 @@ const DetailCard: React.FC<{ label: string; value: string; full?: boolean }> = (
 );
 
 // Reusable Button Component
-const Button: React.FC<{ onClick: () => void; disabled?: boolean; variant: "primary" | "secondary" }> = ({
-	                                                                                                         onClick,
-	                                                                                                         disabled,
-	                                                                                                         variant,
-	                                                                                                         children,
-                                                                                                         }) => {
+const Button: React.FC<ButtonProps> = ({ onClick, disabled, variant, children }) => {
 	const baseClasses =
 		"px-6 py-3 font-semibold rounded-md shadow focus:ring focus:ring-offset-2 focus:ring-opacity-50";
 	const variants = {
