@@ -1,5 +1,3 @@
-// src/components/LoanRequestForm.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,10 +6,14 @@ import {
   fetchLoanRequests,
 } from "../models/LoanRequestAPIs";
 import { LoanRequest, NewLoanRequest } from "../models/LoanInterfaces";
+import { setLoanRequestState, clearLoanRequestState } from "../store";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { useDispatch } from "react-redux";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
-import {Timestamp} from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { Button } from "@mui/material";
+
 
 const LoanRequestForm: React.FC = () => {
   const [principalAmount, setPrincipalAmount] = useState<number>(0);
@@ -21,6 +23,8 @@ const LoanRequestForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  const dispatch = useDispatch();
+  const router = useRouter();
   // Fetch authenticated user
   useEffect(() => {
     const auth = getAuth();
@@ -80,20 +84,16 @@ const LoanRequestForm: React.FC = () => {
     }
   };
 
-  /**
-   * Converts a Timestamp | Date | null to a Date object.
-   * If the input is null or invalid, returns the current date.
-   * @param timestamp - The timestamp to convert.
-   * @returns A Date object.
-   */
-  const convertToDate = (timestamp: Timestamp | Date | null): Date => {
-    if (timestamp instanceof Timestamp) {
-      return timestamp.toDate();
-    } else if (timestamp instanceof Date) {
-      return timestamp;
-    } else {
-      return new Date(); // Fallback to current date if invalid
-    }
+
+  const handleReviewLoan = (loan: LoanRequest) => {
+    dispatch(clearLoanRequestState());
+    dispatch(
+        setLoanRequestState(loan)
+    );
+
+     router.push("/viewLoan"); // Redirect to viewLoan page with the loan ID
+
+
   };
 
   return (
@@ -220,6 +220,9 @@ const LoanRequestForm: React.FC = () => {
                           Borrowed By
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                          Button
+                        </th>
+                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Principal Amount
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
@@ -231,9 +234,7 @@ const LoanRequestForm: React.FC = () => {
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Purpose
                         </th>
-                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                          Timestamp
-                        </th>
+
                       </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -255,8 +256,20 @@ const LoanRequestForm: React.FC = () => {
                                   }`}
                               >
                                 {isCurrentUser
-                                    ? "Loan Requested by you"
-                                    : request.borrowedBy}
+                                    ? "Yourself"
+                                    : request.borrowedBy.substring(0, 8)}
+                              </td>
+                              <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                                {/* Hide Review button if the loan belongs to the logged-in user */}
+                                {currentUser?.uid !== request.borrowedBy && (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleReviewLoan(request)}
+                                    >
+                                      Review
+                                    </Button>
+                                )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-gray-800">
                                 ${request.principalAmount.toLocaleString()}
@@ -270,9 +283,7 @@ const LoanRequestForm: React.FC = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-gray-800">
                                 {request.purpose}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                                {convertToDate(request.timestamp).toLocaleString()}
-                              </td>
+
                             </tr>
                         );
                       })}
@@ -283,7 +294,7 @@ const LoanRequestForm: React.FC = () => {
             </section>
           </div>
         </main>
-        <Footer />
+        <Footer/>
       </div>
   );
 };

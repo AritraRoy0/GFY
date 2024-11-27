@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import store from "./store"; // Adjust the path to your Redux store if necessary
 const inter = Inter({ subsets: ["latin"] });
 
+// Define Metadata for SEO
 const metadata: Metadata = {
 	title: "Go Fund Yourself!",
 	description: "Respectfully asking you to go fund yourself",

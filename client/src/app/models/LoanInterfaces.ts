@@ -3,6 +3,7 @@
 
 import { Timestamp } from "firebase/firestore";
 
+// class structure for LoanRequest data type
 export interface LoanRequest {
 	id: string;
 	borrowedBy: string;
@@ -13,6 +14,8 @@ export interface LoanRequest {
 	timestamp: Timestamp;
 }
 
+// class structure of client side preparation for uploading LoanRequest datatype
+// subset of interface LoanRequest
 export interface NewLoanRequest {
 	borrowedBy: string;
 	principalAmount: number;
@@ -21,12 +24,15 @@ export interface NewLoanRequest {
 	purpose: string;
 }
 
+
+// class structure of payment datatype
 export interface Payment {
 	weekNumber: number;
 	amount: number;
   }
-  
-  export interface Loan {
+
+// class structure of loan database
+export interface Loan {
 	id: string;
 	borrowedBy: string;
 	ownedBy: string;
