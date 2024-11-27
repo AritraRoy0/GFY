@@ -220,6 +220,9 @@ const LoanRequestForm: React.FC = () => {
                           Borrowed By
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                          Button
+                        </th>
+                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Principal Amount
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
@@ -231,9 +234,7 @@ const LoanRequestForm: React.FC = () => {
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Purpose
                         </th>
-                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                          Button
-                        </th>
+
                       </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -255,20 +256,8 @@ const LoanRequestForm: React.FC = () => {
                                   }`}
                               >
                                 {isCurrentUser
-                                    ? "Loan Requested by you"
-                                    : request.borrowedBy}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                                ${request.principalAmount.toLocaleString()}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                                {request.interestRate}%
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                                {request.termWeeks}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
-                                {request.purpose}
+                                    ? "Yourself"
+                                    : request.borrowedBy.substring(0, 8)}
                               </td>
                               <td className="px-6 py-4 text-sm font-medium text-gray-700">
                                 {/* Hide Review button if the loan belongs to the logged-in user */}
@@ -282,8 +271,21 @@ const LoanRequestForm: React.FC = () => {
                                     </Button>
                                 )}
                               </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                                ${request.principalAmount.toLocaleString()}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                                {request.interestRate}%
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                                {request.termWeeks}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                                {request.purpose}
+                              </td>
+
                             </tr>
-                      );
+                        );
                       })}
                       </tbody>
                     </table>
@@ -292,7 +294,7 @@ const LoanRequestForm: React.FC = () => {
             </section>
           </div>
         </main>
-        <Footer />
+        <Footer/>
       </div>
   );
 };
