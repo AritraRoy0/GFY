@@ -143,12 +143,9 @@ const ViewLoan: React.FC = () => {
 
 					{/* Action Buttons */}
 					<div className="mt-8 flex justify-end gap-4">
-						<Button onClick={handleApprove} disabled={loading} variant="primary">
-							{loading ? "Processing..." : "Approve and Pay"}
-						</Button>
-						<Button onClick={() => {console.log("Reject Loan")}} variant="secondary">
-							<a> Approve and Pay </a>
-						</Button>
+						<Button onClick={handleApprove} disabled={loading} variant="primary" label={loading ? "Processing..." : "Approve and Pay"} />
+						<Button onClick={() => { console.log("Reject Loan"); }} variant="secondary" label="Reject Loan" />
+
 					</div>
 				</div>
 			</div>
