@@ -146,8 +146,8 @@ const ViewLoan: React.FC = () => {
 						<Button onClick={handleApprove} disabled={loading} variant="primary">
 							{loading ? "Processing..." : "Approve and Pay"}
 						</Button>
-						<Button onClick={() => {}} variant="secondary">
-							Reject Loan
+						<Button onClick={() => {console.log("Reject Loan")}} variant="secondary">
+							<a> Approve and Pay </a>
 						</Button>
 					</div>
 				</div>
