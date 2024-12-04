@@ -6,7 +6,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import { RootState, AppDispatch } from "../store";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
+import { approveLoan } from "../models/LoanRequestAPIs";
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 type ButtonProps = {
@@ -19,6 +19,8 @@ type ButtonProps = {
 const ViewLoan: React.FC = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const loanRequest = useSelector((state: RootState) => state.loanRequest);
+	const user = useSelector((state: RootState) => state.auth.user);
+	const userId = user?.id;
 	const loanId = loanRequest?.id;
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
@@ -52,8 +54,15 @@ const ViewLoan: React.FC = () => {
 
 		setLoading(true);
 		setError(null);
+		await approveLoan(loanRequest, userId);
 
-		try {
+	}
+
+		/*try {
+			// Call the approveLoan function
+			await approveLoan(loanRequest);
+
+			// Proceed with Stripe checkout if applicable
 			const stripe = await stripePromise;
 			if (!stripe) {
 				setError("Stripe failed to load. Please try again later.");
@@ -72,11 +81,12 @@ const ViewLoan: React.FC = () => {
 				setError(`Stripe Checkout error: ${result.error.message}`);
 			}
 		} catch (err) {
-			setError("Error during Stripe checkout. Please try again later.");
+			setError("Error during loan approval or Stripe checkout. Please try again later.");
 		} finally {
 			setLoading(false);
 		}
-	};
+	};*/
+
 
 	// Loading state
 	if (loading) {

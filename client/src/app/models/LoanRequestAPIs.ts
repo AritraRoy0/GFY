@@ -7,10 +7,11 @@ import {
 	query,
 	where,
 	serverTimestamp,
-	Timestamp,
+	doc,
+	deleteDoc,
 } from "firebase/firestore";
-import { LoanRequest, NewLoanRequest } from "./LoanInterfaces"; // Ensure the correct path
-import { firestore } from "../../../firebaseConfig"; // Adjust the path as necessary
+import {LoanRequest, NewLoanRequest} from "./LoanInterfaces";
+import {firestore} from "../../../firebaseConfig";
 
 const db = firestore;
 
@@ -26,45 +27,30 @@ export function fetchLoanRequests(
 ) {
 	const loanRequestsCollection = collection(db, "loanRequests");
 
-	return onSnapshot(loanRequestsCollection, (snapshot) => {
-		const loanRequests: LoanRequest[] = snapshot.docs.map((doc) => {
-			const data = doc.data();
+	return onSnapshot(
+		loanRequestsCollection,
+		(snapshot) => {
+			const loanRequests = snapshot.docs.map((doc) => {
+				const data = doc.data();
 
-			let borrowedBy = data.borrowedBy;
+				return {
+					id: doc.id,
+					borrowedBy: data.borrowedBy?.id || data.borrowedBy, // Extract ID if it's a DocumentReference
+					principalAmount: data.principalAmount,
+					interestRate: data.interestRate,
+					termWeeks: data.termWeeks,
+					purpose: data.purpose,
+					timestamp: data.timestamp || null, // Assign null if timestamp is missing
+				} as LoanRequest;
+			});
 
-			// If borrowedBy is a DocumentReference, extract its ID
-			if (borrowedBy && typeof borrowedBy === "object" && "id" in borrowedBy) {
-				borrowedBy = borrowedBy.id;
-			}
-
-			// Ensure timestamp is a Firestore Timestamp object or Date
-			let timestampField: Timestamp | Date | null = null;
-			if (data.timestamp instanceof Timestamp) {
-				timestampField = data.timestamp;
-			} else if (data.timestamp instanceof Date) {
-				// This scenario shouldn't occur if serverTimestamp() is used correctly
-				timestampField = data.timestamp;
-			}
-			// If timestamp is missing or invalid, leave it as null
-
-			return {
-				id: doc.id,
-				borrowedBy: borrowedBy,
-				principalAmount: data.principalAmount,
-				interestRate: data.interestRate,
-				termWeeks: data.termWeeks,
-				purpose: data.purpose,
-				timestamp: timestampField,
-			} as LoanRequest;
-		});
-
-		callback(loanRequests);
-	}, (error) => {
-		console.error("Error fetching loan requests:", error);
-		if (errorCallback) {
-			errorCallback(error);
+			callback(loanRequests);
+		},
+		(error) => {
+			console.error("Error fetching loan requests:", error);
+			errorCallback?.(error);
 		}
-	});
+	);
 }
 
 /**
@@ -82,49 +68,30 @@ export function fetchUserLoanRequests(
 	const loanRequestsCollection = collection(db, "loanRequests");
 	const qBorrowed = query(loanRequestsCollection, where("borrowedBy", "==", userId));
 
-	const unsubscribe = onSnapshot(qBorrowed, (snapshot) => {
-		const userLoanRequests: LoanRequest[] = snapshot.docs.map((doc) => {
-			const data = doc.data();
+	return onSnapshot(
+		qBorrowed,
+		(snapshot) => {
+			const userLoanRequests = snapshot.docs.map((doc) => {
+				const data = doc.data();
 
-			let borrowedBy = data.borrowedBy;
+				return {
+					id: doc.id,
+					borrowedBy: data.borrowedBy?.id || data.borrowedBy,
+					principalAmount: data.principalAmount,
+					interestRate: data.interestRate,
+					termWeeks: data.termWeeks,
+					purpose: data.purpose,
+					timestamp: data.timestamp || null,
+				} as LoanRequest;
+			});
 
-			// If borrowedBy is a DocumentReference, extract its ID
-			if (borrowedBy && typeof borrowedBy === "object" && "id" in borrowedBy) {
-				borrowedBy = borrowedBy.id;
-			}
-
-			// Ensure timestamp is a Firestore Timestamp object or Date
-			let timestampField: Timestamp | Date | null = null;
-			if (data.timestamp instanceof Timestamp) {
-				timestampField = data.timestamp;
-			} else if (data.timestamp instanceof Date) {
-				// This scenario shouldn't occur if serverTimestamp() is used correctly
-				timestampField = data.timestamp;
-			}
-			// If timestamp is missing or invalid, leave it as null
-
-			return {
-				id: doc.id,
-				borrowedBy: borrowedBy,
-				principalAmount: data.principalAmount,
-				interestRate: data.interestRate,
-				termWeeks: data.termWeeks,
-				purpose: data.purpose,
-				timestamp: timestampField,
-			} as LoanRequest;
-		});
-
-		callback(userLoanRequests);
-	}, (error) => {
-		console.error("Error fetching user loan requests:", error);
-		if (errorCallback) {
-			errorCallback(error);
+			callback(userLoanRequests);
+		},
+		(error) => {
+			console.error("Error fetching user loan requests:", error);
+			errorCallback?.(error);
 		}
-	});
-
-	return () => {
-		unsubscribe();
-	};
+	);
 }
 
 /**
@@ -132,23 +99,49 @@ export function fetchUserLoanRequests(
  * @param newLoanRequest - The NewLoanRequest object to upload.
  * @returns A promise that resolves when the loan request is added.
  */
-export async function uploadLoanRequest(
-	newLoanRequest: NewLoanRequest
-): Promise<void> {
-	const loanRequestsCollection = collection(db, "loanRequests");
-
+export async function uploadLoanRequest(newLoanRequest: NewLoanRequest): Promise<void> {
 	try {
-		await addDoc(loanRequestsCollection, {
-			borrowedBy: newLoanRequest.borrowedBy,
-			principalAmount: newLoanRequest.principalAmount,
-			interestRate: newLoanRequest.interestRate,
-			termWeeks: newLoanRequest.termWeeks,
-			purpose: newLoanRequest.purpose,
-			timestamp: serverTimestamp(), // Set timestamp server-side
+		await addDoc(collection(db, "loanRequests"), {
+			...newLoanRequest,
+			timestamp: serverTimestamp(),
 		});
 		console.log("Loan request uploaded successfully.");
 	} catch (error) {
 		console.error("Error uploading loan request:", error);
-		throw error; // Rethrow to handle in the component
+		throw error;
+	}
+}
+
+/**
+ * Approves a loan request and converts it to a loan.
+ * @param loanRequest - The loan request to approve.
+ * @param userId - The ID of the user approving the loan.
+ * @returns A promise that resolves when the loan is approved.
+ */
+export async function approveLoan(loanRequest: LoanRequest, userId: string): Promise<void> {
+	if (!userId) {
+		throw new Error("User ID is required to approve a loan.");
+	}
+
+	try {
+		// Delete the loan request
+		await deleteDoc(doc(collection(db, "loanRequests"), loanRequest.id));
+
+		// Create a new loan entry
+		await addDoc(collection(db, "loans"), {
+			id: loanRequest.id,
+			borrowedBy: loanRequest.borrowedBy,
+			ownedBy: userId,
+			principalAmount: loanRequest.principalAmount,
+			interestRate: loanRequest.interestRate,
+			termWeeks: loanRequest.termWeeks,
+			paymentsMade: [],
+			timestamp: serverTimestamp(),
+		});
+
+		console.log("Loan approved and updated successfully.");
+	} catch (error) {
+		console.error("Error approving loan:", error);
+		throw error;
 	}
 }
