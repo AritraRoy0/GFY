@@ -35,6 +35,12 @@ const OutstandingLoansTable: React.FC<OutstandingLoansTableProps> = ({ userId, t
 		return () => unsubscribe();
 	}, [userId, type]);
 
+	const handleMakePayment = (loanId: string) => {
+		// Logic to handle payment (e.g., redirect to a payment page or trigger a payment flow)
+		console.log(`Making payment for loan ID: ${loanId}`);
+		// You can replace the console log with the actual payment logic.
+	};
+
 	return (
 		<div className="bg-white p-6 rounded-lg shadow-lg max-w-full mx-auto">
 			<h2 className="text-2xl font-semibold mb-6 text-gray-800">
@@ -48,7 +54,7 @@ const OutstandingLoansTable: React.FC<OutstandingLoansTableProps> = ({ userId, t
 					<tr>
 						<th className="p-3 text-left">Amount</th>
 						<th className="p-3 text-left">{type === 'owned' ? 'Borrower' : 'Lender'}</th>
-						<th className="p-3 text-left">Due Date</th>
+						{type === 'owed' && <th className="p-3 text-left">Actions</th>}
 					</tr>
 					</thead>
 					<tbody className="text-sm text-gray-700">
@@ -58,7 +64,16 @@ const OutstandingLoansTable: React.FC<OutstandingLoansTableProps> = ({ userId, t
 							<td className="p-3">
 								{type === 'owned' ? loan.borrowedBy : loan.ownedBy}
 							</td>
-							<td className="p-3">{loan.dueDate ? new Date(loan.dueDate.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+							{type === 'owed' && (
+								<td className="p-3">
+									<button
+										onClick={() => handleMakePayment(loan.id)}
+										className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+									>
+										Make Payment
+									</button>
+								</td>
+							)}
 						</tr>
 					))}
 					</tbody>
