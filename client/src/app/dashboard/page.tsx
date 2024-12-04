@@ -5,35 +5,48 @@ import Header from '../common/Header';
 import Footer from '../common/Footer';
 import SummarySection from './SummarySection';
 import Notifications from './Notifications';
-import LoanTerminal from "./../common/LoanTerminal"
+import LoanTerminal from './../common/LoanTerminal';
+import LoanTable from './LoanTable';
+import {useSelector} from 'react-redux'; // Correcting the typo here
+import {RootState} from '@/app/store';
+
 const DashboardPage: React.FC = () => {
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+	const user = useSelector((state: RootState) => state.auth.user);
+	const userId = user?.id;
 
-      <main className="flex-1 w-full p-4 md:p-6">
-          <div className="flex flex-col space-y-4">
-              <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-                  <SummarySection/>
-              </section>
-              <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-                  <LoanTerminal/>
-              </section>
-              <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-                  <Notifications/>
-              </section>
+	return (
+		<div className="min-h-screen flex flex-col bg-gray-50">
+			<Header/>
 
-              {/*           <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-            <DashboardTable />
-          </section> 
-          <section className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-            <LoanProgress />
-          </section> */}
-          </div>
-      </main>
-        <Footer/>
-    </div>
-  );
+			<main className="flex-1 w-full p-4 md:p-5">
+				<div className="flex flex-col space-y-2">
+					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+						<SummarySection/>
+					</section>
+					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+						<LoanTerminal/>
+					</section>
+					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+						<Notifications/>
+					</section>
+					{userId ? (
+						<>
+							<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+								<LoanTable type="owed" userId={userId}/>
+							</section>
+							<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+								<LoanTable type="owned" userId={userId}/>
+							</section>
+						</>
+					) : (
+						<p className="text-gray-500">User not logged in or no user ID available.</p>
+					)}
+
+				</div>
+			</main>
+			<Footer/>
+		</div>
+	);
 };
 
 export default DashboardPage;
