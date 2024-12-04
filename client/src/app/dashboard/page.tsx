@@ -7,8 +7,8 @@ import SummarySection from './SummarySection';
 import Notifications from './Notifications';
 import LoanTerminal from './../common/LoanTerminal';
 import LoanTable from './LoanTable';
-import { useSelector } from 'react-redux'; // Correcting the typo here
-import { RootState } from '@/app/store';
+import {useSelector} from 'react-redux'; // Correcting the typo here
+import {RootState} from '@/app/store';
 
 const DashboardPage: React.FC = () => {
 	const user = useSelector((state: RootState) => state.auth.user);
@@ -16,28 +16,35 @@ const DashboardPage: React.FC = () => {
 
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50">
-			<Header />
+			<Header/>
 
 			<main className="flex-1 w-full p-4 md:p-5">
 				<div className="flex flex-col space-y-2">
 					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-						<SummarySection />
+						<SummarySection/>
 					</section>
 					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-						<LoanTerminal />
+						<LoanTerminal/>
 					</section>
 					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-						<Notifications />
+						<Notifications/>
 					</section>
-					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-						<LoanTable type="owed" userId={userId} />
-					</section>
-					<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-						<LoanTable type="owned" userId={userId} />
-					</section>
+					{userId ? (
+						<>
+							<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+								<LoanTable type="owed" userId={userId}/>
+							</section>
+							<section className="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+								<LoanTable type="owned" userId={userId}/>
+							</section>
+						</>
+					) : (
+						<p className="text-gray-500">User not logged in or no user ID available.</p>
+					)}
+
 				</div>
 			</main>
-			<Footer />
+			<Footer/>
 		</div>
 	);
 };
