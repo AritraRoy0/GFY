@@ -52,6 +52,12 @@ const ViewLoan: React.FC = () => {
 			return;
 		}
 
+		if (!userId) {
+			setError('User ID is required.');
+			setLoading(false);
+			return;
+		}
+
 		setLoading(true);
 		setError(null);
 		await approveLoan(loanRequest, userId);
