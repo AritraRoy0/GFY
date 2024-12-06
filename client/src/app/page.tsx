@@ -2,472 +2,489 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, {useState, useEffect} from "react";
 import {
-    FaUsers,
-    FaHandsHelping,
-    FaShieldAlt,
-    FaBolt,
-    FaArrowLeft,
-    FaArrowRight,
-    FaHeartbeat,
-    FaStore,
-    FaCreditCard, FaIdBadge, FaCheckCircle
+	FaUsers,
+	FaHandsHelping,
+	FaShieldAlt,
+	FaBolt,
+	FaHeartbeat,
+	FaStore,
+	FaCreditCard,
+	FaIdBadge,
+	FaCheckCircle,
+	FaMoneyCheckAlt,
+	FaClipboardList,
+	FaRegListAlt,
 } from "react-icons/fa";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import Head from "next/head";
 import Image from "next/image";
-import LoanTerminal from "./common/LoanTerminal"
+import LoanTerminal from "./common/LoanTerminal";
+
+// Import API functions
+import {
+	fetchLoanRequests,
+} from "./models/LoanRequestAPIs"; // Adjust the path as needed
+
+import { Loan, LoanRequest} from "./models/LoanInterfaces";
+
+import {
+	fetchLoans
+} from "./models/LoanAPIs"
 
 
-
-// Custom animation variant for feature detail transitions
-const featureDetailVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
-};
-
-// Animation Variants
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
-
-// Hero Component with Enhanced Animations
+// Hero Component without animations
 const Hero: React.FC = () => {
-  // Define animated elements with thematic relevance
-  return (
-    <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
+	return (
+		<div className="relative bg-gradient-to-br from-gray-800 to-gray-900 text-white py-24 px-6 overflow-hidden">
+			{/* Content */}
+			<div className="relative max-w-4xl mx-auto text-center z-10">
+				{/* Hero Heading */}
+				<h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight">
+					Go Fund Yourself!!
+				</h1>
 
-      {/* Content */}
-      <div className="relative max-w-4xl mx-auto text-center z-10">
-        {/* Hero Heading with Bouncing Animation */}
-        <motion.h1
-          className="text-5xl md:text-7xl font-extrabold mb-6 text-white leading-tight"
-          animate={{ opacity: 1, y: [0, -20, 0] }}
-          transition={{
-            opacity: { duration: 1 },
-            y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
-          }}
-        >
-          Go Fund Yourself!!
-        </motion.h1>
+				{/* Hero Subheading */}
+				<h2 className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200">
+					Where you can do you
+				</h2>
 
-        {/* Hero Subheading with Fade-in Animation */}
-        <motion.h2
-          className="text-3xl md:text-5xl font-semibold mb-6 text-gray-200"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          Where you can do you
-        </motion.h2>
+				{/* Hero Subtitle */}
+				<p className="text-lg md:text-xl mb-10 text-gray-300">
+					Instant, negotiable loans without bank approval over our secure network
+					of peers.
+				</p>
 
-        {/* Hero Subtitle with Fade-In and Slide-Up Animation */}
-        <motion.p
-          className="text-lg md:text-xl mb-10 text-gray-300"
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 1, delay: 0.7 }}
-        >
-          Instant, negotiable loans without bank approval over our secure
-          network of peers.
-        </motion.p>
-
-        {/* Get Started Button with Entrance Animation */}
-        <motion.a
-          href="/auth"
-          className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          aria-label="Get Started"
-          whileHover={{ scale: 1.05 }}
-        >
-          Get Started
-        </motion.a>
-      </div>
-    </div>
-  );
+				{/* Get Started Button */}
+				<a
+					href="/auth"
+					className="inline-block bg-gray-700 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+					aria-label="Get Started"
+				>
+					Get Started
+				</a>
+			</div>
+		</div>
+	);
 };
 
-// Features Component with Enhanced Animations and Navigation Arrows
+// Features Component without animations
 const Features: React.FC = () => {
-  const features = [
-    {
-      title: "Peer-to-Peer Lending",
-      icon: <FaUsers className="text-gray-700 text-7xl mx-auto mb-6" />,
-      details: (
-        <>
-          <p className="text-gray-600 mb-4">
-            Our platform enables <strong>direct connections</strong> between
-            lenders and borrowers, eliminating the need for traditional banking
-            intermediaries. This means you can <strong>save on fees</strong> and
-            enjoy <strong>better rates</strong>.
-          </p>
-          <p className="text-gray-600">
-            By fostering a community-driven approach, we ensure that both
-            parties benefit from <strong>transparent</strong> and{" "}
-            <strong>fair transactions</strong>.
-          </p>
-        </>
-      ),
-    },
-    {
-      title: "Flexible & Customizable",
-      icon: (
-        <FaHandsHelping className="text-gray-700 text-7xl mx-auto mb-6" />
-      ),
-      details: (
-        <>
-          <p className="text-gray-600 mb-4">
-            Take control of your financial agreements by{" "}
-            <strong>negotiating terms</strong> that meet your specific needs.
-            Our platform allows for <strong>customizable interest rates</strong>{" "}
-            and loan durations.
-          </p>
-          <p className="text-gray-600">
-            This flexibility ensures that both lenders and borrowers can find
-            mutually beneficial arrangements.
-          </p>
-        </>
-      ),
-    },
-    {
-      title: "Secure & Transparent",
-      icon: <FaShieldAlt className="text-gray-700 text-7xl mx-auto mb-6" />,
-      details: (
-        <>
-          <p className="text-gray-600 mb-4">
-            Your security is our priority. We offer{" "}
-            <strong>built-in escrow services</strong> that protect both parties
-            during transactions.
-          </p>
-          <p className="text-gray-600">
-            Our platform uses advanced encryption and{" "}
-            <strong>security protocols</strong> to ensure your data and funds
-            are always safe.
-          </p>
-        </>
-      ),
-    },
-    {
-      title: "Fast Transactions",
-      icon: <FaBolt className="text-gray-700 text-7xl mx-auto mb-6" />,
-      details: (
-        <>
-          <p className="text-gray-600 mb-4">
-            Say goodbye to lengthy approval processes. Our platform offers{" "}
-            <strong>quick approvals</strong> so you can access funds or start
-            lending without delay.
-          </p>
-          <p className="text-gray-600">
-            Enjoy <strong>instant transactions</strong> with minimal fees,
-            thanks to our efficient technology infrastructure.
-          </p>
-        </>
-      ),
-    },
-  ];
+	const features = [
+		{
+			title: "Peer-to-Peer Lending",
+			icon: <FaUsers className="text-gray-700 text-7xl mx-auto mb-6"/>,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Our platform enables <strong>direct connections</strong> between
+						lenders and borrowers, eliminating the need for traditional banking
+						intermediaries. This means you can <strong>save on fees</strong> and
+						enjoy <strong>better rates</strong>.
+					</p>
+					<p className="text-gray-600">
+						By fostering a community-driven approach, we ensure that both
+						parties benefit from <strong>transparent</strong> and{" "}
+						<strong>fair transactions</strong>.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Flexible & Customizable",
+			icon: (
+				<FaHandsHelping className="text-gray-700 text-7xl mx-auto mb-6"/>
+			),
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Take control of your financial agreements by{" "}
+						<strong>negotiating terms</strong> that meet your specific needs.
+						Our platform allows for <strong>customizable interest rates</strong>{" "}
+						and loan durations.
+					</p>
+					<p className="text-gray-600">
+						This flexibility ensures that both lenders and borrowers can find
+						mutually beneficial arrangements.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Secure & Transparent",
+			icon: <FaShieldAlt className="text-gray-700 text-7xl mx-auto mb-6"/>,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Your security is our priority. We offer{" "}
+						<strong>built-in escrow services</strong> that protect both parties
+						during transactions.
+					</p>
+					<p className="text-gray-600">
+						Our platform uses advanced encryption and{" "}
+						<strong>security protocols</strong> to ensure your data and funds
+						are always safe.
+					</p>
+				</>
+			),
+		},
+		{
+			title: "Fast Transactions",
+			icon: <FaBolt className="text-gray-700 text-7xl mx-auto mb-6"/>,
+			details: (
+				<>
+					<p className="text-gray-600 mb-4">
+						Say goodbye to lengthy approval processes. Our platform offers{" "}
+						<strong>quick approvals</strong> so you can access funds or start
+						lending without delay.
+					</p>
+					<p className="text-gray-600">
+						Enjoy <strong>instant transactions</strong> with minimal fees,
+						thanking to our efficient technology infrastructure.
+					</p>
+				</>
+			),
+		},
+	];
 
-  // State to manage the active feature
-  const [activeFeature, setActiveFeature] = useState(0);
-
-  // Auto-cycle through features every 6 seconds
-  useEffect(() => {
-    const cycleInterval = setInterval(() => {
-      setActiveFeature((prevIndex) => (prevIndex + 1) % features.length);
-    }, 6000); // Change feature every 6 seconds
-
-    return () => clearInterval(cycleInterval); // Cleanup on unmount
-  }, [features.length]);
-
-  // Handler for navigating to the previous feature
-  const handlePrev = () => {
-    setActiveFeature((prevIndex) =>
-      prevIndex === 0 ? features.length - 1 : prevIndex - 1
-    );
-  };
-
-  // Handler for navigating to the next feature
-  const handleNext = () => {
-    setActiveFeature((prevIndex) => (prevIndex + 1) % features.length);
-  };
-
-  return (
-    <section className="py-20 px-6 bg-gray-200">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-          Why choose to
-        </h2>
-        <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-          Go Fund Yourself?
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className={`bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition duration-500 cursor-pointer ${
-                activeFeature === index ? "shadow-2xl transform scale-105" : ""
-              }`}
-              onClick={() => setActiveFeature(index)}
-              aria-labelledby={`feature-${index}-title`}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="mb-6">{feature.icon}</div>
-              <h3
-                id={`feature-${index}-title`}
-                className="text-3xl font-semibold mb-4 text-gray-800"
-              >
-                {feature.title}
-              </h3>
-              {/* Optionally, you can add brief details here */}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Detailed Feature Explanation with Navigation Arrows */}
-        <div className="mt-16 relative flex items-center justify-center">
-          {/* Left Arrow */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-0 md:left-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            aria-label="Previous Feature"
-          >
-            <FaArrowLeft size={20} />
-          </button>
-
-          {/* Detailed Feature Content */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeFeature}
-              variants={featureDetailVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              transition={{ duration: 0.7 }}
-              className="bg-white shadow-lg rounded-lg p-10 max-w-4xl mx-auto"
-            >
-              <h3 className="text-3xl font-bold mb-6 text-gray-700">
-                {features[activeFeature].title}
-              </h3>
-              {features[activeFeature].details}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Right Arrow */}
-          <button
-            onClick={handleNext}
-            className="absolute right-0 md:right-[-60px] top-1/2 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            aria-label="Next Feature"
-          >
-            <FaArrowRight size={20} />
-          </button>
-        </div>
-      </div>
-    </section>
-  );
+	return (
+		<section className="py-20 px-6 bg-gray-200">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Why choose to
+				</h2>
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					Go Fund Yourself?
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+					{features.map((feature, index) => (
+						<div
+							key={index}
+							className="bg-white shadow-md rounded-lg p-8 hover:shadow-2xl transition duration-500 cursor-pointer"
+							aria-labelledby={`feature-${index}-title`}
+						>
+							<div className="mb-6">{feature.icon}</div>
+							<h3
+								id={`feature-${index}-title`}
+								className="text-3xl font-semibold mb-4 text-gray-800"
+							>
+								{feature.title}
+							</h3>
+							{/* Optionally, you can add brief details here */}
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
 };
 
+// Statistics Component without animations
+const Stats: React.FC = () => {
+	const [totalLoanVolume, setTotalLoanVolume] = useState<number>(0);
+	const [totalInterestEarned, setTotalInterestEarned] = useState<number>(0);
+	const [totalLoans, setTotalLoans] = useState<number>(0);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
+
+	// Temporary storage for loans and loan requests
+	const [loans, setLoans] = useState<Loan[]>([]);
+	const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
+
+	// Fetch loans data using API
+	useEffect(() => {
+		const unsubscribeLoans = fetchLoans(
+			(fetchedLoans) => {
+				setLoans(fetchedLoans);
+			},
+			(error) => {
+				setError("Failed to load loans.");
+				console.error(error);
+			}
+		);
+
+		return () => unsubscribeLoans();
+	}, []);
+
+	// Fetch loan requests data using API
+	useEffect(() => {
+		const unsubscribeLoanRequests = fetchLoanRequests(
+			(fetchedLoanRequests) => {
+				setLoanRequests(fetchedLoanRequests);
+			},
+			(error) => {
+				setError("Failed to load loan requests.");
+				console.error(error);
+			}
+		);
+
+		return () => unsubscribeLoanRequests();
+	}, []);
+
+	// Aggregate data once both loans and loan requests are fetched
+	useEffect(() => {
+		if (loans.length === 0 && loanRequests.length === 0) {
+			// Assuming there's at least one loan or loan request
+			setLoading(true);
+			return;
+		}
+
+		// Calculate Total Loan Volume
+		const loanVolume = loans.reduce((acc, loan) => acc + loan.principalAmount, 0);
+		setTotalLoanVolume(loanVolume);
+
+		// Calculate Total Interest Earned
+		const interestEarnedLoans = loans.reduce(
+			(acc, loan) => acc + loan.principalAmount * loan.interestRate / 100,
+			0
+		);
+
+		setTotalInterestEarned(interestEarnedLoans);
+
+		// Calculate Total Loans
+		setTotalLoans(loans.length + loanRequests.length);
+
+		setLoading(false);
+	}, [loans, loanRequests]);
+
+	if (loading) {
+		return (
+			<section className="py-20 px-6 bg-white">
+				<div className="max-w-7xl mx-auto text-center">
+					<h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12">
+						Platform Statistics
+					</h2>
+					<p className="text-gray-600">Loading statistics...</p>
+				</div>
+			</section>
+		);
+	}
+
+	if (error) {
+		return (
+			<section className="py-20 px-6 bg-white">
+				<div className="max-w-7xl mx-auto text-center">
+					<h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12">
+						Platform Statistics
+					</h2>
+					<p className="text-red-600">{error}</p>
+				</div>
+			</section>
+		);
+	}
+
+	return (
+		<section className="py-20 px-6 bg-white">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12">
+					Platform Statistics
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+					{/* Total Loan Volume */}
+					<div className="bg-gray-100 p-8 rounded-lg shadow-md">
+						<FaMoneyCheckAlt className="text-blue-600 w-12 h-12 mx-auto mb-4"/>
+						<p className="text-3xl font-bold text-gray-800">
+							${totalLoanVolume.toLocaleString() + "+"}
+
+						</p>
+						<p className="text-gray-600 mt-2">Total Loan Volume</p>
+					</div>
+
+					{/* Total Interest Earned */}
+					<div className="bg-gray-100 p-8 rounded-lg shadow-md">
+						<FaClipboardList className="text-green-600 w-12 h-12 mx-auto mb-4"/>
+						<p className="text-3xl font-bold text-gray-800">
+							${totalInterestEarned.toLocaleString() + "+"}
+						</p>
+						<p className="text-gray-600 mt-2">Total Interest Earned</p>
+					</div>
+
+					{/* Total Loans (Loans + Loan Requests) */}
+					<div className="bg-gray-100 p-8 rounded-lg shadow-md">
+						<FaRegListAlt className="text-purple-600 w-12 h-12 mx-auto mb-4"/>
+						<p className="text-3xl font-bold text-gray-800">
+							{totalLoans.toLocaleString() + "+"}
+						</p>
+						<p className="text-gray-600 mt-2">Total Loans</p>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+};
+
+// Testimonials Component without animations
 const Testimonials: React.FC = () => {
-  const testimonials = [
-    {
-      name: "Carlos M.",
-      title: "Nurse",
-      quote:
-        "When unexpected medical bills came up, Go Fund Yourself helped me get the funds I needed quickly and stress-free.",
-      icon: <FaHeartbeat className="text-gray-700 w-full h-full" />,
-    },
-    {
-      name: "Emily R.",
-      title: "Small Business Owner",
-      quote:
-        "Thanks to Go Fund Yourself, I secured a loan to start my own coffee shop. The peer-to-peer lending made it possible!",
-      icon: <FaStore className="text-gray-700 w-full h-full" />,
-    },
-    {
-      name: "Sophia L.",
-      title: "Graduate Student",
-      quote:
-        "I consolidated my credit card debt with a flexible loan from Go Fund Yourself. The process was seamless!",
-      icon: <FaCreditCard className="text-gray-700 w-full h-full" />,
-    },
-  ];
+	const testimonials = [
+		{
+			name: "Carlos M.",
+			title: "Nurse",
+			quote:
+				"When unexpected medical bills came up, Go Fund Yourself helped me get the funds I needed quickly and stress-free.",
+			icon: <FaHeartbeat className="text-gray-700 w-full h-full"/>,
+		},
+		{
+			name: "Emily R.",
+			title: "Small Business Owner",
+			quote:
+				"Thanks to Go Fund Yourself, I secured a loan to start my own coffee shop. The peer-to-peer lending made it possible!",
+			icon: <FaStore className="text-gray-700 w-full h-full"/>,
+		},
+		{
+			name: "Sophia L.",
+			title: "Graduate Student",
+			quote:
+				"I consolidated my credit card debt with a flexible loan from Go Fund Yourself. The process was seamless!",
+			icon: <FaCreditCard className="text-gray-700 w-full h-full"/>,
+		},
+	];
 
-  return (
-    <section className="py-20 px-6 bg-gray-100">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
-          What Our Users Say
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              className="bg-gray-50 shadow-md rounded-lg p-8"
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="w-24 h-24 mx-auto mb-6">
-                {testimonial.icon}
-              </div>
-              <motion.p
-                className="italic text-gray-600 mb-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                &quot;{testimonial.quote}&quot;
-              </motion.p>
-              <h4 className="text-2xl font-semibold text-gray-800">
-                {testimonial.name}
-              </h4>
-              <p className="text-gray-500">{testimonial.title}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+	return (
+		<section className="py-20 px-6 bg-gray-100">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold text-gray-800 mb-12">
+					What Our Users Say
+				</h2>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+					{testimonials.map((testimonial, index) => (
+						<div key={index} className="bg-gray-50 shadow-md rounded-lg p-8">
+							<div className="w-24 h-24 mx-auto mb-6">{testimonial.icon}</div>
+							<p className="italic text-gray-600 mb-6">
+								&quot;{testimonial.quote}&quot;
+							</p>
+							<h4 className="text-2xl font-semibold text-gray-800">
+								{testimonial.name}
+							</h4>
+							<p className="text-gray-500">{testimonial.title}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
 };
 
-
-// Call to Action Component with Enhanced Animations
+// Call to Action Component without animations
 const CallToAction: React.FC = () => {
-  return (
-    <section className="py-20 px-6 bg-gray-800 text-white">
-      <div className="max-w-7xl mx-auto text-center">
-        <motion.h2
-          className="text-5xl md:text-6xl font-extrabold mb-8"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          Ready to Get Started?
-        </motion.h2>
+	return (
+		<section className="py-20 px-6 bg-gray-800 text-white">
+			<div className="max-w-7xl mx-auto text-center">
+				<h2 className="text-5xl md:text-6xl font-extrabold mb-8">
+					Ready to Get Started?
+				</h2>
 
-        <motion.p
-          className="text-2xl md:text-3xl mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          Join Go Fund Yourself today and take control of your financial future.
-        </motion.p>
-        <motion.a
-          href="/auth"
-          className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl focus:outline-none focus:ring-2 focus:ring-gray-500"
-          aria-label="Join Now"
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.3 }}
-        >
-          Join Now
-        </motion.a>
-      </div>
-    </section>
-  );
+				<p className="text-2xl md:text-3xl mb-10">
+					Join Go Fund Yourself today and take control of your financial future.
+				</p>
+				<a
+					href="/auth"
+					className="inline-block bg-gray-700 text-white font-semibold py-5 px-16 rounded-full shadow-lg hover:bg-gray-600 transition duration-300 text-2xl focus:outline-none focus:ring-2 focus:ring-gray-500"
+					aria-label="Join Now"
+				>
+					Join Now
+				</a>
+			</div>
+		</section>
+	);
 };
-// PoweredBy Component with Specific Features and Icons
+
+// PoweredBy Component without animations
 const PoweredBy: React.FC = () => {
-    // Define the features to display
-    const features = [
-        {
-            name: "Google",
-            href: "https://google.com/",
-            iconPath: "/google.svg",
-            ariaLabel: "Google",
-        },
+	// Define the features to display
+	const features = [
+		{
+			name: "Google",
+			href: "https://google.com/",
+			iconPath: "/google.svg",
+			ariaLabel: "Google",
+		},
+		{
+			name: "Identity Verification",
+			href: "#",
+			icon: <FaIdBadge className="text-blue-600 w-12 h-12 mx-auto mb-4"/>,
+			ariaLabel: "Stripe Identity Verification",
+		},
+		{
+			name: "Stripe",
+			href: "https://stripe.com/",
+			iconPath: "/stripe.svg",
+			ariaLabel: "Stripe",
+		},
+		{
+			name: "Repayment Guarantee",
+			href: "#",
+			icon: <FaCheckCircle className="text-green-600 w-12 h-12 mx-auto mb-4"/>,
+			ariaLabel: "Money Repayment Guarantees",
+		},
+	];
 
-        {
-            name: "Identity Verification",
-            href: "#",
-            icon: <FaIdBadge className="text-blue-600 w-12 h-12 mx-auto mb-4" />,
-            ariaLabel: "Stripe Identity Verification",
-        },{
-            name: "Stripe",
-            href: "https://stripe.com/",
-            iconPath: "/stripe.svg",
-            ariaLabel: "Stripe",
-        },
-        {
-            name: "Repayment Guarantee",
-            href: "#",
-            icon: <FaCheckCircle className="text-green-600 w-12 h-12 mx-auto mb-4" />,
-            ariaLabel: "Money Repayment Guarantees",
-        },
-    ];
-
-    return (
-        <div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
-            <h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
-                Powered By
-            </h2>
-            <div className="flex flex-wrap items-center justify-center gap-10">
-                {features.map((feature, index) => (
-                    <a
-                        key={index}
-                        href={feature.href}
-                        aria-label={feature.ariaLabel}
-                        className="group"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {/* For Image-based features like Google and Stripe */}
-                        {feature.iconPath ? (
-                            <div className="relative w-16 h-16">
-                                <Image
-                                    src={feature.iconPath}
-                                    alt={feature.name}
-                                    fill
-                                    style={{ objectFit: "contain" }}
-                                    className="transition-transform duration-300 group-hover:scale-110"
-                                />
-                            </div>
-                        ) : (
-                            // For Icon-based features like Identity Verification and Repayment Guarantee
-                            <div className="transition-transform duration-300 group-hover:scale-110">
-                                {feature.icon}
-                                <span className="mt-2 block text-gray-700 dark:text-gray-300 text-sm">
-                  {feature.name}
-                </span>
-                            </div>
-                        )}
-                    </a>
-                ))}
-            </div>
-        </div>
-    );
+	return (
+		<div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
+			<h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
+				Powered By
+			</h2>
+			<div className="flex flex-wrap items-center justify-center gap-10">
+				{features.map((feature, index) => (
+					<a
+						key={index}
+						href={feature.href}
+						aria-label={feature.ariaLabel}
+						className="group"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{/* For Image-based features like Google and Stripe */}
+						{feature.iconPath ? (
+							<div className="relative w-16 h-16">
+								<Image
+									src={feature.iconPath}
+									alt={feature.name}
+									fill
+									style={{objectFit: "contain"}}
+									className="transition-transform duration-300 group-hover:scale-110"
+								/>
+							</div>
+						) : (
+							// For Icon-based features like Identity Verification and Repayment Guarantee
+							<div className="transition-transform duration-300 group-hover:scale-110">
+								{feature.icon}
+								<span className="mt-2 block text-gray-700 dark:text-gray-300 text-sm">
+									{feature.name}
+								</span>
+							</div>
+						)}
+					</a>
+				))}
+			</div>
+		</div>
+	);
 };
-
-
 
 // Main Landing Page Component
 const LandingPage: React.FC = () => {
-  return (
-    <>
-      <Head>
-        <title>Go Fund Yourself!!</title>
-        <meta
-          name="description"
-          content="Instant, negotiable loans without bank approval over our secure network of peers."
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <Header />
-      <Hero />
-      <LoanTerminal />
-      <Features />
-      <PoweredBy />
-      <Testimonials />
-      <CallToAction />
-      <Footer />
-    </>
-  );
+	return (
+		<>
+			<Head>
+				<title>Go Fund Yourself!!</title>
+				<meta
+					name="description"
+					content="Instant, negotiable loans without bank approval over our secure network of peers."
+				/>
+				<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			</Head>
+			<Header/>
+			<Hero/>
+			<LoanTerminal/>
+			<Stats/> {/* Integrated Stats Component */}
+			<Features/>
+			<PoweredBy/>
+			<Testimonials/>
+			<CallToAction/>
+			<Footer/>
+		</>
+	);
 };
 
 export default LandingPage;

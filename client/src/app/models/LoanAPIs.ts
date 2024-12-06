@@ -71,3 +71,46 @@ export function fetchLentLoans(
 
 	return unsubscribe;
 }
+
+/**
+ * Fetches all loans from the Firestore 'loans' collection.
+ * Provides real-time updates through Firestore's onSnapshot listener.
+ *
+ * @param callback - Function to handle the array of Loan objects.
+ * @param errorCallback - Optional function to handle errors.
+ * @returns A function to unsubscribe from the Firestore listener.
+ */
+export function fetchLoans(
+	callback: (loans: Loan[]) => void,
+	errorCallback?: (error: any) => void
+) {
+	const loansCollection = collection(db, 'loans');
+	const q = query(loansCollection); // No filters applied
+
+	const unsubscribe = onSnapshot(
+		q,
+		(snapshot) => {
+			const allLoans: Loan[] = snapshot.docs.map((doc) => {
+				const data = doc.data();
+				return {
+					id: doc.id,
+					borrowedBy: data.borrowedBy,
+					ownedBy: data.ownedBy,
+					principalAmount: data.principalAmount,
+					interestRate: data.interestRate,
+					termWeeks: data.termWeeks,
+					paymentsMade: data.paymentsMade,
+				} as Loan;
+			});
+			callback(allLoans);
+		},
+		(error) => {
+			console.error('Error fetching all loans:', error);
+			if (errorCallback) {
+				errorCallback(error);
+			}
+		}
+	);
+
+	return unsubscribe;
+}
