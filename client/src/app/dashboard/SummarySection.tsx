@@ -1,19 +1,15 @@
+// src/components/SummarySection.tsx
 "use client";
-
 import React from "react";
-import {
-	AccountBalance,
-	TrendingUp,
-	TrendingDown,
-} from "@mui/icons-material";
+import { AccountBalance, TrendingUp, TrendingDown } from "@mui/icons-material";
 
-interface SummaryCardProps {
-	title: string;
-	value: string;
-	icon: React.ReactNode;
+interface SummarySectionProps {
+	totalOwned: number;
+	totalOwed: number;
+	totalReserves: number;
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon }) => {
+const SummaryCard: React.FC<{title: string; value: string; icon: React.ReactNode}> = ({ title, value, icon }) => {
 	return (
 		<div className="w-full sm:w-auto">
 			<div className="flex items-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
@@ -27,31 +23,25 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, icon }) => {
 	);
 };
 
-const SummarySection: React.FC = () => {
-
-	const totalOwned = 30000;
-	const totalOwed = 20000;
-	const totalReserves = 10000;
-
+const SummarySection: React.FC<SummarySectionProps> = ({ totalOwned, totalOwed, totalReserves }) => {
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-		<SummaryCard
-		  title="Loans Owed to You"
-		  value={`$${totalOwned.toLocaleString()}`}
-		  icon={<TrendingUp className="text-green-500" />}
-		/>
-		<SummaryCard
-		  title="Your Balance Including Interest"
-		  value={`$${totalReserves.toLocaleString()}`}
-		  icon={<AccountBalance className="text-green-500" />}
-		/>
-		<SummaryCard
-		  title="Loans You Owe to Others"
-		  value={`$${totalOwed.toLocaleString()}`}
-		  icon={<TrendingDown className="text-red-500" />}
-		/>
-	  </div>
-
+			<SummaryCard
+				title="Loans Owed to You"
+				value={`$${totalOwned.toLocaleString()}`}
+				icon={<TrendingUp className="text-green-500" />}
+			/>
+			<SummaryCard
+				title="Your Balance Including Interest"
+				value={`$${totalReserves.toLocaleString()}`}
+				icon={<AccountBalance className="text-green-500" />}
+			/>
+			<SummaryCard
+				title="Loans You Owe to Others"
+				value={`$${totalOwed.toLocaleString()}`}
+				icon={<TrendingDown className="text-red-500" />}
+			/>
+		</div>
 	);
 };
 
