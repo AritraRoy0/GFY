@@ -5,15 +5,15 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaUsers,
-  FaHandsHelping,
-  FaShieldAlt,
-  FaBolt,
-  FaArrowLeft,
-  FaArrowRight,
-  FaHeartbeat,
-  FaStore,
-  FaCreditCard
+    FaUsers,
+    FaHandsHelping,
+    FaShieldAlt,
+    FaBolt,
+    FaArrowLeft,
+    FaArrowRight,
+    FaHeartbeat,
+    FaStore,
+    FaCreditCard, FaIdBadge, FaCheckCircle
 } from "react-icons/fa";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
@@ -372,53 +372,78 @@ const CallToAction: React.FC = () => {
     </section>
   );
 };
-
-// PoweredBy Component with Fixed Image Usage
+// PoweredBy Component with Specific Features and Icons
 const PoweredBy: React.FC = () => {
-  return (
-    <div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
-      <h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
-        Powered By
-      </h2>
-      <div className="flex flex-wrap items-center justify-center gap-10">
-        <a
-          href="https://google.com/"
-          aria-label="Google"
-          className="group"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <div className="relative w-16 h-16">
-            <Image
-              src="/google.svg"
-              alt="Google"
-              fill
-              style={{ objectFit: "contain" }}
-              className="transition-transform duration-300 group-hover:scale-110"
-            />
-          </div>
-        </a>
-        <a
-          href="https://stripe.com/"
-          aria-label="Stripe"
-          className="group"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <div className="relative w-16 h-16">
-            <Image
-              src="/stripe.svg"
-              alt="Stripe"
-              fill
-              style={{ objectFit: "contain" }}
-              className="transition-transform duration-300 group-hover:scale-110"
-            />
-          </div>
-        </a>
-      </div>
-    </div>
-  );
+    // Define the features to display
+    const features = [
+        {
+            name: "Google",
+            href: "https://google.com/",
+            iconPath: "/google.svg",
+            ariaLabel: "Google",
+        },
+
+        {
+            name: "Identity Verification",
+            href: "#",
+            icon: <FaIdBadge className="text-blue-600 w-12 h-12 mx-auto mb-4" />,
+            ariaLabel: "Stripe Identity Verification",
+        },{
+            name: "Stripe",
+            href: "https://stripe.com/",
+            iconPath: "/stripe.svg",
+            ariaLabel: "Stripe",
+        },
+        {
+            name: "Repayment Guarantee",
+            href: "#",
+            icon: <FaCheckCircle className="text-green-600 w-12 h-12 mx-auto mb-4" />,
+            ariaLabel: "Money Repayment Guarantees",
+        },
+    ];
+
+    return (
+        <div className="container flex-grow mx-auto py-12 bg-gray-50 dark:bg-gray-800">
+            <h2 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-200 mb-8">
+                Powered By
+            </h2>
+            <div className="flex flex-wrap items-center justify-center gap-10">
+                {features.map((feature, index) => (
+                    <a
+                        key={index}
+                        href={feature.href}
+                        aria-label={feature.ariaLabel}
+                        className="group"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {/* For Image-based features like Google and Stripe */}
+                        {feature.iconPath ? (
+                            <div className="relative w-16 h-16">
+                                <Image
+                                    src={feature.iconPath}
+                                    alt={feature.name}
+                                    fill
+                                    style={{ objectFit: "contain" }}
+                                    className="transition-transform duration-300 group-hover:scale-110"
+                                />
+                            </div>
+                        ) : (
+                            // For Icon-based features like Identity Verification and Repayment Guarantee
+                            <div className="transition-transform duration-300 group-hover:scale-110">
+                                {feature.icon}
+                                <span className="mt-2 block text-gray-700 dark:text-gray-300 text-sm">
+                  {feature.name}
+                </span>
+                            </div>
+                        )}
+                    </a>
+                ))}
+            </div>
+        </div>
+    );
 };
+
 
 
 // Main Landing Page Component
