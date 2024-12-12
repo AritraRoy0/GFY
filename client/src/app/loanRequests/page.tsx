@@ -14,17 +14,18 @@ import Footer from "../common/Footer";
 import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
 
-
 const LoanRequestForm: React.FC = () => {
-  const [principalAmount, setPrincipalAmount] = useState<number>(0);
+  const [principalAmount, setPrincipalAmount] = useState<number>(500); // Set default to minimum
   const [interestRate, setInterestRate] = useState<number>(0);
   const [termWeeks, setTermWeeks] = useState<number>(0);
   const [purpose, setPurpose] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [principalError, setPrincipalError] = useState<string>(""); // Error state
 
   const dispatch = useDispatch();
   const router = useRouter();
+
   // Fetch authenticated user
   useEffect(() => {
     const auth = getAuth();
@@ -50,9 +51,17 @@ const LoanRequestForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setPrincipalError(""); // Reset error message
 
     if (!currentUser) {
       alert("Please log in to submit a loan request.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate principal amount
+    if (principalAmount < 500 || principalAmount > 10000) {
+      setPrincipalError("Principal amount must be between $500 and $10,000.");
       setLoading(false);
       return;
     }
@@ -69,7 +78,7 @@ const LoanRequestForm: React.FC = () => {
     try {
       await uploadLoanRequest(newLoanRequest);
       // Reset form fields
-      setPrincipalAmount(0);
+      setPrincipalAmount(500); // Reset to minimum
       setInterestRate(0);
       setTermWeeks(0);
       setPurpose("");
@@ -84,16 +93,10 @@ const LoanRequestForm: React.FC = () => {
     }
   };
 
-
   const handleReviewLoan = (loan: LoanRequest) => {
     dispatch(clearLoanRequestState());
-    dispatch(
-        setLoanRequestState(loan)
-    );
-
-     router.push("/viewLoan"); // Redirect to viewLoan page with the loan ID
-
-
+    dispatch(setLoanRequestState(loan));
+    router.push("/viewLoan"); // Redirect to viewLoan page with the loan ID
   };
 
   return (
@@ -125,9 +128,18 @@ const LoanRequestForm: React.FC = () => {
                             setPrincipalAmount(Number(e.target.value))
                         }
                         required
+                        min={500}
+                        max={10000}
                         placeholder="Enter principal amount"
-                        className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800"
+                        className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800 ${
+                            principalError
+                                ? "border-red-500"
+                                : "border-gray-300"
+                        }`}
                     />
+                    {principalError && (
+                        <p className="text-red-500 mt-2">{principalError}</p>
+                    )}
                   </div>
                   <div className="flex flex-col">
                     <label
@@ -220,7 +232,7 @@ const LoanRequestForm: React.FC = () => {
                           Borrowed By
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                          Button
+                          Action
                         </th>
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Principal Amount
@@ -234,7 +246,6 @@ const LoanRequestForm: React.FC = () => {
                         <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                           Purpose
                         </th>
-
                       </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -283,7 +294,6 @@ const LoanRequestForm: React.FC = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-gray-800">
                                 {request.purpose}
                               </td>
-
                             </tr>
                         );
                       })}
@@ -294,7 +304,7 @@ const LoanRequestForm: React.FC = () => {
             </section>
           </div>
         </main>
-        <Footer/>
+        <Footer />
       </div>
   );
 };
