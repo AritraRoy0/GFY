@@ -315,6 +315,136 @@ const Stats: React.FC = () => {
 	);
 };
 
+
+
+import React, { useEffect, useState } from "react";
+import { fetchLoans } from "../models/LoanAPIs"; // Importing the helper function to fetch loans
+
+/**
+ * The Stats component is responsible for calculating and displaying key platform statistics.
+ * It focuses on two metrics:
+ * 1. National Interest Rate: A hardcoded value representing the general market rate.
+ * 2. Platform Average APR: Dynamically calculated by averaging interest rates from loans in the database.
+ *
+ * Note: This component handles calculations and backend interactions, leaving UI/animations to the frontend team.
+ */
+const Stats: React.FC = () => {
+  // Hardcoded value for the national interest rate (static for now; can be made dynamic if needed)
+  const NATIONAL_INTEREST_RATE = 4.33; // As of Jan. 11, 2025
+
+  // State to store the calculated Platform Average APR
+  const [platformAverage, setPlatformAverage] = useState<number | null>(null);
+
+  // State to handle the loading status while data is being fetched
+  const [loading, setLoading] = useState(true);
+
+  /**
+   * Fetch and calculate the Platform Average APR.
+   * This uses the `fetchLoans` helper function to retrieve all loans from the Firestore database.
+   */
+  useEffect(() => {
+    // Define an async function to fetch loans and calculate the average APR
+    const fetchPlatformAverage = async () => {
+      try {
+        // Step 1: Fetch all loans from Firestore using the helper function
+        fetchLoans(
+          (loans) => {
+            console.log("Raw Loan Data:", loans); // Log raw loan data for debugging purposes
+
+            // Step 2: Check if there are any loans returned
+            if (loans.length > 0) {
+              // Step 3: Calculate the total interest rate from all loans
+              const totalInterestRate = loans.reduce((sum, loan) => {
+                return sum + (loan.interestRate || 0); // Add interest rate, default to 0 if undefined
+              }, 0);
+
+              // Step 4: Calculate the average APR by dividing the total interest rate by the number of loans
+              const averageAPR = totalInterestRate / loans.length;
+
+              console.log("Platform Average APR:", averageAPR); // Log the calculated APR for verification
+
+              // Step 5: Update the state with the calculated average APR
+              setPlatformAverage(averageAPR);
+            } else {
+              // Handle the case where no loans are present in the database
+              console.log("No loans found.");
+              setPlatformAverage(0); // Default to 0 if no loans exist
+            }
+          },
+          (error) => {
+            // Handle errors during data fetching
+            console.error("Error fetching loans:", error);
+            setPlatformAverage(null); // Set to null to indicate failure
+          }
+        );
+      } catch (error) {
+        // Catch and log unexpected errors (e.g., network issues)
+        console.error("Unexpected error:", error);
+        setPlatformAverage(null); // Set to null to indicate failure
+      } finally {
+        // Ensure the loading state is turned off once processing is complete
+        setLoading(false);
+      }
+    };
+
+    // Invoke the data-fetching function
+    fetchPlatformAverage();
+  }, []); // The empty dependency array ensures this runs only once when the component mounts
+
+  /**
+   * Render the loading state if data is still being fetched.
+   */
+  if (loading) {
+    return (
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12">
+            Platform Statistics
+          </h2>
+          <p className="text-gray-600">Loading statistics...</p>
+        </div>
+      </section>
+    );
+  }
+
+  /**
+   * Render the calculated statistics once data has been fetched and processed.
+   * Display:
+   * 1. National Interest Rate
+   * 2. Platform Average APR
+   */
+  return (
+    <section className="py-20 px-6 bg-white">
+      <div className="max-w-7xl mx-auto text-center">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-12">
+          Platform Statistics
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* National Interest Rate */}
+          <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800">National Interest Rate</h3>
+            <p className="text-3xl font-bold text-blue-600">{NATIONAL_INTEREST_RATE}%</p>
+          </div>
+
+          {/* Platform Average APR */}
+          <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800">Platform Average APR</h3>
+            <p className="text-3xl font-bold text-green-600">
+              {platformAverage !== null ? `${platformAverage.toFixed(2)}%` : "N/A"}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Stats;
+
+
+
+
+
 // Testimonials Component without animations
 const Testimonials: React.FC = () => {
 	const testimonials = [
