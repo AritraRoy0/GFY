@@ -4,7 +4,7 @@ import {
   InstagramLogoIcon,
 } from "@radix-ui/react-icons";
 
-export default function Footer(props: { builtBy: string }) {
+export default function Footer() {
   return (
       <footer className="bg-gray-900 text-gray-300 border-t border-gray-700">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row">
