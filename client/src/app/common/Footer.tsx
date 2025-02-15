@@ -1,24 +1,33 @@
-import React from 'react';
+import {
+  LinkedInLogoIcon,
+  TwitterLogoIcon,
+  InstagramLogoIcon,
+} from "@radix-ui/react-icons";
 
-const Footer: React.FC = () => {
+export default function Footer(props: { builtBy: string }) {
   return (
-    <footer className="bg-gray-800 text-white py-6">
-      <div className="max-w-7xl mx-auto text-center">
-        <p>© 2024 Go Fund Yourself. All rights reserved.</p>
-        <p>
-          Follow us on Instagram: 
-          <a 
-            href="https://www.instagram.com/roymazumder_" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-blue-400 hover:underline ml-1"
-          > 
-            @roymazumder_
-          </a>
-        </p>
-      </div>
-    </footer>
+      <footer className="bg-gray-900 text-gray-300 border-t border-gray-700">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row">
+          <div className="flex flex-col items-center gap-2 px-8 md:flex-row md:gap-4">
+            <p className="text-center text-sm md:text-left">
+              © 2025 Vault Tech Technologies. All rights reserved.
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            {([
+              { icon: TwitterLogoIcon },
+              { icon: LinkedInLogoIcon },
+              { icon: InstagramLogoIcon },
+            ] as const).map((link, index) => (
+                <div
+                    key={index}
+                    className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                >
+                  <link.icon className="h-6 w-6" />
+                </div>
+            ))}
+          </div>
+        </div>
+      </footer>
   );
-};
-
-export default Footer;
+}
