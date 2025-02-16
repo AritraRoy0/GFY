@@ -338,16 +338,25 @@ const AuthPage: React.FC = () => {
 	);
 };
 
-// Reusable Components
-const FloatingInput = ({
-	                       id,
-	                       label,
-	                       type = "text",
-	                       error,
-	                       value,
-	                       onChange,
-	                       icon
-                       }) => (
+interface FloatingInputProps {
+	id: string;
+	label: string;
+	type?: string;
+	error?: string;
+	value: string;
+	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	icon?: string;
+}
+
+const FloatingInput: React.FC<FloatingInputProps> = ({
+	                                                     id,
+	                                                     label,
+	                                                     type = "text",
+	                                                     error,
+	                                                     value,
+	                                                     onChange,
+	                                                     icon,
+                                                     }) => (
 	<div className="relative">
 		<div className="absolute left-3 top-4 text-gray-400">{icon}</div>
 		<input
@@ -357,15 +366,14 @@ const FloatingInput = ({
 			value={value}
 			onChange={onChange}
 			className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 peer ${
-				error ? "border-red-500 focus:ring-red-200"
-					: "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+				error ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
 			}`}
 			placeholder=" "
 		/>
 		<label
 			htmlFor={id}
 			className="absolute left-11 top-3 px-1 bg-white text-gray-400 transition-all duration-300
-               peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5 
+               peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5
                peer-focus:text-sm peer-focus:text-blue-600 -top-2.5 text-sm"
 		>
 			{label}
@@ -382,6 +390,7 @@ const FloatingInput = ({
 		)}
 	</div>
 );
+
 
 const SubmitButton = ({ loading, text, loadingText }) => (
 	<button
