@@ -391,13 +391,18 @@ const FloatingInput: React.FC<FloatingInputProps> = ({
 	</div>
 );
 
+interface SubmitButtonProps {
+	loading: boolean;
+	text: string;
+	loadingText: string;
+}
 
-const SubmitButton = ({ loading, text, loadingText }) => (
+const SubmitButton: React.FC<SubmitButtonProps> = ({ loading, text, loadingText }) => (
 	<button
 		type="submit"
 		disabled={loading}
 		className="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold
-             rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] 
+             rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]
              disabled:opacity-70 disabled:cursor-not-allowed relative"
 	>
     <span className={`transition-opacity ${loading ? "opacity-0" : "opacity-100"}`}>
@@ -410,5 +415,4 @@ const SubmitButton = ({ loading, text, loadingText }) => (
 		)}
 	</button>
 );
-
 export default AuthPage;
