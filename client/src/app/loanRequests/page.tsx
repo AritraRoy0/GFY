@@ -234,6 +234,7 @@ const LoanRequestForm: React.FC = () => {
 					</section>
 
 					<section>
+
 						<h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
 							<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600"
 							     viewBox="0 0 24 24" fill="currentColor">
@@ -318,6 +319,7 @@ const LoanRequestForm: React.FC = () => {
 							</div>
 						)}
 					</section>
+
 				</div>
 			</main>
 			<Footer/>
