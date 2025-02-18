@@ -96,8 +96,10 @@ const LoanRequestForm: React.FC = () => {
 					<section className="mb-16">
 						<div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
 							<h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
-								<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+								<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600"
+								     viewBox="0 0 24 24" fill="currentColor">
+									<path
+										d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
 								</svg>
 								New Loan Request
 							</h2>
@@ -108,7 +110,8 @@ const LoanRequestForm: React.FC = () => {
 											Principal Amount<span className="text-red-500 ml-1">*</span>
 										</label>
 										<div className="relative">
-											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<div
+												className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 												<span className="text-gray-500">$</span>
 											</div>
 											<input
@@ -127,8 +130,11 @@ const LoanRequestForm: React.FC = () => {
 										</div>
 										{principalError && (
 											<p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-												<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-													<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+												<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4"
+												     viewBox="0 0 20 20" fill="currentColor">
+													<path fillRule="evenodd"
+													      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+													      clipRule="evenodd"/>
 												</svg>
 												{principalError}
 											</p>
@@ -140,7 +146,8 @@ const LoanRequestForm: React.FC = () => {
 											Interest Rate (%)<span className="text-red-500 ml-1">*</span>
 										</label>
 										<div className="relative">
-											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+											<div
+												className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 												<span className="text-gray-500">%</span>
 											</div>
 											<input
@@ -158,9 +165,14 @@ const LoanRequestForm: React.FC = () => {
 											Term (Weeks)<span className="text-red-500 ml-1">*</span>
 										</label>
 										<div className="relative">
-											<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-												<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-													<path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+											<div
+												className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+												<svg xmlns="http://www.w3.org/2000/svg"
+												     className="h-5 w-5 text-gray-400" viewBox="0 0 20 20"
+												     fill="currentColor">
+													<path fillRule="evenodd"
+													      d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+													      clipRule="evenodd"/>
 												</svg>
 											</div>
 											<input
@@ -199,7 +211,7 @@ const LoanRequestForm: React.FC = () => {
 									>
 										{loading ? (
 											<>
-												<LoadingSpinner size="small" />
+												<LoadingSpinner size="small"/>
 												Submitting...
 											</>
 										) : "Submit Request"}
@@ -207,8 +219,11 @@ const LoanRequestForm: React.FC = () => {
 
 									{!currentUser && (
 										<p className="mt-4 text-center text-red-600 font-medium flex items-center justify-center gap-2">
-											<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-												<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+											<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"
+											     viewBox="0 0 20 20" fill="currentColor">
+												<path fillRule="evenodd"
+												      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+												      clipRule="evenodd"/>
 											</svg>
 											Please log in to submit a loan request
 										</p>
@@ -220,8 +235,10 @@ const LoanRequestForm: React.FC = () => {
 
 					<section>
 						<h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
-							<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+							<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600"
+							     viewBox="0 0 24 24" fill="currentColor">
+								<path
+									d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
 							</svg>
 							Existing Loan Requests
 						</h2>
@@ -231,83 +248,79 @@ const LoanRequestForm: React.FC = () => {
 								<p className="text-gray-500 mb-4">No loan requests found</p>
 							</div>
 						) : (
-							<div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-								<div className="overflow-x-auto">
-									<table className="min-w-full divide-y divide-gray-200">
-										<thead className="bg-gray-50 sticky top-0">
-										<tr>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Borrower
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Amount
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Rate
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Term
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Purpose
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Action
-											</th>
-										</tr>
-										</thead>
-										<tbody className="divide-y divide-gray-200">
-										{loanRequests.map((request) => (
-											<tr key={request.id} className={currentUser?.uid === request.borrowedBy ? "bg-blue-50/30" : "hover:bg-gray-50"}>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													<div className="flex items-center gap-2 text-black">
-														{currentUser?.uid === request.borrowedBy && (
-															<span className="text-blue-600">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                </span>
-														)}
-														{currentUser?.uid === request.borrowedBy ? "Your Request" : `User ${request.borrowedBy.slice(0, 6)}`}
-													</div>
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													${request.principalAmount.toLocaleString()}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{request.interestRate}%
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{request.termWeeks} weeks
-												</td>
-												<td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-													{request.purpose}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap">
-													{currentUser?.uid !== request.borrowedBy && (
-														<button
-															onClick={() => handleReviewLoan(request)}
-															className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors"
-														>
-															<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-																<path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-																<path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-															</svg>
-															Review
-														</button>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{loanRequests.map((request) => (
+									<div
+										key={request.id}
+										className={`bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow ${
+											currentUser?.uid === request.borrowedBy ? "ring-2 ring-blue-500" : ""
+										}`}
+									>
+										<div className="p-6">
+											<div className="flex items-center justify-between mb-4">
+												<div className="flex items-center gap-2">
+													{currentUser?.uid === request.borrowedBy && (
+														<span className="text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"/>
+                    </svg>
+                  </span>
 													)}
-												</td>
-											</tr>
-										))}
-										</tbody>
-									</table>
-								</div>
+													<span className="text-lg font-semibold text-gray-900">
+                  {currentUser?.uid === request.borrowedBy ? "Your Request" : `User ${request.borrowedBy.slice(0, 6)}`}
+                </span>
+												</div>
+												<span className="text-sm text-gray-500">#{request.id.slice(0, 6)}</span>
+											</div>
+
+											<div className="space-y-4">
+												<div>
+													<label className="text-sm text-gray-500">Amount</label>
+													<p className="text-xl font-bold text-gray-900">${request.principalAmount.toLocaleString()}</p>
+												</div>
+
+												<div>
+													<label className="text-sm text-gray-500">Interest Rate</label>
+													<p className="text-lg font-semibold text-gray-900">{request.interestRate}%</p>
+												</div>
+
+												<div>
+													<label className="text-sm text-gray-500">Term</label>
+													<p className="text-lg font-semibold text-gray-900">{request.termWeeks} weeks</p>
+												</div>
+
+												<div>
+													<label className="text-sm text-gray-500">Purpose</label>
+													<p className="text-gray-700 line-clamp-2">{request.purpose}</p>
+												</div>
+											</div>
+
+											{currentUser?.uid !== request.borrowedBy && (
+												<button
+													onClick={() => handleReviewLoan(request)}
+													className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all"
+												>
+													<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"
+													     viewBox="0 0 20 20" fill="currentColor">
+														<path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+														<path fillRule="evenodd"
+														      d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+														      clipRule="evenodd"/>
+													</svg>
+													Review Loan
+												</button>
+											)}
+										</div>
+									</div>
+								))}
 							</div>
 						)}
 					</section>
 				</div>
 			</main>
-			<Footer />
+			<Footer/>
 		</div>
 	);
 };
