@@ -219,92 +219,116 @@ const LoanRequestForm: React.FC = () => {
 					</section>
 
 					<section>
-						<h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
-							<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-							</svg>
-							Existing Loan Requests
-						</h2>
+  <h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+    </svg>
+    Existing Loan Requests
+  </h2>
 
-						{loanRequests.length === 0 ? (
-							<div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-								<p className="text-gray-500 mb-4">No loan requests found</p>
-							</div>
-						) : (
-							<div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-								<div className="overflow-x-auto">
-									<table className="min-w-full divide-y divide-gray-200">
-										<thead className="bg-gray-50 sticky top-0">
-										<tr>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Borrower
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Amount
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Rate
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Term
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Purpose
-											</th>
-											<th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-												Action
-											</th>
-										</tr>
-										</thead>
-										<tbody className="divide-y divide-gray-200">
-										{loanRequests.map((request) => (
-											<tr key={request.id} className={currentUser?.uid === request.borrowedBy ? "bg-blue-50/30" : "hover:bg-gray-50"}>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													<div className="flex items-center gap-2 text-black">
-														{currentUser?.uid === request.borrowedBy && (
-															<span className="text-blue-600">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                </span>
-														)}
-														{currentUser?.uid === request.borrowedBy ? "Your Request" : `User ${request.borrowedBy.slice(0, 6)}`}
-													</div>
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													${request.principalAmount.toLocaleString()}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{request.interestRate}%
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{request.termWeeks} weeks
-												</td>
-												<td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-													{request.purpose}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap">
-													{currentUser?.uid !== request.borrowedBy && (
-														<button
-															onClick={() => handleReviewLoan(request)}
-															className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors"
-														>
-															<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-																<path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-																<path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-															</svg>
-															Review
-														</button>
-													)}
-												</td>
-											</tr>
-										))}
-										</tbody>
-									</table>
-								</div>
-							</div>
-						)}
-					</section>
+  {loanRequests.length === 0 ? (
+    <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+      <p className="text-gray-500 mb-4">No loan requests found</p>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {loanRequests.map((request) => (
+        <div
+          key={request.id}
+          className={`bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 ${
+            currentUser?.uid === request.borrowedBy ? "ring-2 ring-blue-500" : ""
+          }`}
+        >
+          <div className="p-6">
+            {/* Header Section */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                {currentUser?.uid === request.borrowedBy && (
+                  <span className="text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                )}
+                <span className="text-lg font-semibold text-gray-900">
+                  {currentUser?.uid === request.borrowedBy ? "Your Request" : `User ${request.borrowedBy.slice(0, 6)}`}
+                </span>
+              </div>
+              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                #{request.id.slice(0, 6)}
+              </span>
+            </div>
+
+            {/* Loan Details Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Amount</label>
+                  <p className="text-xl font-bold text-gray-900">${request.principalAmount.toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Interest Rate</label>
+                  <p className="text-lg font-semibold text-gray-900">{request.interestRate}%</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Term</label>
+                  <p className="text-lg font-semibold text-gray-900">{request.termWeeks} weeks</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Purpose</label>
+                  <p className="text-gray-700 line-clamp-2">{request.purpose}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            {currentUser?.uid !== request.borrowedBy && (
+              <button
+                onClick={() => handleReviewLoan(request)}
+                className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+                Review Loan
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
 				</div>
 			</main>
 			<Footer />
