@@ -21,6 +21,7 @@ const ProfilePage: React.FC = () => {
       setLoading(false); // Update loading state after auth state is determined
     });
 
+    
     return () => {
       unsubscribeAuth();
     };
