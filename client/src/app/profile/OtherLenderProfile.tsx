@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
 import { motion } from "framer-motion";
@@ -16,8 +16,8 @@ interface LenderProfileData {
 }
 
 const OtherLenderProfile: React.FC = () => {
-  const router = useRouter();
-  const { id } = router.query; // expects a lender id from the URL
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id"); // expects a lender id from the URL query parameters
   const [lenderData, setLenderData] = useState<LenderProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -26,7 +26,7 @@ const OtherLenderProfile: React.FC = () => {
       // Replace with a real API call as needed. Here we simulate with dummy data.
       const fetchLenderData = async () => {
         const data: LenderProfileData = {
-          id: id as string,
+          id: id,
           name: "Lender Name",
           email: "lender@example.com",
           rating: 4.5,
@@ -75,8 +75,18 @@ const OtherLenderProfile: React.FC = () => {
               <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                 <div className="p-3 bg-green-100 rounded-lg">
                   {/* Email Icon */}
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -98,8 +108,18 @@ const OtherLenderProfile: React.FC = () => {
               >
                 <div className="p-3 bg-blue-100 rounded-lg">
                   {/* Message Icon */}
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 10h.01M12 10h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -113,8 +133,18 @@ const OtherLenderProfile: React.FC = () => {
               >
                 <div className="p-3 bg-purple-100 rounded-lg">
                   {/* Loan Request Icon */}
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1" />
+                  <svg
+                    className="w-6 h-6 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1"
+                    />
                   </svg>
                 </div>
                 <div>
