@@ -120,10 +120,10 @@ const ViewLoan: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
           <p className="font-semibold text-gray-800">Week {label}</p>
           <p className="text-sm text-indigo-600">
-            Payment: <span className="font-medium">${payload[0].value}</span>
+            Payment: <span className="font-medium">${payload[0].value.toFixed(2)}</span>
           </p>
           <p className="text-sm text-gray-500">
-            Cumulative: ${payload[0].payload.cumulative}
+            Cumulative: ${payload[0].payload.cumulative.toFixed(2)}
           </p>
         </div>
       );
@@ -148,10 +148,16 @@ const ViewLoan: React.FC = () => {
   if (!loanRequest) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="p-6 bg-red-50 rounded-xl text-center">
-          <ExclamationTriangleIcon className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-red-600">Loan request not found</h2>
-          <p className="text-gray-600 mt-2">Please check the loan ID and try again</p>
+        <div className="p-8 bg-red-50 rounded-xl text-center shadow-sm">
+          <ExclamationTriangleIcon className="h-16 w-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-semibold text-red-600 mb-2">Loan request not found</h2>
+          <p className="text-gray-600 mt-2 mb-4">Please check the loan ID and try again</p>
+          <button 
+            onClick={() => router.push("/loanRequests")}
+            className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            Return to Loan Requests
+          </button>
         </div>
       </div>
     );
@@ -160,32 +166,43 @@ const ViewLoan: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       <ToastContainer />
-      
       {/* Header */}
-      <div className="pb-6 border-b border-gray-200">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <CurrencyDollarIcon className="h-8 w-8 text-indigo-600" />
-          Loan Request Details
-        </h1>
+      <div className="pb-8 border-b border-gray-200 bg-white rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-lg">
+          <div className="flex items-center gap-4 rounded-lg">
+            <div className="p-3 bg-indigo-100 rounded-lg">
+              <CurrencyDollarIcon className="h-8 w-8 text-indigo-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loan Request Details</h1>
+              <p className="text-sm text-gray-500 mt-1">Review and manage loan request information</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="px-4 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-full shadow-sm">
+              Active Request
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <SummaryCard
           title="Total Repayment"
-          value={`$${totalRepayment.toLocaleString()}`}
+          value={`$${totalRepayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
           trend="positive"
           percentage={loanRequest.interestRate}
         />
         <SummaryCard
           title="Total Interest"
-          value={`$${totalInterest.toLocaleString()}`}
+          value={`$${totalInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
           trend="neutral"
           description={`${loanRequest.termWeeks} weekly payments`}
         />
         <SummaryCard
           title="Weekly Payment"
-          value={`$${(totalRepayment / loanRequest.termWeeks).toFixed(2)}`}
+          value={`$${(totalRepayment / loanRequest.termWeeks).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
           trend="negative"
           description="Average per week"
         />
@@ -196,15 +213,15 @@ const ViewLoan: React.FC = () => {
         <DetailCard
           label="Borrower Information"
           value={
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Link
                 href={`/profile?id=${loanRequest.borrowedBy}&type=lendee`}
-                className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-2"
+                className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-2 transition-colors"
               >
                 <UserCircleIcon className="h-5 w-5" />
                 View Borrower Profile
               </Link>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-600 mt-1">
                 Member since 2023 • 4 previous loans
               </p>
             </div>
@@ -215,18 +232,18 @@ const ViewLoan: React.FC = () => {
         <DetailCard
           label="Loan Terms"
           value={
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Principal:</span>
-                <span className="font-medium">${loanRequest.principalAmount?.toFixed(2)}</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Principal:</span>
+                <span className="font-medium text-gray-900">${loanRequest.principalAmount?.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Interest Rate:</span>
-                <span className="font-medium">{loanRequest.interestRate}%</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Interest Rate:</span>
+                <span className="font-medium text-gray-900">{loanRequest.interestRate}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Duration:</span>
-                <span className="font-medium">{loanRequest.termWeeks} weeks</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Duration:</span>
+                <span className="font-medium text-gray-900">{loanRequest.termWeeks} weeks</span>
               </div>
             </div>
           }
@@ -244,69 +261,75 @@ const ViewLoan: React.FC = () => {
       </div>
 
       {/* Repayment Chart */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100">
         <div className="flex flex-col md:flex-row justify-between items-start mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2 mb-4 md:mb-0">
             <CalendarIcon className="h-6 w-6 text-indigo-600" />
             Repayment Schedule Breakdown
           </h2>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 bg-indigo-500 rounded-full"></div>
+              <div className="h-4 w-4 bg-indigo-500 rounded-full"></div>
               <span className="text-sm text-gray-600">Weekly Payment</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 bg-indigo-100 rounded-full"></div>
+              <div className="h-4 w-4 bg-indigo-200 rounded-full"></div>
               <span className="text-sm text-gray-600">Cumulative</span>
             </div>
           </div>
         </div>
-        <div className="h-[500px]">
+        <div className="h-[400px] sm:h-[500px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={weeklyPayments}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
               <XAxis
                 dataKey="week"
-                tick={{ fill: "#4B5563" }}
+                tick={{ fill: "#4B5563", fontSize: 12 }}
                 tickLine={{ stroke: "#E5E7EB" }}
+                axisLine={{ stroke: "#E5E7EB" }}
                 label={{
                   value: "Weeks",
                   position: "bottom",
                   fill: "#4B5563",
                   fontSize: 14,
+                  offset: 20
                 }}
               />
               <YAxis
                 tickFormatter={(value) => `$${value.toLocaleString()}`}
-                tick={{ fill: "#4B5563" }}
+                tick={{ fill: "#4B5563", fontSize: 12 }}
                 tickLine={{ stroke: "#E5E7EB" }}
+                axisLine={{ stroke: "#E5E7EB" }}
                 label={{
                   value: "Payment Amount",
                   angle: -90,
                   position: "insideLeft",
                   fill: "#4B5563",
                   fontSize: 14,
+                  offset: -15
                 }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="amount"
-                radius={[4, 4, 0, 0]}
-                barSize={24}
+                radius={[6, 6, 0, 0]}
+                barSize={weeklyPayments.length > 20 ? 12 : 24}
               >
                 <LabelList
                   dataKey="amount"
                   position="top"
                   formatter={(value: number) => `$${value.toFixed(0)}`}
-                  className="text-xs fill-gray-500"
+                  fill="#6366F1"
+                  fontSize={10}
+                  offset={5}
                 />
                 {weeklyPayments.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={`rgba(99, 102, 241, ${0.6 + (index * 0.4) / weeklyPayments.length})`}
+                    fill={`rgba(99, 102, 241, ${0.7 + (index * 0.3) / weeklyPayments.length})`}
                   />
                 ))}
               </Bar>
@@ -317,6 +340,13 @@ const ViewLoan: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-end border-t pt-8">
+        <Button
+          onClick={handleReject}
+          variant="secondary"
+        >
+          <XCircleIcon className="h-5 w-5" />
+          Decline Request
+        </Button>
         <Button
           onClick={handleApprove}
           disabled={loading || !isValidLoanRequest}
@@ -334,11 +364,13 @@ const ViewLoan: React.FC = () => {
             </>
           )}
         </Button>
-        <Button onClick={handleReject} variant="secondary">
-          <XCircleIcon className="h-5 w-5" />
-          Decline Request
-        </Button>
       </div>
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
     </div>
   );
 };
@@ -358,17 +390,17 @@ const SummaryCard: React.FC<{
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-sm font-medium text-gray-500 mb-2">{title}</h3>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
           {description && (
             <p className="text-sm text-gray-500 mt-2">{description}</p>
           )}
         </div>
         {percentage && (
-          <span className={`${trendColors[trend]} px-3 py-1 rounded-full text-sm font-medium`}>
+          <span className={`${trendColors[trend]} px-3 py-1 rounded-full text-sm font-medium shadow-sm`}>
             {trend === 'positive' && '+'}{percentage}%
           </span>
         )}
@@ -384,8 +416,10 @@ const DetailCard: React.FC<{
   icon: React.ReactNode;
   full?: boolean;
 }> = ({ label, value, icon, full }) => (
-  <div className={`flex items-start gap-4 p-6 bg-white rounded-lg border border-gray-100 ${full ? "col-span-2" : ""}`}>
-    <div className="bg-indigo-50 p-3 rounded-lg">{icon}</div>
+  <div className={`flex items-start gap-4 p-6 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 ${full ? "col-span-2" : ""}`}>
+    <div className="bg-indigo-50 p-3 rounded-lg shadow-sm flex-shrink-0">
+      {icon}
+    </div>
     <div className="flex-1">
       <dt className="text-sm font-medium text-gray-500 mb-2">{label}</dt>
       <dd className="text-gray-900">{value}</dd>
@@ -395,10 +429,10 @@ const DetailCard: React.FC<{
 
 // Button Component
 const Button: React.FC<ButtonProps> = ({ onClick, disabled, variant, children }) => {
-  const baseClasses = "inline-flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2";
+  const baseClasses = "inline-flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm";
   const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:opacity-70 disabled:hover:bg-indigo-600",
-    secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300 disabled:opacity-70",
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:opacity-70 disabled:hover:bg-indigo-600 disabled:cursor-not-allowed",
+    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-300 disabled:opacity-70 disabled:cursor-not-allowed",
   };
 
   return (
