@@ -27,44 +27,76 @@ const Hero = () => {
 	const y1 = useTransform(scrollY, [0, 500], [0, 100]);
 
 	return (
-		<div className="relative bg-gray-950 text-white py-32 px-6 overflow-hidden">
-			<motion.div className="absolute inset-0 opacity-10" style={{ y: y1 }}>
-				<div className="pattern-dots pattern-gray-800 pattern-opacity-100 pattern-size-4 w-full h-full" />
+		<div className="relative bg-indigo-900 text-white py-32 px-6 overflow-hidden">
+			<motion.div 
+				className="absolute inset-0 opacity-20" 
+				style={{ y: y1 }}
+				animate={{ 
+					backgroundPosition: ["0% 0%", "100% 100%"] 
+				}}
+				transition={{ 
+					duration: 20, 
+					repeat: Infinity, 
+					repeatType: "reverse" 
+				}}
+			>
+				<div className="w-full h-full bg-[url('/assets/grid-pattern.svg')]" />
 			</motion.div>
 
+			<div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-purple-800/30 to-transparent" />
+			
 			<motion.div
-				className="relative max-w-7xl mx-auto text-center z-10"
+				className="relative max-w-7xl mx-auto z-10 flex flex-col md:flex-row items-center"
 				initial="hidden"
 				animate="visible"
 				variants={stagger}
 			>
-				<motion.h1
-					className="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
-					variants={fadeInUp}
-				>
-					Go Fund Yourself!!
-				</motion.h1>
-
-				<motion.h2
-					className="text-2xl md:text-3xl font-medium mb-8 text-gray-400"
-					variants={fadeInUp}
-				>
-					Where you can do you
-				</motion.h2>
-
-				<motion.p className="text-lg md:text-xl mb-10 text-gray-300" variants={fadeInUp}>
-					Instant, negotiable loans without bank approval over our secure network of peers.
-				</motion.p>
-
-				<motion.div variants={fadeInUp}>
-					<a
-						href="/auth"
-						className="inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-4 px-10 rounded-lg transition-all duration-300 hover:scale-[1.02] shadow-xl hover:shadow-emerald-900/20"
+				<div className="md:w-3/5 text-left md:pr-12">
+					<motion.h1
+						className="text-5xl md:text-6xl font-bold mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent"
+						variants={fadeInUp}
 					>
-						Get Started →
-					</a>
+						Go Fund Yourself
+					</motion.h1>
+
+					<motion.h2
+						className="text-2xl md:text-3xl font-medium mb-8 text-purple-200"
+						variants={fadeInUp}
+					>
+						Financial freedom on your terms
+					</motion.h2>
+
+					<motion.p className="text-lg md:text-xl mb-10 text-indigo-100" variants={fadeInUp}>
+						Instant, negotiable loans without bank approval over our secure network of peers.
+					</motion.p>
+
+					<motion.div variants={fadeInUp} className="flex gap-4">
+						<a
+							href="/auth"
+							className="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-4 px-8 rounded-lg transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-purple-500/30"
+						>
+							Get Started →
+						</a>
+						<a
+							href="#features"
+							className="inline-block bg-transparent border border-purple-400 text-purple-200 hover:bg-purple-800/20 font-medium py-4 px-8 rounded-lg transition-all duration-300"
+						>
+							Learn More
+						</a>
+					</motion.div>
+				</div>
+				
+				<motion.div 
+					className="md:w-2/5 mt-12 md:mt-0"
+					variants={fadeInUp}
+				>
+					<div className="bg-indigo-800/50 backdrop-blur-sm p-6 rounded-2xl border border-indigo-700/50 shadow-2xl">
+						<LoanTerminal />
+					</div>
 				</motion.div>
 			</motion.div>
+			
+			<div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-indigo-900 to-transparent" />
 		</div>
 	);
 };

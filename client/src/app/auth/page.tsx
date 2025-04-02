@@ -257,32 +257,89 @@ const AuthPage: React.FC = () => {
 								onSubmit={handleSignUp}
 							>
 								<div className="space-y-5">
-									<FloatingInput
-										id="username"
-										label="Username"
-										value={state.formData.username}
-										error={state.errors.username}
-										onChange={handleChange}
-										icon="👤"
-									/>
-									<FloatingInput
-										id="email"
-										type="email"
-										label="Email"
-										value={state.formData.email}
-										error={state.errors.email}
-										onChange={handleChange}
-										icon="✉️"
-									/>
-									<FloatingInput
-										id="password"
-										type="password"
-										label="Password"
-										value={state.formData.password}
-										error={state.errors.password}
-										onChange={handleChange}
-										icon="🔒"
-									/>
+									<div className="relative">
+										<label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+											Username
+										</label>
+										<div className="absolute left-3 top-[calc(50%+0.5rem)] -translate-y-1/2 text-gray-400">👤</div>
+										<input
+											id="username"
+											name="username"
+											type="text"
+											value={state.formData.username}
+											onChange={handleChange}
+											className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 text-gray-900 ${
+												state.errors.username ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+											}`}
+											placeholder="Enter your username"
+										/>
+										{state.errors.username && (
+											<motion.div
+												className="text-red-500 text-sm mt-1 flex items-center"
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+											>
+												<span className="mr-1">⚠️</span>
+												{state.errors.username}
+											</motion.div>
+										)}
+									</div>
+									
+									<div className="relative">
+										<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+											Email
+										</label>
+										<div className="absolute left-3 top-[calc(50%+0.5rem)] -translate-y-1/2 text-gray-400">✉️</div>
+										<input
+											id="email"
+											name="email"
+											type="email"
+											value={state.formData.email}
+											onChange={handleChange}
+											className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 text-gray-900 ${
+												state.errors.email ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+											}`}
+											placeholder="Enter your email"
+										/>
+										{state.errors.email && (
+											<motion.div
+												className="text-red-500 text-sm mt-1 flex items-center"
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+											>
+												<span className="mr-1">⚠️</span>
+												{state.errors.email}
+											</motion.div>
+										)}
+									</div>
+									
+									<div className="relative">
+										<label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+											Password
+										</label>
+										<div className="absolute left-3 top-[calc(50%+0.5rem)] -translate-y-1/2 text-gray-400">🔒</div>
+										<input
+											id="password"
+											name="password"
+											type="password"
+											value={state.formData.password}
+											onChange={handleChange}
+											className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 text-gray-900 ${
+												state.errors.password ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+											}`}
+											placeholder="Enter your password"
+										/>
+										{state.errors.password && (
+											<motion.div
+												className="text-red-500 text-sm mt-1 flex items-center"
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+											>
+												<span className="mr-1">⚠️</span>
+												{state.errors.password}
+											</motion.div>
+										)}
+									</div>
 								</div>
 
 								<SubmitButton
@@ -304,24 +361,61 @@ const AuthPage: React.FC = () => {
 								onSubmit={handleLogin}
 							>
 								<div className="space-y-5">
-									<FloatingInput
-										id="email"
-										type="email"
-										label="Email"
-										value={state.formData.email}
-										error={state.errors.email}
-										onChange={handleChange}
-										icon="✉️"
-									/>
-									<FloatingInput
-										id="password"
-										type="password"
-										label="Password"
-										value={state.formData.password}
-										error={state.errors.password}
-										onChange={handleChange}
-										icon="🔒"
-									/>
+									<div className="relative">
+										<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+											Email
+										</label>
+										<div className="absolute left-3 top-[calc(50%+0.5rem)] -translate-y-1/2 text-gray-400">✉️</div>
+										<input
+											id="email"
+											name="email"
+											type="email"
+											value={state.formData.email}
+											onChange={handleChange}
+											className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 text-gray-900 ${
+												state.errors.email ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+											}`}
+											placeholder="Enter your email"
+										/>
+										{state.errors.email && (
+											<motion.div
+												className="text-red-500 text-sm mt-1 flex items-center"
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+											>
+												<span className="mr-1">⚠️</span>
+												{state.errors.email}
+											</motion.div>
+										)}
+									</div>
+									
+									<div className="relative">
+										<label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+											Password
+										</label>
+										<div className="absolute left-3 top-[calc(50%+0.5rem)] -translate-y-1/2 text-gray-400">🔒</div>
+										<input
+											id="password"
+											name="password"
+											type="password"
+											value={state.formData.password}
+											onChange={handleChange}
+											className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 text-gray-900 ${
+												state.errors.password ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+											}`}
+											placeholder="Enter your password"
+										/>
+										{state.errors.password && (
+											<motion.div
+												className="text-red-500 text-sm mt-1 flex items-center"
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+											>
+												<span className="mr-1">⚠️</span>
+												{state.errors.password}
+											</motion.div>
+										)}
+									</div>
 								</div>
 
 								<SubmitButton
@@ -365,7 +459,7 @@ const FloatingInput: React.FC<FloatingInputProps> = ({
 			type={type}
 			value={value}
 			onChange={onChange}
-			className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 peer ${
+			className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:ring-2 transition-colors duration-300 ${
 				error ? "border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
 			}`}
 			placeholder=" "
@@ -406,7 +500,7 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({ loading, text, loadingText 
              disabled:opacity-70 disabled:cursor-not-allowed relative"
 	>
     <span className={`transition-opacity ${loading ? "opacity-0" : "opacity-100"}`}>
-      {text}
+      {loading ? loadingText : text}
     </span>
 		{loading && (
 			<div className="absolute inset-0 flex items-center justify-center">
