@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "./../store"; // Update import path as needed
+import { RootState } from "../store"; // Fixed import path
 import Notifications from "./Notifications";
 import OutstandingLoansTable from "./LoanTable";
 import SummarySection from "./SummarySection";
+import ChartsSection from "./ChartsSection";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
 
@@ -178,14 +179,31 @@ export default function Page() {
 	}
 
 	return (
-		<div className="flex flex-col min-h-screen bg-gray-100 text-gray-900">
+		<div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
 			<Header />
-			<main className="flex-grow container mx-auto px-4 py-6">
+			<main className="flex-grow container mx-auto px-4 py-8">
+				{/* Welcome Section */}
+				<section className="mb-8">
+					<h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.username || "User"}!</h1>
+					<p className="text-gray-600">Here&apos;s an overview of your loan portfolio</p>
+				</section>
+
 				{/* Summary Section */}
 				<section className="mb-8">
 					<SummarySection
 						totalOwned={totalOwned}
 						totalOwed={totalOwed}
+						totalReserves={totalReserves}
+						lentLoans={lentLoans}
+						borrowedLoans={borrowedLoans}
+					/>
+				</section>
+
+				{/* Charts Section */}
+				<section className="mb-8">
+					<ChartsSection
+						lentLoans={lentLoans}
+						borrowedLoans={borrowedLoans}
 						totalReserves={totalReserves}
 					/>
 				</section>
@@ -193,7 +211,8 @@ export default function Page() {
 				{/* Loans Overview */}
 				<section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 					{/* Loans You Own */}
-					<div>
+					<div className="bg-white rounded-lg shadow-md p-6">
+						<h2 className="text-xl font-semibold mb-4">Loans You Own</h2>
 						<OutstandingLoansTable
 							userId={userId || ""}
 							type="owned"
@@ -202,7 +221,8 @@ export default function Page() {
 					</div>
 
 					{/* Loans You Owe */}
-					<div>
+					<div className="bg-white rounded-lg shadow-md p-6">
+						<h2 className="text-xl font-semibold mb-4">Loans You Owe</h2>
 						<OutstandingLoansTable
 							userId={userId || ""}
 							type="owed"
@@ -212,7 +232,8 @@ export default function Page() {
 				</section>
 
 				{/* Notifications */}
-				<section>
+				<section className="bg-white rounded-lg shadow-md p-6">
+					<h2 className="text-xl font-semibold mb-4">Recent Notifications</h2>
 					<Notifications notifications={notifications} />
 				</section>
 			</main>

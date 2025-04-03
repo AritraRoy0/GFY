@@ -1,24 +1,21 @@
-"use client";
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
-import { Provider } from "react-redux";
-import store from "./store"; // Adjust the path to your Redux store if necessary
+import ClientProviders from "./providers/ClientProviders";
+
 const inter = Inter({ subsets: ["latin"] });
 
-// Define Metadata for SEO
-const metadata: Metadata = {
-	title: "Go Fund Yourself!",
-	description: "Respectfully asking you to go fund yourself",
+export const metadata: Metadata = {
+	title: "GoFundYourself",
+	description: "A peer-to-peer lending platform",
 };
 
-export default function RootLayout({
-	children,
-}: Readonly<{
+interface RootLayoutProps {
 	children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en">
 			<head>
@@ -33,8 +30,9 @@ export default function RootLayout({
 			</head>
 
 			<body className={inter.className}>
-				{/* Wrap the app with Redux Provider if using Redux */}
-				<Provider store={store}>{children}</Provider>
+				<ClientProviders>
+					{children}
+				</ClientProviders>
 
 				{/* Add Vercel Analytics */}
 				<Analytics />

@@ -14,12 +14,16 @@ import Link from "next/link";
 
 const LoanRequestForm: React.FC = () => {
   const [principalAmount, setPrincipalAmount] = useState<number>(500);
-  const [interestRate, setInterestRate] = useState<number>(0);
-  const [termWeeks, setTermWeeks] = useState<number>(0);
+  const [interestRate, setInterestRate] = useState<number>(5);
+  const [termWeeks, setTermWeeks] = useState<number>(1);
   const [purpose, setPurpose] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [principalError, setPrincipalError] = useState<string>("");
+  const [interestError, setInterestError] = useState<string>("");
+  const [termError, setTermError] = useState<string>("");
+  const [purposeError, setPurposeError] = useState<string>("");
+  const [formTouched, setFormTouched] = useState<boolean>(false);
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -40,19 +44,56 @@ const LoanRequestForm: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  const validateForm = (): boolean => {
+    let isValid = true;
+    setFormTouched(true);
+    
+    // Validate principal amount
+    if (principalAmount < 500 || principalAmount > 10000) {
+      setPrincipalError("Principal amount must be between $500 and $10,000.");
+      isValid = false;
+    } else {
+      setPrincipalError("");
+    }
+    
+    // Validate interest rate
+    if (interestRate < 5) {
+      setInterestError("Interest rate must be at least 5%.");
+      isValid = false;
+    } else {
+      setInterestError("");
+    }
+    
+    // Validate term
+    if (termWeeks < 1) {
+      setTermError("Term must be at least 1 week.");
+      isValid = false;
+    } else {
+      setTermError("");
+    }
+    
+    // Validate purpose
+    if (!purpose.trim()) {
+      setPurposeError("Please provide a purpose for the loan.");
+      isValid = false;
+    } else {
+      setPurposeError("");
+    }
+    
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
-    setPrincipalError("");
 
     if (!currentUser) {
       alert("Please log in to submit a loan request.");
-      setLoading(false);
-      return;
-    }
-
-    if (principalAmount < 500 || principalAmount > 10000) {
-      setPrincipalError("Principal amount must be between $500 and $10,000.");
       setLoading(false);
       return;
     }
@@ -68,9 +109,10 @@ const LoanRequestForm: React.FC = () => {
     try {
       await uploadLoanRequest(newLoanRequest);
       setPrincipalAmount(500);
-      setInterestRate(0);
-      setTermWeeks(0);
+      setInterestRate(5);
+      setTermWeeks(1);
       setPurpose("");
+      setFormTouched(false);
       alert("Loan request submitted successfully!");
     } catch (error) {
       console.error("Error submitting loan request:", error);
@@ -92,7 +134,7 @@ const LoanRequestForm: React.FC = () => {
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-12 max-w-7xl">
           <section className="mb-16">
-            <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-8 transition-all hover:shadow-lg">
               <h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +160,10 @@ const LoanRequestForm: React.FC = () => {
                         type="number"
                         id="principalAmount"
                         value={principalAmount}
-                        onChange={(e) => setPrincipalAmount(Number(e.target.value))}
+                        onChange={(e) => {
+                          setPrincipalAmount(Number(e.target.value));
+                          if (formTouched) validateForm();
+                        }}
                         className={`pl-7 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
                           principalError
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
@@ -145,6 +190,7 @@ const LoanRequestForm: React.FC = () => {
                         {principalError}
                       </p>
                     )}
+                    <p className="mt-1 text-xs text-gray-500">Loan amount must be between $500 and $10,000</p>
                   </div>
 
                   <div>
@@ -159,10 +205,36 @@ const LoanRequestForm: React.FC = () => {
                         type="number"
                         id="interestRate"
                         value={interestRate}
-                        onChange={(e) => setInterestRate(Number(e.target.value))}
-                        className="pl-10 pr-3 block w-full rounded-lg border border-gray-300 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        onChange={(e) => {
+                          setInterestRate(Number(e.target.value));
+                          if (formTouched) validateForm();
+                        }}
+                        className={`pl-10 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
+                          interestError
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        min="5"
                       />
                     </div>
+                    {interestError && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {interestError}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Minimum interest rate is 5%</p>
                   </div>
 
                   <div>
@@ -188,10 +260,36 @@ const LoanRequestForm: React.FC = () => {
                         type="number"
                         id="termWeeks"
                         value={termWeeks}
-                        onChange={(e) => setTermWeeks(Number(e.target.value))}
-                        className="pl-10 pr-3 block w-full rounded-lg border border-gray-300 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                        onChange={(e) => {
+                          setTermWeeks(Number(e.target.value));
+                          if (formTouched) validateForm();
+                        }}
+                        className={`pl-10 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
+                          termError
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        }`}
+                        min="1"
                       />
                     </div>
+                    {termError && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {termError}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Minimum term is 1 week</p>
                   </div>
 
                   <div>
@@ -201,10 +299,34 @@ const LoanRequestForm: React.FC = () => {
                     <textarea
                       id="purpose"
                       value={purpose}
-                      onChange={(e) => setPurpose(e.target.value)}
-                      className="block w-full rounded-lg border border-gray-300 py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32 text-gray-900"
+                      onChange={(e) => {
+                        setPurpose(e.target.value);
+                        if (formTouched) validateForm();
+                      }}
+                      className={`block w-full rounded-lg border py-3 px-4 focus:ring-2 h-32 text-gray-900 transition-colors ${
+                        purposeError
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
                       placeholder="Briefly describe the loan purpose..."
                     />
+                    {purposeError && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {purposeError}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -215,7 +337,7 @@ const LoanRequestForm: React.FC = () => {
                     className={`w-full py-4 px-6 flex justify-center items-center gap-2 text-lg font-semibold rounded-lg transition-all ${
                       loading || !currentUser
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                        : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transform hover:translate-y-[-2px]"
                     }`}
                   >
                     {loading ? (
@@ -267,27 +389,51 @@ const LoanRequestForm: React.FC = () => {
 
             {/* No Data Message */}
             {loanRequests.length === 0 ? (
-              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">No loan requests found</p>
+              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-12 text-center flex flex-col items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-16 w-16 text-gray-400 mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <p className="text-gray-600 text-lg font-medium mb-2">No loan requests found</p>
+                <p className="text-gray-500">Create a new loan request to get started</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {loanRequests.map((request) => (
                   <div
                     key={request.id}
-                    className={`relative bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border ${
-                      currentUser?.uid === request.borrowedBy ? "border-blue-500" : "border-gray-200"
+                    className={`relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border-l-4 transform hover:-translate-y-2 ${
+                      currentUser?.uid === request.borrowedBy ? "border-l-blue-600" : "border-l-green-500"
                     }`}
                   >
-                    {/* Request ID Badge */}
-                    <div className="absolute top-4 right-4 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      #{request.id.slice(0, 6)}
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4 flex items-center">
+                      <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                        currentUser?.uid === request.borrowedBy 
+                          ? "bg-blue-100 text-blue-800" 
+                          : "bg-green-100 text-green-800"
+                      }`}>
+                        {currentUser?.uid === request.borrowedBy ? "Your Request" : "Available"}
+                      </span>
+                      <span className="ml-2 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        #{request.id.slice(0, 6)}
+                      </span>
                     </div>
 
                     {/* Card Header */}
-                    <div className="flex items-center mb-5">
+                    <div className="flex items-center mb-6 mt-2">
                       {currentUser?.uid === request.borrowedBy && (
-                        <span className="mr-2 text-blue-600">
+                        <span className="mr-2 text-blue-600 bg-blue-100 p-1 rounded-full">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5"
@@ -302,121 +448,87 @@ const LoanRequestForm: React.FC = () => {
                           </svg>
                         </span>
                       )}
-                      <h3 className="text-xl font-semibold text-gray-900">
+                      <h3 className="text-xl font-bold text-gray-900">
                         {currentUser?.uid === request.borrowedBy ? (
-                          "Your Request"
+                          <span className="flex items-center">
+                            Your Loan Request
+                          </span>
                         ) : (
-                          <Link href={`/profile?id=${request.borrowedBy}&type=lendee`} className="text-blue-600 hover:underline">
-                            {`User ${request.borrowedBy.slice(0, 6)}`}
+                          <Link href={`/profile?id=${request.borrowedBy}&type=lendee`} className="text-blue-600 hover:text-blue-800 flex items-center group">
+                            <span className="group-hover:underline">Borrower {request.borrowedBy.slice(0, 6)}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
                           </Link>
                         )}
                       </h3>
                     </div>
 
-                    {/* Loan Details */}
-                    <div className="space-y-4">
-                      {/* Amount */}
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-blue-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-gray-500">Amount</p>
-                          <p className="text-lg font-bold text-gray-900">${request.principalAmount.toLocaleString()}</p>
-                        </div>
+                    {/* Amount Highlight */}
+                    <div className="mb-6">
+                      <div className="text-3xl font-bold text-gray-900 flex items-baseline">
+                        <span>${request.principalAmount.toLocaleString()}</span>
+                        <span className="ml-2 text-sm font-medium text-gray-500">at {request.interestRate}% interest</span>
                       </div>
-
-                      {/* Interest Rate */}
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-green-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-gray-500">Interest Rate</p>
-                          <p className="text-lg font-semibold text-gray-900">{request.interestRate}%</p>
-                        </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        {request.termWeeks} week{request.termWeeks > 1 ? 's' : ''} term
                       </div>
+                    </div>
 
-                      {/* Term */}
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-purple-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-gray-500">Term</p>
-                          <p className="text-lg font-semibold text-gray-900">{request.termWeeks} weeks</p>
-                        </div>
+                    {/* Purpose Section */}
+                    <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                        LOAN PURPOSE
+                      </h4>
+                      <p className="text-gray-700 line-clamp-3 text-sm">{request.purpose}</p>
+                    </div>
+
+                    {/* Key Details */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Principal</span>
+                        <span className="font-semibold text-gray-900">${request.principalAmount.toLocaleString()}</span>
                       </div>
-
-                      {/* Purpose */}
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-yellow-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                            />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-gray-500">Purpose</p>
-                          <p className="text-gray-700 line-clamp-2">{request.purpose}</p>
-                        </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Interest</span>
+                        <span className="font-semibold text-gray-900">{request.interestRate}%</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Term</span>
+                        <span className="font-semibold text-gray-900">{request.termWeeks} weeks</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Date</span>
+                        <span className="font-semibold text-gray-900">
+                          {request.timestamp ? new Date(request.timestamp.toDate()).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          }) : "Recently added"}
+                        </span>
                       </div>
                     </div>
 
                     {/* Action Button */}
-                    {currentUser?.uid !== request.borrowedBy && (
+                    {currentUser?.uid !== request.borrowedBy ? (
                       <button
                         onClick={() => handleReviewLoan(request)}
-                        className="mt-6 w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-md hover:from-green-600 hover:to-green-700 transition-transform transform hover:scale-105"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg font-medium"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -431,8 +543,14 @@ const LoanRequestForm: React.FC = () => {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Review Loan
+                        Review Loan Details
                       </button>
+                    ) : (
+                      <div className="text-center">
+                        <span className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-100">
+                          Your Active Request
+                        </span>
+                      </div>
                     )}
                   </div>
                 ))}
