@@ -6,17 +6,16 @@ import ClientProviders from "./providers/ClientProviders";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// Define Metadata for SEO
 export const metadata: Metadata = {
 	title: "GoFundYourself",
 	description: "A peer-to-peer lending platform",
 };
 
-export default function RootLayout({
-	children,
-}: Readonly<{
+interface RootLayoutProps {
 	children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en">
 			<head>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "./../store"; // Update import path as needed
+import { RootState } from "../store"; // Fixed import path
 import Notifications from "./Notifications";
 import OutstandingLoansTable from "./LoanTable";
 import SummarySection from "./SummarySection";
@@ -184,8 +184,8 @@ export default function Page() {
 			<main className="flex-grow container mx-auto px-4 py-8">
 				{/* Welcome Section */}
 				<section className="mb-8">
-					<h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.username || 'User'}!</h1>
-					<p className="text-gray-600">Here's an overview of your loan portfolio</p>
+					<h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.username || "User"}!</h1>
+					<p className="text-gray-600">Here&apos;s an overview of your loan portfolio</p>
 				</section>
 
 				{/* Summary Section */}
