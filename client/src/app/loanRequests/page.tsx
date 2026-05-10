@@ -164,9 +164,9 @@ const LoanRequestForm: React.FC = () => {
   return (
     <div className="app-page flex flex-col">
       <Header />
-      <main className="flex-1 py-8 sm:py-10">
-        <div className="app-container space-y-6">
-          <section className="flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <main className="flex-1 py-6 sm:py-8">
+        <div className="app-container space-y-5">
+          <section className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="section-kicker">Loan Marketplace</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Create and review peer loan requests.</h1>
@@ -181,18 +181,21 @@ const LoanRequestForm: React.FC = () => {
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-[24rem_1fr] lg:items-start">
-            <form onSubmit={handleSubmit} className="surface-card sticky top-24 space-y-5 p-5">
+          <section className="grid gap-6 lg:grid-cols-[26rem_1fr] lg:items-start">
+            <form
+              onSubmit={handleSubmit}
+              className="surface-card space-y-3 p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)]"
+            >
               <div>
                 <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
                   <Plus className="h-5 w-5 text-sky-700" aria-hidden="true" />
                   New loan request
                 </h2>
-                <p className="mt-1 text-sm text-slate-500">Set the terms lenders will evaluate.</p>
+                <p className="mt-1 text-xs text-slate-500">Set the terms lenders will evaluate.</p>
               </div>
 
               {feedback && (
-                <div className={`flex gap-3 rounded-md border p-3 text-sm ${
+                <div className={`flex gap-2 rounded-md border p-2 text-xs ${
                   feedback.type === "success"
                     ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                     : "border-red-200 bg-red-50 text-red-700"
@@ -206,51 +209,55 @@ const LoanRequestForm: React.FC = () => {
                 </div>
               )}
 
-              <NumberField
-                label="Principal amount"
-                icon={<CircleDollarSign className="h-4 w-4" />}
-                value={principalAmount}
-                min={500}
-                max={10000}
-                onChange={(value) => {
-                  setPrincipalAmount(value);
-                  if (formTouched) validateForm();
-                }}
-                prefix="$"
-                error={principalError}
-                helper="Between $500 and $10,000"
-              />
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <div className="sm:col-span-2 lg:col-span-1 xl:col-span-2">
+                  <NumberField
+                    label="Principal amount"
+                    icon={<CircleDollarSign className="h-4 w-4" />}
+                    value={principalAmount}
+                    min={500}
+                    max={10000}
+                    onChange={(value) => {
+                      setPrincipalAmount(value);
+                      if (formTouched) validateForm();
+                    }}
+                    prefix="$"
+                    error={principalError}
+                    helper="$500 to $10,000"
+                  />
+                </div>
 
-              <NumberField
-                label="Interest rate"
-                icon={<Percent className="h-4 w-4" />}
-                value={interestRate}
-                min={5}
-                onChange={(value) => {
-                  setInterestRate(value);
-                  if (formTouched) validateForm();
-                }}
-                suffix="%"
-                error={interestError}
-                helper="Minimum 5%"
-              />
+                <NumberField
+                  label="Interest rate"
+                  icon={<Percent className="h-4 w-4" />}
+                  value={interestRate}
+                  min={5}
+                  onChange={(value) => {
+                    setInterestRate(value);
+                    if (formTouched) validateForm();
+                  }}
+                  suffix="%"
+                  error={interestError}
+                  helper="Min. 5%"
+                />
 
-              <NumberField
-                label="Term"
-                icon={<CalendarDays className="h-4 w-4" />}
-                value={termWeeks}
-                min={1}
-                onChange={(value) => {
-                  setTermWeeks(value);
-                  if (formTouched) validateForm();
-                }}
-                suffix="weeks"
-                error={termError}
-                helper="Minimum 1 week"
-              />
+                <NumberField
+                  label="Term"
+                  icon={<CalendarDays className="h-4 w-4" />}
+                  value={termWeeks}
+                  min={1}
+                  onChange={(value) => {
+                    setTermWeeks(value);
+                    if (formTouched) validateForm();
+                  }}
+                  suffix="weeks"
+                  error={termError}
+                  helper="Min. 1 week"
+                />
+              </div>
 
               <div>
-                <label htmlFor="purpose" className="mb-2 block text-sm font-semibold text-slate-700">
+                <label htmlFor="purpose" className="mb-1 block text-xs font-semibold text-slate-700">
                   Purpose
                 </label>
                 <textarea
@@ -260,7 +267,7 @@ const LoanRequestForm: React.FC = () => {
                     setPurpose(event.target.value);
                     if (formTouched) validateForm();
                   }}
-                  className={`input-field min-h-28 resize-y ${purposeError ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/15" : ""}`}
+                  className={`input-field min-h-20 resize-none py-2.5 text-sm ${purposeError ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/15" : ""}`}
                   placeholder="Briefly describe the loan purpose..."
                   aria-invalid={Boolean(purposeError)}
                 />
@@ -279,7 +286,7 @@ const LoanRequestForm: React.FC = () => {
               </button>
 
               {!currentUser && (
-                <p className="rounded-md bg-amber-50 p-3 text-center text-sm font-medium text-amber-800">
+                <p className="rounded-md bg-amber-50 p-2 text-center text-xs font-medium text-amber-800">
                   Log in to submit a loan request.
                 </p>
               )}
@@ -393,8 +400,8 @@ function Detail({ label, value }: { label: string; value: string }) {
 
 function FieldError({ message }: { message: string }) {
   return (
-    <p className="mt-2 flex items-center gap-1 text-sm font-medium text-red-600">
-      <AlertCircle className="h-4 w-4" aria-hidden="true" />
+    <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+      <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
       {message}
     </p>
   );
@@ -425,7 +432,7 @@ function NumberField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>
+      <label className="mb-1 block text-xs font-semibold text-slate-700">{label}</label>
       <div className="relative">
         <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">{icon}</span>
         {prefix && <span className="pointer-events-none absolute inset-y-0 left-10 flex items-center text-sm text-slate-500">{prefix}</span>}
@@ -435,14 +442,14 @@ function NumberField({
           min={min}
           max={max}
           onChange={(event) => onChange(Number(event.target.value))}
-          className={`input-field ${prefix ? "pl-14" : "pl-10"} ${suffix ? "pr-16" : ""} ${
+          className={`input-field py-2.5 text-sm ${prefix ? "pl-14" : "pl-10"} ${suffix ? "pr-16" : ""} ${
             error ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/15" : ""
           }`}
           aria-invalid={Boolean(error)}
         />
         {suffix && <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">{suffix}</span>}
       </div>
-      {error ? <FieldError message={error} /> : <p className="mt-2 text-xs text-slate-500">{helper}</p>}
+      {error ? <FieldError message={error} /> : <p className="mt-1 text-xs text-slate-500">{helper}</p>}
     </div>
   );
 }
