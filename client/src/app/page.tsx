@@ -27,75 +27,80 @@ const Hero = () => {
 	const y1 = useTransform(scrollY, [0, 500], [0, 100]);
 
 	return (
-		<div className="relative bg-indigo-900 text-white py-32 px-6 overflow-hidden">
-			<motion.div 
-				className="absolute inset-0 opacity-20" 
+		<div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-32 px-6 overflow-hidden">
+			<motion.div
+				className="absolute inset-0 opacity-10"
 				style={{ y: y1 }}
-				animate={{ 
-					backgroundPosition: ["0% 0%", "100% 100%"] 
+				animate={{
+					backgroundPosition: ["0% 0%", "100% 100%"]
 				}}
-				transition={{ 
-					duration: 20, 
-					repeat: Infinity, 
-					repeatType: "reverse" 
+				transition={{
+					duration: 20,
+					repeat: Infinity,
+					repeatType: "reverse"
 				}}
 			>
 				<div className="w-full h-full bg-[url('/assets/grid-pattern.svg')]" />
 			</motion.div>
 
-			<div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-purple-800/30 to-transparent" />
-			
+			{/* Floating geometric shapes */}
 			<motion.div
-				className="relative max-w-7xl mx-auto z-10 flex flex-col md:flex-row items-center"
-				initial="hidden"
-				animate="visible"
-				variants={stagger}
-			>
-				<div className="md:w-3/5 text-left md:pr-12">
-					<motion.h1
-						className="text-5xl md:text-6xl font-bold mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent"
-						variants={fadeInUp}
-					>
-						Go Fund Yourself
-					</motion.h1>
+				className="absolute top-20 left-20 w-20 h-20 bg-white/10 rounded-full animate-float"
+				animate={{ rotate: 360 }}
+				transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+			/>
+			<motion.div
+				className="absolute top-40 right-32 w-16 h-16 bg-white/10 rounded-lg animate-float"
+				style={{ animationDelay: "2s" }}
+			/>
+			<motion.div
+				className="absolute bottom-32 left-32 w-12 h-12 bg-white/10 rounded-full animate-float"
+				style={{ animationDelay: "4s" }}
+			/>
 
-					<motion.h2
-						className="text-2xl md:text-3xl font-medium mb-8 text-purple-200"
-						variants={fadeInUp}
-					>
-						Financial freedom on your terms
-					</motion.h2>
-
-					<motion.p className="text-lg md:text-xl mb-10 text-indigo-100" variants={fadeInUp}>
+			<div className="relative max-w-6xl mx-auto px-6 text-center">
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8 }}
+				>
+					<h1 className="text-5xl md:text-7xl font-bold mb-6">
+						Go Fund <span className="text-gradient">Yourself!!</span>
+					</h1>
+					<p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
 						Instant, negotiable loans without bank approval over our secure network of peers.
-					</motion.p>
-
-					<motion.div variants={fadeInUp} className="flex gap-4">
-						<a
-							href="/auth"
-							className="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-4 px-8 rounded-lg transition-all duration-300 hover:scale-[1.02] shadow-lg hover:shadow-purple-500/30"
+					</p>
+					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							className="btn-primary text-lg px-8 py-4 rounded-xl font-semibold shadow-lg"
+							onClick={() => window.location.href = '/auth'}
 						>
-							Get Started →
-						</a>
-						<a
-							href="#features"
-							className="inline-block bg-transparent border border-purple-400 text-purple-200 hover:bg-purple-800/20 font-medium py-4 px-8 rounded-lg transition-all duration-300"
+							Get Started
+						</motion.button>
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							className="glass-card text-white border border-white/30 text-lg px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all"
+							onClick={() => window.location.href = '/about'}
 						>
 							Learn More
-						</a>
-					</motion.div>
-				</div>
-				
-				<motion.div 
-					className="md:w-2/5 mt-12 md:mt-0"
-					variants={fadeInUp}
+						</motion.button>
+					</div>
+				</motion.div>
+
+				<motion.div
+					initial={{ opacity: 0, y: 50 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8, delay: 0.3 }}
+					className="mt-16"
 				>
-					<div className="bg-indigo-800/50 backdrop-blur-sm p-6 rounded-2xl border border-indigo-700/50 shadow-2xl">
+					<div className="glass-card p-6 rounded-3xl border border-white/30 shadow-2xl animate-float">
 						<LoanTerminal />
 					</div>
 				</motion.div>
-			</motion.div>
-			
+			</div>
 			<div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-indigo-900 to-transparent" />
 		</div>
 	);
@@ -106,133 +111,123 @@ const Features = () => {
 		{
 			title: "Peer-to-Peer Lending",
 			icon: <FaUsers className="w-8 h-8 text-emerald-400" />,
-			bg: "bg-gray-900",
+			description: "Direct connections between lenders and borrowers with transparent transactions",
 		},
 		{
-			title: "Flexible & Customizable",
-			icon: <FaHandsHelping className="w-8 h-8 text-cyan-400" />,
-			bg: "bg-gray-900",
+			title: "Secure & Private",
+			icon: <FaShieldAlt className="w-8 h-8 text-blue-400" />,
+			description: "Bank-level encryption and privacy protection for all your financial data",
 		},
 		{
-			title: "Secure & Transparent",
-			icon: <FaShieldAlt className="w-8 h-8 text-emerald-400" />,
-			bg: "bg-gray-900",
+			title: "Instant Approval",
+			icon: <FaBolt className="w-8 h-8 text-yellow-400" />,
+			description: "Get loan approvals in minutes, not days. No lengthy paperwork required",
 		},
 		{
-			title: "Fast Transactions",
-			icon: <FaBolt className="w-8 h-8 text-cyan-400" />,
-			bg: "bg-gray-900",
+			title: "Flexible Terms",
+			icon: <FaHandsHelping className="w-8 h-8 text-purple-400" />,
+			description: "Negotiate loan terms directly with peers. Customize interest rates and repayment schedules",
 		},
 	];
 
 	return (
-		<section className="py-20 px-6 bg-gray-950">
-			<div className="max-w-7xl mx-auto">
-				<motion.div className="text-center mb-20" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-100 mb-4">
-						Why choose to Go Fund Yourself?
+		<section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+			<div className="max-w-6xl mx-auto">
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.8 }}
+					className="text-center mb-16"
+				>
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+						Why Choose <span className="text-gradient">Go Fund Yourself</span>?
 					</h2>
-					<p className="text-lg text-gray-400 max-w-2xl mx-auto">
-						Take control of your financial agreements with our community-driven platform
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+						Experience the future of lending with our innovative peer-to-peer platform designed for the modern borrower and lender.
 					</p>
 				</motion.div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+				<motion.div
+					variants={stagger}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+				>
 					{features.map((feature, index) => (
 						<motion.div
 							key={index}
 							variants={fadeInUp}
-							initial="hidden"
-							whileInView="visible"
-							className={`${feature.bg} p-8 rounded-xl border border-gray-800 hover:border-emerald-400/30 transition-colors`}
+							whileHover={{ y: -5 }}
+							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
 						>
-							<div className="mb-6">{feature.icon}</div>
-							<h3 className="text-2xl font-semibold text-gray-100 mb-4">
+							<div className="mb-4">{feature.icon}</div>
+							<h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
 								{feature.title}
 							</h3>
-							<p className="text-gray-400">
-								{feature.title === "Peer-to-Peer Lending" && "Direct connections between lenders and borrowers with transparent transactions"}
-								{feature.title === "Flexible & Customizable" && "Negotiate terms that meet your specific financial needs"}
-								{feature.title === "Secure & Transparent" && "Built-in escrow services and advanced security protocols"}
-								{feature.title === "Fast Transactions" && "Quick approvals and instant transactions with minimal fees"}
+							<p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+								{feature.description}
 							</p>
 						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);
 };
 
 const Stats = () => {
-	const [totalLoanVolume, setTotalLoanVolume] = useState<number>(0);
-	const [totalInterestEarned, setTotalInterestEarned] = useState<number>(0);
-	const [totalLoans, setTotalLoans] = useState<number>(0);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
-	const [loans, setLoans] = useState<Loan[]>([]);
-	const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
-
-	useEffect(() => {
-		const unsubscribeLoans = fetchLoans(
-			(fetchedLoans) => setLoans(fetchedLoans),
-			(error) => setError("Failed to load loans.")
-		);
-
-
-		return () => {
-			unsubscribeLoans();
-		};
-	}, []);
-
-	useEffect(() => {
-		if (loans.length > 0 || loanRequests.length > 0) {
-			const loanVolume = loans.reduce((acc, loan) => acc + loan.principalAmount, 0);
-			const interestEarned = loans.reduce((acc, loan) => acc + (loan.principalAmount * loan.interestRate) / 100, 0);
-
-			setTotalLoanVolume(loanVolume);
-			setTotalInterestEarned(interestEarned);
-			setTotalLoans(loans.length + loanRequests.length);
-			setLoading(false);
-		}
-	}, [loans, loanRequests]);
-
-	if (loading) return <div className="text-center py-20">Loading statistics...</div>;
-	if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
+	const stats = [
+		{ number: "10K+", label: "Active Users", icon: <FaUsers className="w-6 h-6" /> },
+		{ number: "$2M+", label: "Loans Funded", icon: <FaMoneyCheckAlt className="w-6 h-6" /> },
+		{ number: "95%", label: "Success Rate", icon: <FaCheckCircle className="w-6 h-6" /> },
+		{ number: "24/7", label: "Support", icon: <FaHeartbeat className="w-6 h-6" /> },
+	];
 
 	return (
-		<section className="py-20 bg-gray-900">
-			<div className="max-w-7xl mx-auto px-6">
-				<motion.div className="text-center mb-16" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-					<h2 className="text-4xl font-bold text-gray-100 mb-4">Platform Statistics</h2>
-					<p className="text-lg text-gray-400">Real-time financial insights</p>
+		<section className="py-20 px-6 bg-white dark:bg-gray-800">
+			<div className="max-w-6xl mx-auto">
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.8 }}
+					className="text-center mb-16"
+				>
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+						Trusted by <span className="text-gradient">Thousands</span>
+					</h2>
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+						Join a growing community of successful borrowers and lenders who trust our platform.
+					</p>
 				</motion.div>
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<motion.div variants={fadeInUp} initial="hidden" whileInView="visible" className="p-8 rounded-xl bg-gray-800/30 backdrop-blur-sm border border-gray-700">
-						<FaMoneyCheckAlt className="w-12 h-12 mx-auto mb-4 text-emerald-400" />
-						<div className="text-4xl font-bold text-gray-100 mb-2">
-							${totalLoanVolume.toLocaleString()}+
-						</div>
-						<div className="text-lg text-gray-400">Total Loan Volume</div>
-					</motion.div>
-
-					<motion.div variants={fadeInUp} initial="hidden" whileInView="visible" className="p-8 rounded-xl bg-gray-800/30 backdrop-blur-sm border border-gray-700">
-						<FaClipboardList className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
-						<div className="text-4xl font-bold text-gray-100 mb-2">
-							${totalInterestEarned.toLocaleString()}+
-						</div>
-						<div className="text-lg text-gray-400">Total Interest Earned</div>
-					</motion.div>
-
-					<motion.div variants={fadeInUp} initial="hidden" whileInView="visible" className="p-8 rounded-xl bg-gray-800/30 backdrop-blur-sm border border-gray-700">
-						<FaRegListAlt className="w-12 h-12 mx-auto mb-4 text-emerald-400" />
-						<div className="text-4xl font-bold text-gray-100 mb-2">
-							{totalLoans.toLocaleString()}+
-						</div>
-						<div className="text-lg text-gray-400">Total Loans</div>
-					</motion.div>
-				</div>
+				<motion.div
+					variants={stagger}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					className="grid grid-cols-2 lg:grid-cols-4 gap-8"
+				>
+					{stats.map((stat, index) => (
+						<motion.div
+							key={index}
+							variants={fadeInUp}
+							className="text-center"
+						>
+							<div className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 transition-all duration-300">
+								<div className="text-green-500 mb-2 flex justify-center">{stat.icon}</div>
+								<div className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+									{stat.number}
+								</div>
+								<div className="text-gray-600 dark:text-gray-300 font-medium">
+									{stat.label}
+								</div>
+							</div>
+						</motion.div>
+					))}
+				</motion.div>
 			</div>
 		</section>
 	);
@@ -241,103 +236,131 @@ const Stats = () => {
 const Testimonials = () => {
 	const testimonials = [
 		{
-			name: "Carlos M.",
-			role: "Nurse",
-			text: "When unexpected medical bills came up, Go Fund Yourself helped me get the funds quickly and stress-free.",
-			initial: "C",
-			icon: <FaHeartbeat className="w-full h-full" />,
+			name: "Sarah Johnson",
+			role: "Small Business Owner",
+			content: "Go Fund Yourself helped me secure the funding I needed to expand my bakery. The process was incredibly smooth and the terms were fair.",
+			rating: 5,
+			avatar: "SJ"
 		},
 		{
-			name: "Emily R.",
-			role: "Business Owner",
-			text: "Secured a loan to start my coffee shop through peer-to-peer lending. Made it possible!",
-			initial: "E",
-			icon: <FaStore className="w-full h-full" />,
+			name: "Michael Chen",
+			role: "Software Developer",
+			content: "As a lender, I've found this platform to be transparent and rewarding. The returns are competitive and the borrowers are vetted properly.",
+			rating: 5,
+			avatar: "MC"
 		},
 		{
-			name: "Sophia L.",
-			role: "Student",
-			text: "Consolidated my credit card debt with a flexible loan. The process was seamless!",
-			initial: "S",
-			icon: <FaCreditCard className="w-full h-full" />,
-		},
+			name: "Emily Rodriguez",
+			role: "Graduate Student",
+			content: "I was able to get a loan for my education without the hassle of traditional banks. The peer-to-peer approach made it personal and fast.",
+			rating: 5,
+			avatar: "ER"
+		}
 	];
 
 	return (
-		<section className="py-20 bg-gray-950">
-			<div className="max-w-7xl mx-auto px-6">
-				<motion.div className="text-center mb-16" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-					<h2 className="text-4xl font-bold text-gray-100 mb-4">What Our Users Say</h2>
-					<p className="text-lg text-gray-400">Verified community experiences</p>
+		<section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+			<div className="max-w-6xl mx-auto">
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.8 }}
+					className="text-center mb-16"
+				>
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+						What Our <span className="text-gradient">Users Say</span>
+					</h2>
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+						Real stories from real users who have transformed their financial futures with our platform.
+					</p>
 				</motion.div>
 
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<motion.div
+					variants={stagger}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					className="grid grid-cols-1 md:grid-cols-3 gap-8"
+				>
 					{testimonials.map((testimonial, index) => (
 						<motion.div
 							key={index}
 							variants={fadeInUp}
-							initial="hidden"
-							whileInView="visible"
-							className="p-8 rounded-xl bg-gray-900 border border-gray-800 hover:border-emerald-400/20 transition-colors"
+							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300"
 						>
-							<div className="flex items-center mb-6">
-								<div className="w-12 h-12 rounded-full bg-emerald-400/10 flex items-center justify-center">
-									{testimonial.icon}
+							<div className="flex items-center mb-4">
+								<div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold mr-4">
+									{testimonial.avatar}
 								</div>
-								<div className="ml-4">
-									<div className="font-medium text-gray-100">{testimonial.name}</div>
-									<div className="text-sm text-gray-400">{testimonial.role}</div>
+								<div>
+									<h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
+									<p className="text-gray-600 dark:text-gray-300 text-sm">{testimonial.role}</p>
 								</div>
 							</div>
-							<p className="text-gray-300 italic">&quot{testimonial.text}&quot</p>
+							<div className="flex mb-4">
+								{[...Array(testimonial.rating)].map((_, i) => (
+									<FaCheckCircle key={i} className="w-5 h-5 text-yellow-400" />
+								))}
+							</div>
+							<p className="text-gray-600 dark:text-gray-300 italic leading-relaxed">
+								"{testimonial.content}"
+							</p>
 						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);
 };
 
 const PoweredBy = () => {
-	const partners = [
-		{ name: "Google", logo: "/google.svg" },
-		{ name: "Stripe", logo: "/stripe.svg" },
-		{ name: "Identity Verification", icon: <FaIdBadge className="text-blue-400" /> },
-		{ name: "Repayment Guarantee", icon: <FaCheckCircle className="text-green-400" /> },
+	const technologies = [
+		{ name: "Next.js", icon: <FaBolt className="w-8 h-8" />, color: "text-black dark:text-white" },
+		{ name: "Firebase", icon: <FaStore className="w-8 h-8" />, color: "text-orange-500" },
+		{ name: "Tailwind CSS", icon: <FaCreditCard className="w-8 h-8" />, color: "text-blue-500" },
+		{ name: "React", icon: <FaIdBadge className="w-8 h-8" />, color: "text-blue-400" },
 	];
 
 	return (
-		<section className="py-20 bg-gray-900">
-			<div className="max-w-7xl mx-auto px-6 text-center">
-				<motion.h2 className="text-3xl font-bold text-gray-100 mb-8" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-					Powered By
-				</motion.h2>
-				<div className="flex flex-wrap justify-center gap-12">
-					{partners.map((partner, index) => (
+		<section className="py-20 px-6 bg-white dark:bg-gray-800">
+			<div className="max-w-6xl mx-auto">
+				<motion.div
+					initial={{ opacity: 0, y: 30 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.8 }}
+					className="text-center mb-16"
+				>
+					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+						Powered by <span className="text-gradient">Modern Technology</span>
+					</h2>
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+						Built with cutting-edge technologies to ensure security, speed, and reliability.
+					</p>
+				</motion.div>
+
+				<motion.div
+					variants={stagger}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+					className="grid grid-cols-2 lg:grid-cols-4 gap-8"
+				>
+					{technologies.map((tech, index) => (
 						<motion.div
 							key={index}
-							className="flex items-center justify-center"
 							variants={fadeInUp}
-							initial="hidden"
-							whileInView="visible"
+							whileHover={{ scale: 1.05 }}
+							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 text-center"
 						>
-							{partner.logo ? (
-								<Image
-									src={partner.logo}
-									alt={partner.name}
-									width={80}
-									height={80}
-									className="object-contain grayscale hover:grayscale-0 transition-all"
-								/>
-							) : (
-								<div className="text-4xl">
-									{partner.icon}
-									<p className="text-sm text-gray-400 mt-2">{partner.name}</p>
-								</div>
-							)}
+							<div className={`mb-4 flex justify-center ${tech.color}`}>{tech.icon}</div>
+							<h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+								{tech.name}
+							</h3>
 						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);
@@ -345,32 +368,38 @@ const PoweredBy = () => {
 
 const CallToAction = () => {
 	return (
-		<section className="relative py-32 bg-gray-800">
-			<div className="relative max-w-7xl mx-auto px-6 text-center">
+		<section className="py-20 px-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
+			<div className="max-w-4xl mx-auto text-center">
 				<motion.div
 					initial={{ scale: 0.95, opacity: 0 }}
 					whileInView={{ scale: 1, opacity: 1 }}
-					className="inline-block p-8 rounded-2xl bg-gray-700/30 backdrop-blur-sm border border-gray-600"
+					viewport={{ once: true }}
+					transition={{ duration: 0.6 }}
+					className="glass-card p-12 rounded-3xl border border-white/20 shadow-2xl"
 				>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-100 mb-6">
-						Ready to Get Started?
+					<h2 className="text-4xl md:text-5xl font-bold mb-6">
+						Ready to Take Control of Your <span className="text-gradient">Financial Future?</span>
 					</h2>
-					<p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-						Join Go Fund Yourself today and take control of your financial future
+					<p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
+						Join thousands of users who have already transformed their financial lives. Start your journey today.
 					</p>
-					<div className="flex justify-center gap-4">
-						<a
-							href="/auth"
-							className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-lg font-medium transition-colors shadow-xl hover:shadow-emerald-900/20"
+					<div className="flex flex-col sm:flex-row gap-4 justify-center">
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							className="btn-primary text-lg px-8 py-4 rounded-xl font-semibold shadow-lg"
+							onClick={() => window.location.href = '/auth'}
 						>
-							Join Now
-						</a>
-						<a
-							href="/about"
-							className="border-2 border-gray-600 hover:border-emerald-400/30 text-gray-300 hover:text-white px-8 py-4 rounded-lg font-medium transition-all"
+							Get Started Now
+						</motion.button>
+						<motion.button
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							className="glass-card text-white border border-white/30 text-lg px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all"
+							onClick={() => window.location.href = '/about'}
 						>
 							Learn More
-						</a>
+						</motion.button>
 					</div>
 				</motion.div>
 			</div>
@@ -385,14 +414,12 @@ const LandingPage = () => {
 				<title>Go Fund Yourself!! - Peer-to-Peer Lending Platform</title>
 				<meta name="description" content="Instant, negotiable loans without bank approval over our secure network of peers." />
 			</Head>
-
 			<Header />
 			<Hero />
-			<LoanTerminal />
-			<Stats />
 			<Features />
-			<PoweredBy />
+			<Stats />
 			<Testimonials />
+			<PoweredBy />
 			<CallToAction />
 			<Footer />
 		</>

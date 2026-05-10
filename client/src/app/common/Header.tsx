@@ -35,7 +35,7 @@ const Header: React.FC = () => {
     const toggleMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
     const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-    const linkClassNames = "flex items-center px-4 py-2.5 rounded-lg text-gray-100 hover:text-white transition-all duration-300 hover:bg-gradient-to-r from-blue-600/40 to-purple-500/40 font-medium";
+    const linkClassNames = "flex items-center px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:text-white transition-all duration-300 hover:bg-gradient-to-r from-blue-600/40 to-purple-500/40 font-medium backdrop-blur-sm";
 
     const menuVariants = {
         hidden: { opacity: 0, y: -20 },
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
         ], [isLoggedIn]);
 
     return (
-        <header className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-xl sticky top-0 z-50 border-b border-gray-700">
+        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16 md:h-20">
                     {/* Logo Section */}
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
                     >
                         <Link href="/" className="flex items-center gap-3" onClick={closeMenu}>
                             <Logo />
-                            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-300 bg-clip-text text-transparent">
+                            <span className="text-xl md:text-2xl font-bold text-gradient">
                                 Vault Technologies
                             </span>
                         </Link>
@@ -98,7 +98,7 @@ const Header: React.FC = () => {
                     {/* Mobile Menu Button */}
                     <motion.button
                         onClick={toggleMenu}
-                        className="md:hidden p-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors shadow-md"
+                        className="md:hidden p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-md"
                         aria-label="Toggle navigation menu"
                         whileTap={{ scale: 0.9 }}
                     >
@@ -122,7 +122,7 @@ const Header: React.FC = () => {
                 <AnimatePresence>
                     {isMenuOpen && (
                         <motion.div
-                            className="md:hidden overflow-hidden bg-gray-800/90 backdrop-blur-sm rounded-b-xl shadow-lg border border-gray-700"
+                            className="md:hidden overflow-hidden glass-card rounded-b-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
                             initial="hidden"
                             animate="visible"
                             exit="exit"
@@ -141,7 +141,7 @@ const Header: React.FC = () => {
                                         <Link
                                             href={link.href}
                                             onClick={closeMenu}
-                                            className="flex items-center mx-2 px-4 py-3 text-gray-100 hover:bg-gray-700/50 rounded-lg transition-colors"
+                                            className="flex items-center mx-2 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-xl transition-colors"
                                         >
                                             <span className="mr-3 text-lg">{link.icon}</span>
                                             <span className="font-medium">{link.text}</span>

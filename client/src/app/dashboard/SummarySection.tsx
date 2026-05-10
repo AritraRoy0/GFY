@@ -20,11 +20,13 @@ const SummaryCard: React.FC<{
 }> = ({ title, value, icon, trend }) => {
 	return (
 		<div className="w-full sm:w-auto">
-			<div className="flex items-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-				<div className="p-4 rounded-full bg-gray-50 mr-4">{icon}</div>
+			<div className="flex items-center p-6 glass-card rounded-2xl card-hover shadow-lg">
+				<div className="p-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 text-white mr-4 shadow-lg">
+					{icon}
+				</div>
 				<div className="flex-1">
-					<h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-					<p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
+					<h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</h3>
+					<p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{value}</p>
 					{trend && (
 						<div className={`flex items-center text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
 							{trend.isPositive ? <ArrowUpward className="w-4 h-4 mr-1" /> : <ArrowDownward className="w-4 h-4 mr-1" />}
@@ -86,19 +88,19 @@ const SummarySection: React.FC<SummarySectionProps> = ({
 			<SummaryCard
 				title="Loans Owed to You"
 				value={`$${totalOwned.toLocaleString()}`}
-				icon={<TrendingUp className="text-green-500" />}
+				icon={<TrendingUp className="text-white w-6 h-6" />}
 				trend={trends.owned}
 			/>
 			<SummaryCard
 				title="Your Balance Including Interest"
 				value={`$${totalReserves.toLocaleString()}`}
-				icon={<AccountBalance className="text-blue-500" />}
+				icon={<AccountBalance className="text-white w-6 h-6" />}
 				trend={trends.reserves}
 			/>
 			<SummaryCard
 				title="Loans You Owe to Others"
 				value={`$${totalOwed.toLocaleString()}`}
-				icon={<TrendingDown className="text-red-500" />}
+				icon={<TrendingDown className="text-white w-6 h-6" />}
 				trend={trends.owed}
 			/>
 		</div>

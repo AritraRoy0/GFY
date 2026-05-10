@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { FaUserFriends, FaUser, FaBell } from "react-icons/fa";
 import { RootState } from "../store"; // Fixed import path
 import Notifications from "./Notifications";
 import OutstandingLoansTable from "./LoanTable";
@@ -179,13 +180,23 @@ export default function Page() {
 	}
 
 	return (
-		<div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
+		<div className="flex flex-col min-h-screen gradient-bg text-gray-900 dark:text-white">
 			<Header />
 			<main className="flex-grow container mx-auto px-4 py-8">
 				{/* Welcome Section */}
 				<section className="mb-8">
-					<h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.username || "User"}!</h1>
-					<p className="text-gray-600">Here&apos;s an overview of your loan portfolio</p>
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						className="glass-card p-8 rounded-3xl shadow-xl"
+					>
+						<h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+							Welcome back, <span className="text-gradient">{user?.username || "User"}</span>!
+						</h1>
+						<p className="text-gray-600 dark:text-gray-300">
+							Here&apos;s an overview of your loan portfolio
+						</p>
+					</motion.div>
 				</section>
 
 				{/* Summary Section */}
@@ -211,31 +222,55 @@ export default function Page() {
 				{/* Loans Overview */}
 				<section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 					{/* Loans You Own */}
-					<div className="bg-white rounded-lg shadow-md p-6">
-						<h2 className="text-xl font-semibold mb-4">Loans You Own</h2>
+					<motion.div
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ delay: 0.2 }}
+						className="glass-card p-6 rounded-3xl shadow-xl card-hover"
+					>
+						<h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+							<FaUserFriends className="text-blue-500" />
+							Loans You Own
+						</h2>
 						<OutstandingLoansTable
 							userId={userId || ""}
 							type="owned"
 							loans={lentLoans}
 						/>
-					</div>
+					</motion.div>
 
 					{/* Loans You Owe */}
-					<div className="bg-white rounded-lg shadow-md p-6">
-						<h2 className="text-xl font-semibold mb-4">Loans You Owe</h2>
+					<motion.div
+						initial={{ opacity: 0, x: 20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ delay: 0.3 }}
+						className="glass-card p-6 rounded-3xl shadow-xl card-hover"
+					>
+						<h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+							<FaUser className="text-red-500" />
+							Loans You Owe
+						</h2>
 						<OutstandingLoansTable
 							userId={userId || ""}
 							type="owed"
 							loans={borrowedLoans}
 						/>
-					</div>
+					</motion.div>
 				</section>
 
 				{/* Notifications */}
-				<section className="bg-white rounded-lg shadow-md p-6">
-					<h2 className="text-xl font-semibold mb-4">Recent Notifications</h2>
+				<motion.section
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.4 }}
+					className="glass-card p-6 rounded-3xl shadow-xl"
+				>
+					<h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+						<FaBell className="text-yellow-500" />
+						Recent Notifications
+					</h2>
 					<Notifications notifications={notifications} />
-				</section>
+				</motion.section>
 			</main>
 			<Footer />
 		</div>
