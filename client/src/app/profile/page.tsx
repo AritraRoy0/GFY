@@ -25,12 +25,19 @@ const ProfilePageContent: React.FC = () => {
   }
 
   // Fallback if an unknown type is provided.
-  return <div className="min-h-screen flex items-center justify-center">Invalid profile type specified.</div>;
+  return (
+    <div className="app-page flex min-h-screen items-center justify-center px-4">
+      <div className="surface-card max-w-md p-8 text-center">
+        <h1 className="text-2xl font-semibold text-slate-950">Invalid profile type</h1>
+        <p className="mt-2 text-sm text-slate-600">Use lender or lendee profile links from the marketplace.</p>
+      </div>
+    </div>
+  );
 };
 // Main ProfilePage component with Suspense boundary
 const ProfilePage: React.FC = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading profile...</div>}>
+    <Suspense fallback={<div className="app-page flex min-h-screen items-center justify-center">Loading profile...</div>}>
       <ProfilePageContent />
     </Suspense>
   );

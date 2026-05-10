@@ -1,429 +1,267 @@
-// src/components/LandingPage.tsx
-
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { FaUsers, FaHandsHelping, FaShieldAlt, FaBolt, FaHeartbeat, FaStore, FaCreditCard, FaIdBadge, FaCheckCircle, FaMoneyCheckAlt, FaClipboardList, FaRegListAlt } from "react-icons/fa";
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  BadgeDollarSign,
+  CheckCircle2,
+  HandCoins,
+  LockKeyhole,
+  MessageSquareText,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  Timer,
+  TrendingUp,
+  UsersRound,
+} from "lucide-react";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
-import Head from "next/head";
 import LoanTerminal from "./common/LoanTerminal";
-import { fetchLoans } from "./models/LoanAPIs";
-import { Loan, LoanRequest } from "./models/LoanInterfaces";
-import Image from "next/image";
 
-const fadeInUp = {
-	hidden: { opacity: 0, y: 20 },
-	visible: { opacity: 1, y: 0 },
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
 };
 
-const stagger = {
-	visible: { transition: { staggerChildren: 0.1 } }
-};
+const features = [
+  {
+    title: "Direct borrower-lender terms",
+    description: "Review requests, negotiate terms, and fund loans without a bank acting as the workflow owner.",
+    icon: UsersRound,
+  },
+  {
+    title: "Clear repayment visibility",
+    description: "See principal, interest, weekly installments, and status before you commit to a loan.",
+    icon: Scale,
+  },
+  {
+    title: "Operational portfolio view",
+    description: "Track lent capital, borrowed balances, payment activity, and pending requests from one dashboard.",
+    icon: TrendingUp,
+  },
+  {
+    title: "Private account handling",
+    description: "Authenticated profiles and request states keep the product focused on verified member activity.",
+    icon: LockKeyhole,
+  },
+];
 
-const Hero = () => {
-	const { scrollY } = useScroll();
-	const y1 = useTransform(scrollY, [0, 500], [0, 100]);
+const workflow = [
+  {
+    title: "Post a request",
+    description: "Borrowers define amount, rate, term, and purpose with validation before publishing.",
+  },
+  {
+    title: "Review the opportunity",
+    description: "Lenders inspect the borrower profile, repayment schedule, and expected interest.",
+  },
+  {
+    title: "Fund and monitor",
+    description: "Approved loans move into the dashboard where both sides can track outstanding obligations.",
+  },
+];
 
-	return (
-		<div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-32 px-6 overflow-hidden">
-			<motion.div
-				className="absolute inset-0 opacity-10"
-				style={{ y: y1 }}
-				animate={{
-					backgroundPosition: ["0% 0%", "100% 100%"]
-				}}
-				transition={{
-					duration: 20,
-					repeat: Infinity,
-					repeatType: "reverse"
-				}}
-			>
-				<div className="w-full h-full bg-[url('/assets/grid-pattern.svg')]" />
-			</motion.div>
+const stats = [
+  { label: "Loan amount range", value: "$500-$10k" },
+  { label: "Minimum rate", value: "5%" },
+  { label: "Term units", value: "Weekly" },
+  { label: "Product focus", value: "P2P" },
+];
 
-			{/* Floating geometric shapes */}
-			<motion.div
-				className="absolute top-20 left-20 w-20 h-20 bg-white/10 rounded-full animate-float"
-				animate={{ rotate: 360 }}
-				transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-			/>
-			<motion.div
-				className="absolute top-40 right-32 w-16 h-16 bg-white/10 rounded-lg animate-float"
-				style={{ animationDelay: "2s" }}
-			/>
-			<motion.div
-				className="absolute bottom-32 left-32 w-12 h-12 bg-white/10 rounded-full animate-float"
-				style={{ animationDelay: "4s" }}
-			/>
+function HeroBackdrop() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div className="absolute left-1/2 top-10 h-[34rem] w-[58rem] -translate-x-1/2 rounded-full bg-sky-200/30 blur-3xl" />
+      <div className="absolute right-[-8rem] top-24 w-[34rem] rounded-lg border border-slate-200 bg-white/60 p-5 shadow-sm backdrop-blur">
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <div className="h-3 w-28 rounded-full bg-slate-200" />
+            <div className="mt-3 h-7 w-44 rounded bg-slate-900" />
+          </div>
+          <div className="h-10 w-24 rounded-md bg-emerald-100" />
+        </div>
+        <div className="grid gap-3">
+          {[0, 1, 2].map((item) => (
+            <div key={item} className="grid grid-cols-[1fr_5rem_4rem] items-center gap-3 rounded-md border border-slate-200 bg-white p-3">
+              <div>
+                <div className="h-3 w-32 rounded-full bg-slate-200" />
+                <div className="mt-2 h-2 w-44 rounded-full bg-slate-100" />
+              </div>
+              <div className="h-6 rounded bg-sky-100" />
+              <div className="h-6 rounded bg-slate-100" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute bottom-8 left-[-6rem] w-[30rem] rounded-lg border border-slate-200 bg-white/70 p-5 shadow-sm backdrop-blur">
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-8 w-8 rounded-md bg-slate-900" />
+          <div className="h-3 w-32 rounded-full bg-slate-200" />
+        </div>
+        <div className="flex h-36 items-end gap-3">
+          {[42, 68, 54, 84, 72, 94, 64].map((height, index) => (
+            <div key={index} className="flex-1 rounded-t bg-sky-500/30" style={{ height: `${height}%` }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-			<div className="relative max-w-6xl mx-auto px-6 text-center">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8 }}
-				>
-					<h1 className="text-5xl md:text-7xl font-bold mb-6">
-						Go Fund <span className="text-gradient">Yourself!!</span>
-					</h1>
-					<p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-						Instant, negotiable loans without bank approval over our secure network of peers.
-					</p>
-					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-						<motion.button
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							className="btn-primary text-lg px-8 py-4 rounded-xl font-semibold shadow-lg"
-							onClick={() => window.location.href = '/auth'}
-						>
-							Get Started
-						</motion.button>
-						<motion.button
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							className="glass-card text-white border border-white/30 text-lg px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all"
-							onClick={() => window.location.href = '/about'}
-						>
-							Learn More
-						</motion.button>
-					</div>
-				</motion.div>
+export default function LandingPage() {
+  return (
+    <div className="app-page">
+      <Header />
 
-				<motion.div
-					initial={{ opacity: 0, y: 50 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8, delay: 0.3 }}
-					className="mt-16"
-				>
-					<div className="glass-card p-6 rounded-3xl border border-white/30 shadow-2xl animate-float">
-						<LoanTerminal />
-					</div>
-				</motion.div>
-			</div>
-			<div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-indigo-900 to-transparent" />
-		</div>
-	);
-};
+      <main>
+        <section className="relative overflow-hidden border-b border-slate-200 bg-slate-50">
+          <HeroBackdrop />
+          <div className="app-container relative py-20 sm:py-24 lg:py-28">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              transition={{ duration: 0.45 }}
+              className="max-w-3xl"
+            >
+              <span className="section-kicker inline-flex items-center gap-2">
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                Peer-to-peer lending, organized
+              </span>
+              <h1 className="mt-5 text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+                Lending software for people who need the terms to be clear.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                GoFundYourself gives borrowers a focused request flow and gives lenders a clean way to evaluate, approve, and monitor loans.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="/auth?tab=signup" className="btn-primary">
+                  Create account
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+                <Link href="/loanRequests" className="btn-secondary">
+                  View loan marketplace
+                </Link>
+              </div>
+              <div className="mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="rounded-md border border-slate-200 bg-white/80 p-3 shadow-sm backdrop-blur">
+                    <p className="text-xs font-medium text-slate-500">{stat.label}</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-950">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
 
-const Features = () => {
-	const features = [
-		{
-			title: "Peer-to-Peer Lending",
-			icon: <FaUsers className="w-8 h-8 text-emerald-400" />,
-			description: "Direct connections between lenders and borrowers with transparent transactions",
-		},
-		{
-			title: "Secure & Private",
-			icon: <FaShieldAlt className="w-8 h-8 text-blue-400" />,
-			description: "Bank-level encryption and privacy protection for all your financial data",
-		},
-		{
-			title: "Instant Approval",
-			icon: <FaBolt className="w-8 h-8 text-yellow-400" />,
-			description: "Get loan approvals in minutes, not days. No lengthy paperwork required",
-		},
-		{
-			title: "Flexible Terms",
-			icon: <FaHandsHelping className="w-8 h-8 text-purple-400" />,
-			description: "Negotiate loan terms directly with peers. Customize interest rates and repayment schedules",
-		},
-	];
+        <section className="border-b border-slate-200 bg-white py-16">
+          <div className="app-container grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <p className="section-kicker">Live Product Surface</p>
+              <h2 className="section-title mt-3">A lending workspace, not a marketing funnel.</h2>
+              <p className="section-copy mt-4">
+                The app centers the repeated work: create requests, assess repayment math, track active loans, and keep both sides aware of status.
+              </p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {[
+                  { label: "Request controls", icon: HandCoins },
+                  { label: "Repayment schedule", icon: Timer },
+                  { label: "Approval context", icon: ShieldCheck },
+                  { label: "Member profiles", icon: MessageSquareText },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.label} className="flex items-center gap-3 rounded-md border border-slate-200 bg-slate-50 p-3">
+                      <Icon className="h-5 w-5 text-sky-700" aria-hidden="true" />
+                      <span className="text-sm font-semibold text-slate-800">{item.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-	return (
-		<section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
-			<div className="max-w-6xl mx-auto">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.8 }}
-					className="text-center mb-16"
-				>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-						Why Choose <span className="text-gradient">Go Fund Yourself</span>?
-					</h2>
-					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-						Experience the future of lending with our innovative peer-to-peer platform designed for the modern borrower and lender.
-					</p>
-				</motion.div>
+            <div className="surface-card p-4">
+              <LoanTerminal />
+            </div>
+          </div>
+        </section>
 
-				<motion.div
-					variants={stagger}
-					initial="hidden"
-					whileInView="visible"
-					viewport={{ once: true }}
-					className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-				>
-					{features.map((feature, index) => (
-						<motion.div
-							key={index}
-							variants={fadeInUp}
-							whileHover={{ y: -5 }}
-							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300"
-						>
-							<div className="mb-4">{feature.icon}</div>
-							<h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								{feature.title}
-							</h3>
-							<p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-								{feature.description}
-							</p>
-						</motion.div>
-					))}
-				</motion.div>
-			</div>
-		</section>
-	);
-};
+        <section className="border-b border-slate-200 bg-slate-50 py-16">
+          <div className="app-container">
+            <div className="mb-10 max-w-3xl">
+              <p className="section-kicker">What Improves</p>
+              <h2 className="section-title mt-3">Decision support across the full loan path.</h2>
+              <p className="section-copy mt-4">
+                Borrowers get a direct way to publish needs. Lenders get structured details before they fund. Everyone gets clearer portfolio visibility after approval.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map((feature) => {
+                const Icon = feature.icon;
+                return (
+                  <div key={feature.title} className="surface-card p-5">
+                    <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-md bg-sky-50 text-sky-700">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <h3 className="text-base font-semibold text-slate-950">{feature.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{feature.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-const Stats = () => {
-	const stats = [
-		{ number: "10K+", label: "Active Users", icon: <FaUsers className="w-6 h-6" /> },
-		{ number: "$2M+", label: "Loans Funded", icon: <FaMoneyCheckAlt className="w-6 h-6" /> },
-		{ number: "95%", label: "Success Rate", icon: <FaCheckCircle className="w-6 h-6" /> },
-		{ number: "24/7", label: "Support", icon: <FaHeartbeat className="w-6 h-6" /> },
-	];
+        <section className="bg-white py-16">
+          <div className="app-container grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <p className="section-kicker">Workflow</p>
+              <h2 className="section-title mt-3">From request to funded loan in three clear states.</h2>
+              <p className="section-copy mt-4">
+                The product is designed around the handoff between borrowers and lenders, with each screen showing the next useful action.
+              </p>
+            </div>
+            <div className="grid gap-4">
+              {workflow.map((step, index) => (
+                <div key={step.title} className="flex gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-950 text-sm font-semibold text-white">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-950">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-	return (
-		<section className="py-20 px-6 bg-white dark:bg-gray-800">
-			<div className="max-w-6xl mx-auto">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.8 }}
-					className="text-center mb-16"
-				>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-						Trusted by <span className="text-gradient">Thousands</span>
-					</h2>
-					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-						Join a growing community of successful borrowers and lenders who trust our platform.
-					</p>
-				</motion.div>
+        <section className="bg-slate-950 py-14 text-white">
+          <div className="app-container flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">Start with one request</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight">Borrow, lend, and monitor with less ambiguity.</h2>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link href="/auth?tab=signup" className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-slate-100">
+                Create account
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link href="/about" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
+                Learn how it works
+                <BadgeDollarSign className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
 
-				<motion.div
-					variants={stagger}
-					initial="hidden"
-					whileInView="visible"
-					viewport={{ once: true }}
-					className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-				>
-					{stats.map((stat, index) => (
-						<motion.div
-							key={index}
-							variants={fadeInUp}
-							className="text-center"
-						>
-							<div className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 transition-all duration-300">
-								<div className="text-green-500 mb-2 flex justify-center">{stat.icon}</div>
-								<div className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-									{stat.number}
-								</div>
-								<div className="text-gray-600 dark:text-gray-300 font-medium">
-									{stat.label}
-								</div>
-							</div>
-						</motion.div>
-					))}
-				</motion.div>
-			</div>
-		</section>
-	);
-};
-
-const Testimonials = () => {
-	const testimonials = [
-		{
-			name: "Sarah Johnson",
-			role: "Small Business Owner",
-			content: "Go Fund Yourself helped me secure the funding I needed to expand my bakery. The process was incredibly smooth and the terms were fair.",
-			rating: 5,
-			avatar: "SJ"
-		},
-		{
-			name: "Michael Chen",
-			role: "Software Developer",
-			content: "As a lender, I've found this platform to be transparent and rewarding. The returns are competitive and the borrowers are vetted properly.",
-			rating: 5,
-			avatar: "MC"
-		},
-		{
-			name: "Emily Rodriguez",
-			role: "Graduate Student",
-			content: "I was able to get a loan for my education without the hassle of traditional banks. The peer-to-peer approach made it personal and fast.",
-			rating: 5,
-			avatar: "ER"
-		}
-	];
-
-	return (
-		<section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
-			<div className="max-w-6xl mx-auto">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.8 }}
-					className="text-center mb-16"
-				>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-						What Our <span className="text-gradient">Users Say</span>
-					</h2>
-					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-						Real stories from real users who have transformed their financial futures with our platform.
-					</p>
-				</motion.div>
-
-				<motion.div
-					variants={stagger}
-					initial="hidden"
-					whileInView="visible"
-					viewport={{ once: true }}
-					className="grid grid-cols-1 md:grid-cols-3 gap-8"
-				>
-					{testimonials.map((testimonial, index) => (
-						<motion.div
-							key={index}
-							variants={fadeInUp}
-							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300"
-						>
-							<div className="flex items-center mb-4">
-								<div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold mr-4">
-									{testimonial.avatar}
-								</div>
-								<div>
-									<h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-									<p className="text-gray-600 dark:text-gray-300 text-sm">{testimonial.role}</p>
-								</div>
-							</div>
-							<div className="flex mb-4">
-								{[...Array(testimonial.rating)].map((_, i) => (
-									<FaCheckCircle key={i} className="w-5 h-5 text-yellow-400" />
-								))}
-							</div>
-							<p className="text-gray-600 dark:text-gray-300 italic leading-relaxed">
-								"{testimonial.content}"
-							</p>
-						</motion.div>
-					))}
-				</motion.div>
-			</div>
-		</section>
-	);
-};
-
-const PoweredBy = () => {
-	const technologies = [
-		{ name: "Next.js", icon: <FaBolt className="w-8 h-8" />, color: "text-black dark:text-white" },
-		{ name: "Firebase", icon: <FaStore className="w-8 h-8" />, color: "text-orange-500" },
-		{ name: "Tailwind CSS", icon: <FaCreditCard className="w-8 h-8" />, color: "text-blue-500" },
-		{ name: "React", icon: <FaIdBadge className="w-8 h-8" />, color: "text-blue-400" },
-	];
-
-	return (
-		<section className="py-20 px-6 bg-white dark:bg-gray-800">
-			<div className="max-w-6xl mx-auto">
-				<motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.8 }}
-					className="text-center mb-16"
-				>
-					<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-						Powered by <span className="text-gradient">Modern Technology</span>
-					</h2>
-					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-						Built with cutting-edge technologies to ensure security, speed, and reliability.
-					</p>
-				</motion.div>
-
-				<motion.div
-					variants={stagger}
-					initial="hidden"
-					whileInView="visible"
-					viewport={{ once: true }}
-					className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-				>
-					{technologies.map((tech, index) => (
-						<motion.div
-							key={index}
-							variants={fadeInUp}
-							whileHover={{ scale: 1.05 }}
-							className="glass-card p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 text-center"
-						>
-							<div className={`mb-4 flex justify-center ${tech.color}`}>{tech.icon}</div>
-							<h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-								{tech.name}
-							</h3>
-						</motion.div>
-					))}
-				</motion.div>
-			</div>
-		</section>
-	);
-};
-
-const CallToAction = () => {
-	return (
-		<section className="py-20 px-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
-			<div className="max-w-4xl mx-auto text-center">
-				<motion.div
-					initial={{ scale: 0.95, opacity: 0 }}
-					whileInView={{ scale: 1, opacity: 1 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.6 }}
-					className="glass-card p-12 rounded-3xl border border-white/20 shadow-2xl"
-				>
-					<h2 className="text-4xl md:text-5xl font-bold mb-6">
-						Ready to Take Control of Your <span className="text-gradient">Financial Future?</span>
-					</h2>
-					<p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-						Join thousands of users who have already transformed their financial lives. Start your journey today.
-					</p>
-					<div className="flex flex-col sm:flex-row gap-4 justify-center">
-						<motion.button
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							className="btn-primary text-lg px-8 py-4 rounded-xl font-semibold shadow-lg"
-							onClick={() => window.location.href = '/auth'}
-						>
-							Get Started Now
-						</motion.button>
-						<motion.button
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							className="glass-card text-white border border-white/30 text-lg px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all"
-							onClick={() => window.location.href = '/about'}
-						>
-							Learn More
-						</motion.button>
-					</div>
-				</motion.div>
-			</div>
-		</section>
-	);
-};
-
-const LandingPage = () => {
-	return (
-		<>
-			<Head>
-				<title>Go Fund Yourself!! - Peer-to-Peer Lending Platform</title>
-				<meta name="description" content="Instant, negotiable loans without bank approval over our secure network of peers." />
-			</Head>
-			<Header />
-			<Hero />
-			<Features />
-			<Stats />
-			<Testimonials />
-			<PoweredBy />
-			<CallToAction />
-			<Footer />
-		</>
-	);
-};
-
-export default LandingPage;
+      <Footer />
+    </div>
+  );
+}

@@ -1,65 +1,46 @@
-// src/components/Notifications.tsx
 "use client";
+
 import React from "react";
 import { format } from "date-fns";
+import { Bell, Info } from "lucide-react";
 
 interface Notification {
-	id: string;
-	message: string;
-	type: "info";
-	timestamp: Date;
+  id: string;
+  message: string;
+  type: "info";
+  timestamp: Date;
 }
 
 interface NotificationsProps {
-	notifications: Notification[];
+  notifications: Notification[];
 }
 
 const Notifications: React.FC<NotificationsProps> = ({ notifications }) => {
-	return (
-		<div className="flex flex-row">
-			<div className="max-w-xl w-full">
-				<h1 className="text-xl font-semibold text-gray-800 mb-3">Notifications</h1>
-				{notifications.length > 0 ? (
-					<ul className="space-y-2">
-						{notifications.map((notification) => (
-							<li
-								key={notification.id}
-								className={`p-2 rounded-lg shadow-sm flex items-center justify-between space-x-2 ${
-									notification.type === "info" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"
-								}`}
-							>
-								<div className="flex-1">
-									<p className="font-semibold text-xs">{notification.message}</p>
-									<p className="text-xxs text-gray-500">{format(notification.timestamp, "PPpp")}</p>
-								</div>
-								{notification.type === "info" && (
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										className="h-5 w-5 text-blue-600"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-										aria-hidden="true"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.418-3.582 8-8 8a8 8 0 100-16 8 8 0 008 8z"
-										/>
-									</svg>
-								)}
-							</li>
-						))}
-					</ul>
-				) : (
-					<div className="flex justify-center items-center h-32">
-						<p className="text-center text-gray-600 text-xs">No notifications available.</p>
-					</div>
-				)}
-			</div>
-		</div>
-	);
+  if (notifications.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+        <Bell className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
+        <p className="mt-4 text-sm font-semibold text-slate-800">No notifications</p>
+        <p className="mt-1 text-sm text-slate-500">Loan request updates will appear here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="divide-y divide-slate-100">
+      {notifications.map((notification) => (
+        <li key={notification.id} className="flex items-start gap-3 py-4">
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-sky-50 text-sky-700">
+            <Info className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-slate-900">{notification.message}</p>
+            <p className="mt-1 text-xs text-slate-500">{format(notification.timestamp, "PP p")}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 export default Notifications;

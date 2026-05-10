@@ -1,157 +1,133 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-    FaBars,
-    FaTimes,
-    FaUser,
-    FaSignOutAlt,
-    FaSignInAlt,
-    FaUserPlus,
-    FaBriefcase,
-    FaHandHoldingUsd,
-    FaInfoCircle,
-} from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+    HandCoins,
+    Info,
+    LayoutDashboard,
+    LogIn,
+    LogOut,
+    Menu,
+    ShieldCheck,
+    UserPlus,
+    UserRound,
+    X,
+} from "lucide-react";
 import Logo from "./Logo";
-
-interface User {
-    id: string;
-    email: string;
-}
-
-interface RootState {
-    auth: {
-        user: User | null;
-    };
-}
+import { RootState } from "../store";
 
 const Header: React.FC = () => {
+    const pathname = usePathname();
     const isLoggedIn = useSelector((state: RootState) => state.auth.user) !== null;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const toggleMenu = useCallback(() => setIsMenuOpen(prev => !prev), []);
-    const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+    const navLinks = useMemo(() => {
+        if (isLoggedIn) {
+            return [
+                { href: "/dashboard", icon: LayoutDashboard, text: "Dashboard" },
+                { href: "/loanRequests", icon: HandCoins, text: "Loans" },
+                { href: "/profile", icon: UserRound, text: "Profile" },
+                { href: "/about", icon: Info, text: "About" },
+                { href: "/logout", icon: LogOut, text: "Logout" },
+            ];
+        }
 
-    const linkClassNames = "flex items-center px-4 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:text-white transition-all duration-300 hover:bg-gradient-to-r from-blue-600/40 to-purple-500/40 font-medium backdrop-blur-sm";
+        return [
+            { href: "/about", icon: Info, text: "About" },
+            { href: "/auth?tab=login", icon: LogIn, text: "Login" },
+            { href: "/auth?tab=signup", icon: UserPlus, text: "Sign Up" },
+        ];
+    }, [isLoggedIn]);
 
-    const menuVariants = {
-        hidden: { opacity: 0, y: -20 },
-        visible: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -20 }
-    };
-
-    const navLinks = useMemo(() =>
-        isLoggedIn ? [
-            { href: "/dashboard", icon: <FaBriefcase className="text-blue-400" />, text: "Dashboard" },
-            { href: "/loanRequests", icon: <FaHandHoldingUsd className="text-green-400" />, text: "Loans" },
-            { href: "/profile", icon: <FaUser className="text-purple-400" />, text: "Profile" },
-            { href: "/about", icon: <FaInfoCircle className="text-yellow-400" />, text: "About" },
-            { href: "/logout", icon: <FaSignOutAlt className="text-red-400" />, text: "Logout" },
-        ] : [
-            { href: "/about", icon: <FaInfoCircle className="text-yellow-400" />, text: "About" },
-            { href: "/auth?tab=login", icon: <FaSignInAlt className="text-blue-400" />, text: "Login" },
-            { href: "/auth?tab=signup", icon: <FaUserPlus className="text-green-400" />, text: "Sign Up" },
-        ], [isLoggedIn]);
+    const closeMenu = () => setIsMenuOpen(false);
 
     return (
-        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/50">
-            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16 md:h-20">
-                    {/* Logo Section */}
-                    <motion.div 
-                        whileHover={{ scale: 1.05 }} 
-                        className="flex items-center"
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    >
-                        <Link href="/" className="flex items-center gap-3" onClick={closeMenu}>
-                            <Logo />
-                            <span className="text-xl md:text-2xl font-bold text-gradient">
-                                Vault Technologies
+        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+            <nav className="app-container">
+                <div className="flex h-16 items-center justify-between">
+                    <Link href="/" className="flex items-center gap-3" onClick={closeMenu}>
+                        <Logo />
+                        <div className="leading-tight">
+                            <span className="block text-base font-semibold tracking-tight text-slate-950">
+                                GoFundYourself
                             </span>
-                        </Link>
-                    </motion.div>
+                            <span className="hidden text-xs font-medium text-slate-500 sm:block">
+                                Peer lending workspace
+                            </span>
+                        </div>
+                    </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-2">
-                        {navLinks.map((link, index) => (
-                            <motion.div
-                                key={index}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            >
+                    <div className="hidden items-center gap-1 md:flex">
+                        {navLinks.map((link) => {
+                            const Icon = link.icon;
+                            const linkPath = link.href.split("?")[0];
+                            const isActive = pathname === linkPath;
+
+                            return (
                                 <Link
+                                    key={link.href}
                                     href={link.href}
-                                    className={linkClassNames}
-                                    onClick={closeMenu}
+                                    className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+                                        isActive
+                                            ? "bg-slate-950 text-white"
+                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                                    }`}
                                 >
-                                    <span className="mr-2 text-lg">{link.icon}</span>
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
                                     {link.text}
                                 </Link>
-                            </motion.div>
-                        ))}
+                            );
+                        })}
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <motion.button
-                        onClick={toggleMenu}
-                        className="md:hidden p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-md"
+                    <div className="hidden items-center gap-2 md:flex">
+                        <span className="badge">
+                            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                            Verified network
+                        </span>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setIsMenuOpen((value) => !value)}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 shadow-sm md:hidden"
                         aria-label="Toggle navigation menu"
-                        whileTap={{ scale: 0.9 }}
+                        aria-expanded={isMenuOpen}
                     >
-                        <motion.div
-                            animate={isMenuOpen ? "open" : "closed"}
-                            variants={{
-                                open: { rotate: 180 },
-                                closed: { rotate: 0 }
-                            }}
-                        >
-                            {isMenuOpen ? (
-                                <FaTimes className="w-6 h-6 text-purple-400" />
-                            ) : (
-                                <FaBars className="w-6 h-6 text-blue-400" />
-                            )}
-                        </motion.div>
-                    </motion.button>
+                        {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
                 </div>
 
-                {/* Mobile Menu */}
-                <AnimatePresence>
-                    {isMenuOpen && (
-                        <motion.div
-                            className="md:hidden overflow-hidden glass-card rounded-b-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50"
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            variants={menuVariants}
-                            transition={{ duration: 0.2, ease: "easeInOut" }}
-                        >
-                            <div className="pt-3 pb-4 space-y-1">
-                                {navLinks.map((link, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                {isMenuOpen && (
+                    <div className="border-t border-slate-200 py-3 md:hidden">
+                        <div className="grid gap-1">
+                            {navLinks.map((link) => {
+                                const Icon = link.icon;
+                                const linkPath = link.href.split("?")[0];
+                                const isActive = pathname === linkPath;
+
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        onClick={closeMenu}
+                                        className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-semibold transition-colors ${
+                                            isActive
+                                                ? "bg-slate-950 text-white"
+                                                : "text-slate-700 hover:bg-slate-100"
+                                        }`}
                                     >
-                                        <Link
-                                            href={link.href}
-                                            onClick={closeMenu}
-                                            className="flex items-center mx-2 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-xl transition-colors"
-                                        >
-                                            <span className="mr-3 text-lg">{link.icon}</span>
-                                            <span className="font-medium">{link.text}</span>
-                                        </Link>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                                        <Icon className="h-4 w-4" aria-hidden="true" />
+                                        {link.text}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </nav>
         </header>
     );

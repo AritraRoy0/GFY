@@ -1,21 +1,20 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { FaChartLine, FaChartBar } from 'react-icons/fa';
+import React from "react";
 import {
-  LineChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar
-} from 'recharts';
-import { Loan } from '@/app/models/LoanInterfaces';
+} from "recharts";
+import { BarChart3, LineChart as LineChartIcon } from "lucide-react";
+import { Loan } from "@/app/models/LoanInterfaces";
 
 interface ChartsSectionProps {
   lentLoans: Loan[];
@@ -23,154 +22,152 @@ interface ChartsSectionProps {
   totalReserves: number;
 }
 
+const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
+
+function dateKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function displayDate(key: string) {
+  return new Date(`${key}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function EmptyChart({ title }: { title: string }) {
+  return (
+    <div className="flex h-[280px] flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50 text-center">
+      <p className="text-sm font-semibold text-slate-700">{title}</p>
+      <p className="mt-1 text-sm text-slate-500">Loan activity will appear here.</p>
+    </div>
+  );
+}
+
 const ChartsSection: React.FC<ChartsSectionProps> = ({ lentLoans, borrowedLoans, totalReserves }) => {
-  // Calculate total funds over time for lent loans
-  const lentFundsOverTime = lentLoans.reduce((acc: { [key: string]: number }, loan) => {
+  const lentFundsOverTime = lentLoans.reduce<Record<string, number>>((acc, loan) => {
     if (loan.timestamp) {
-      const date = loan.timestamp.toLocaleDateString();
-      acc[date] = (acc[date] || 0) + loan.principalAmount;
+      const key = dateKey(new Date(loan.timestamp));
+      acc[key] = (acc[key] || 0) + loan.principalAmount;
     }
     return acc;
   }, {});
 
-  // Calculate total funds over time for borrowed loans
-  const borrowedFundsOverTime = borrowedLoans.reduce((acc: { [key: string]: number }, loan) => {
+  const borrowedFundsOverTime = borrowedLoans.reduce<Record<string, number>>((acc, loan) => {
     if (loan.timestamp) {
-      const date = loan.timestamp.toLocaleDateString();
-      acc[date] = (acc[date] || 0) + loan.principalAmount;
+      const key = dateKey(new Date(loan.timestamp));
+      acc[key] = (acc[key] || 0) + loan.principalAmount;
     }
     return acc;
   }, {});
 
-  // Combine and sort dates
-  const allDates = Array.from(new Set([
-    ...Object.keys(lentFundsOverTime),
-    ...Object.keys(borrowedFundsOverTime)
-  ])).sort();
+  const allDates = Array.from(new Set([...Object.keys(lentFundsOverTime), ...Object.keys(borrowedFundsOverTime)])).sort();
 
-  // Prepare data for the funds over time line chart
-  const fundsOverTimeData = allDates.map(date => ({
-    date,
-    lent: lentFundsOverTime[date] || 0,
-    borrowed: borrowedFundsOverTime[date] || 0
+  const fundsOverTimeData = allDates.map((key) => ({
+    date: displayDate(key),
+    lent: lentFundsOverTime[key] || 0,
+    borrowed: borrowedFundsOverTime[key] || 0,
   }));
 
-  // Calculate total payments made vs expected
   const paymentData = [
     {
-      name: 'Lent Loans',
+      name: "Lent",
       expected: lentLoans.reduce((sum, loan) => sum + loan.principalAmount, 0),
-      received: lentLoans.reduce((sum, loan) => 
-        sum + loan.paymentsMade.reduce((pSum, payment) => pSum + payment.amount, 0), 0)
+      received: lentLoans.reduce(
+        (sum, loan) => sum + loan.paymentsMade.reduce((paymentSum, payment) => paymentSum + payment.amount, 0),
+        0
+      ),
     },
     {
-      name: 'Borrowed Loans',
+      name: "Borrowed",
       expected: borrowedLoans.reduce((sum, loan) => sum + loan.principalAmount, 0),
-      received: borrowedLoans.reduce((sum, loan) => 
-        sum + loan.paymentsMade.reduce((pSum, payment) => pSum + payment.amount, 0), 0)
-    }
+      received: borrowedLoans.reduce(
+        (sum, loan) => sum + loan.paymentsMade.reduce((paymentSum, payment) => paymentSum + payment.amount, 0),
+        0
+      ),
+    },
+    {
+      name: "Reserves",
+      expected: totalReserves,
+      received: totalReserves,
+    },
   ];
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      {/* Funds Over Time Line Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card p-6 rounded-3xl shadow-xl card-hover"
-      >
-        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-          <FaChartLine className="text-blue-500" />
-          Funds Over Time
-        </h3>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={fundsOverTimeData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="date" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                }}
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="lent" 
-                name="Loans Owned" 
-                stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ r: 5, fill: '#3b82f6' }}
-                activeDot={{ r: 7, fill: '#1d4ed8' }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="borrowed" 
-                name="Loans Owed" 
-                stroke="#ef4444" 
-                strokeWidth={3}
-                dot={{ r: 5, fill: '#ef4444' }}
-                activeDot={{ r: 7, fill: '#dc2626' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
 
-      {/* Payment Status Bar Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="glass-card p-6 rounded-3xl shadow-xl card-hover"
-      >
-        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-          <FaChartBar className="text-emerald-500" />
-          Payment Status
-        </h3>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={paymentData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                }}
-              />
-              <Legend />
-              <Bar dataKey="expected" name="Expected Amount" fill="#6b7280" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="received" name="Received Amount" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <section className="surface-card p-5">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="flex items-center gap-2 text-base font-semibold text-slate-950">
+              <LineChartIcon className="h-5 w-5 text-sky-700" aria-hidden="true" />
+              Funds over time
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">Daily loan volume by portfolio side.</p>
+          </div>
         </div>
-      </motion.div>
+        {fundsOverTimeData.length === 0 ? (
+          <EmptyChart title="No timeline data yet" />
+        ) : (
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={fundsOverTimeData} margin={{ top: 12, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748B" tickLine={false} axisLine={false} />
+                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={72} />
+                <Tooltip
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{
+                    border: "1px solid #E2E8F0",
+                    borderRadius: 8,
+                    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
+                  }}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="lent" name="Lent" stroke="#0284C7" strokeWidth={3} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="borrowed" name="Borrowed" stroke="#DC2626" strokeWidth={3} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </section>
+
+      <section className="surface-card p-5">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="flex items-center gap-2 text-base font-semibold text-slate-950">
+              <BarChart3 className="h-5 w-5 text-emerald-700" aria-hidden="true" />
+              Payment status
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">Expected principal compared with recorded payments.</p>
+          </div>
+        </div>
+        {lentLoans.length === 0 && borrowedLoans.length === 0 ? (
+          <EmptyChart title="No payment data yet" />
+        ) : (
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={paymentData} margin={{ top: 12, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                <XAxis dataKey="name" stroke="#64748B" tickLine={false} axisLine={false} />
+                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={72} />
+                <Tooltip
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{
+                    border: "1px solid #E2E8F0",
+                    borderRadius: 8,
+                    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
+                  }}
+                />
+                <Legend />
+                <Bar dataKey="expected" name="Expected" fill="#64748B" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="received" name="Recorded" fill="#059669" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </section>
     </div>
   );
 };
 
-export default ChartsSection; 
+export default ChartsSection;

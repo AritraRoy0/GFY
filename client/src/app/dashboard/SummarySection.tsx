@@ -1,110 +1,120 @@
-// src/components/SummarySection.tsx
 "use client";
+
 import React from "react";
-import { AccountBalance, TrendingUp, TrendingDown, ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import { ArrowDownRight, ArrowUpRight, Landmark, TrendingDown, TrendingUp } from "lucide-react";
 import { Loan } from "@/app/models/LoanInterfaces";
 
 interface SummarySectionProps {
-	totalOwned: number;
-	totalOwed: number;
-	totalReserves: number;
-	lentLoans: Loan[];
-	borrowedLoans: Loan[];
+  totalOwned: number;
+  totalOwed: number;
+  totalReserves: number;
+  lentLoans: Loan[];
+  borrowedLoans: Loan[];
+}
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+function calculateTrend(loans: Loan[]): { value: number; isPositive: boolean } {
+  if (loans.length === 0) return { value: 0, isPositive: true };
+
+  const now = new Date();
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  const previousMonth = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
+
+  const currentMonthTotal = loans.reduce((sum, loan) => {
+    const loanDate = new Date(loan.timestamp);
+    return loanDate >= lastMonth ? sum + loan.principalAmount : sum;
+  }, 0);
+
+  const previousMonthTotal = loans.reduce((sum, loan) => {
+    const loanDate = new Date(loan.timestamp);
+    return loanDate < lastMonth && loanDate >= previousMonth ? sum + loan.principalAmount : sum;
+  }, 0);
+
+  if (previousMonthTotal === 0) return { value: 0, isPositive: true };
+
+  const percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+  return {
+    value: Math.round(percentageChange),
+    isPositive: percentageChange >= 0,
+  };
 }
 
 const SummaryCard: React.FC<{
-	title: string;
-	value: string;
-	icon: React.ReactNode;
-	trend?: { value: number; isPositive: boolean };
-}> = ({ title, value, icon, trend }) => {
-	return (
-		<div className="w-full sm:w-auto">
-			<div className="flex items-center p-6 glass-card rounded-2xl card-hover shadow-lg">
-				<div className="p-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 text-white mr-4 shadow-lg">
-					{icon}
-				</div>
-				<div className="flex-1">
-					<h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{title}</h3>
-					<p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{value}</p>
-					{trend && (
-						<div className={`flex items-center text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-							{trend.isPositive ? <ArrowUpward className="w-4 h-4 mr-1" /> : <ArrowDownward className="w-4 h-4 mr-1" />}
-							<span>{Math.abs(trend.value)}% from last month</span>
-						</div>
-					)}
-				</div>
-			</div>
-		</div>
-	);
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  helper: string;
+  trend?: { value: number; isPositive: boolean };
+}> = ({ title, value, icon, helper, trend }) => {
+  const TrendIcon = trend?.isPositive ? ArrowUpRight : ArrowDownRight;
+
+  return (
+    <div className="metric-card">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-950 text-white">
+          {icon}
+        </div>
+      </div>
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+        <p className="text-sm text-slate-500">{helper}</p>
+        {trend && (
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            trend.isPositive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+          }`}>
+            <TrendIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {Math.abs(trend.value)}%
+          </span>
+        )}
+      </div>
+    </div>
+  );
 };
 
-const calculateTrend = (loans: Loan[]): { value: number; isPositive: boolean } => {
-	if (loans.length === 0) return { value: 0, isPositive: true };
-
-	const now = new Date();
-	const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-
-	const currentMonthTotal = loans.reduce((sum, loan) => {
-		const loanDate = new Date(loan.timestamp);
-		if (loanDate >= lastMonth) {
-			return sum + loan.principalAmount;
-		}
-		return sum;
-	}, 0);
-
-	const previousMonthTotal = loans.reduce((sum, loan) => {
-		const loanDate = new Date(loan.timestamp);
-		if (loanDate < lastMonth && loanDate >= new Date(lastMonth.getFullYear(), lastMonth.getMonth() - 1, lastMonth.getDate())) {
-			return sum + loan.principalAmount;
-		}
-		return sum;
-	}, 0);
-
-	if (previousMonthTotal === 0) return { value: 0, isPositive: true };
-
-	const percentageChange = ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
-	return {
-		value: Math.round(percentageChange),
-		isPositive: percentageChange >= 0
-	};
-};
-
-const SummarySection: React.FC<SummarySectionProps> = ({ 
-	totalOwned, 
-	totalOwed, 
-	totalReserves,
-	lentLoans,
-	borrowedLoans
+const SummarySection: React.FC<SummarySectionProps> = ({
+  totalOwned,
+  totalOwed,
+  totalReserves,
+  lentLoans,
+  borrowedLoans,
 }) => {
-	const trends = {
-		owned: calculateTrend(lentLoans),
-		owed: calculateTrend(borrowedLoans),
-		reserves: { value: 0, isPositive: true } // Reserves trend would need historical data
-	};
+  const trends = {
+    owned: calculateTrend(lentLoans),
+    owed: calculateTrend(borrowedLoans),
+  };
 
-	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-			<SummaryCard
-				title="Loans Owed to You"
-				value={`$${totalOwned.toLocaleString()}`}
-				icon={<TrendingUp className="text-white w-6 h-6" />}
-				trend={trends.owned}
-			/>
-			<SummaryCard
-				title="Your Balance Including Interest"
-				value={`$${totalReserves.toLocaleString()}`}
-				icon={<AccountBalance className="text-white w-6 h-6" />}
-				trend={trends.reserves}
-			/>
-			<SummaryCard
-				title="Loans You Owe to Others"
-				value={`$${totalOwed.toLocaleString()}`}
-				icon={<TrendingDown className="text-white w-6 h-6" />}
-				trend={trends.owed}
-			/>
-		</div>
-	);
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <SummaryCard
+        title="Loans owed to you"
+        value={currency.format(totalOwned)}
+        icon={<TrendingUp className="h-5 w-5" aria-hidden="true" />}
+        trend={trends.owned}
+        helper={`${lentLoans.length} active lent loan${lentLoans.length === 1 ? "" : "s"}`}
+      />
+      <SummaryCard
+        title="Available reserves"
+        value={currency.format(totalReserves)}
+        icon={<Landmark className="h-5 w-5" aria-hidden="true" />}
+        helper="Demo reserve balance"
+      />
+      <SummaryCard
+        title="Loans you owe"
+        value={currency.format(totalOwed)}
+        icon={<TrendingDown className="h-5 w-5" aria-hidden="true" />}
+        trend={trends.owed}
+        helper={`${borrowedLoans.length} active borrowed loan${borrowedLoans.length === 1 ? "" : "s"}`}
+      />
+    </div>
+  );
 };
 
 export default SummarySection;

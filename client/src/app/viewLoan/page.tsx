@@ -9,11 +9,11 @@ import Footer from "../common/Footer"
 const ViewLoanPage: React.FC = () => {
 
 	return (
-		<div>
+		<div className="app-page flex min-h-screen flex-col">
 			<Header />
-			<div className="flex items-center justify-center w-full">
+			<main className="flex-1">
 				<ViewLoan />
-			</div>
+			</main>
 			<Footer />
 		</div>
 	)

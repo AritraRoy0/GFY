@@ -7,8 +7,8 @@ import ClientProviders from "./providers/ClientProviders";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "GoFundYourself",
-	description: "A peer-to-peer lending platform",
+	title: "GoFundYourself | Peer-to-peer lending",
+	description: "A focused peer-to-peer lending workspace for borrowers and lenders.",
 };
 
 interface RootLayoutProps {
@@ -18,23 +18,10 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en">
-			<head>
-				<meta charSet="UTF-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>{String(metadata.title)}</title>
-				<meta name="description" content={metadata.description || ""} />
-				<link rel="icon" href="./icon.svg" />
-				<Analytics />
-
-				{/* Add any other meta tags here, like OpenGraph or Twitter */}
-			</head>
-
-			<body className={inter.className}>
+			<body className={`${inter.className} antialiased`}>
 				<ClientProviders>
 					{children}
 				</ClientProviders>
-
-				{/* Add Vercel Analytics */}
 				<Analytics />
 			</body>
 		</html>

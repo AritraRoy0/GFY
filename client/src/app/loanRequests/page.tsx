@@ -1,100 +1,132 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { uploadLoanRequest, fetchLoanRequests } from "../models/LoanRequestAPIs";
-import { LoanRequest, NewLoanRequest } from "../models/LoanInterfaces";
-import { setLoanRequestState, clearLoanRequestState } from "../store";
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { useDispatch } from "react-redux";
+import {
+  AlertCircle,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  ClipboardList,
+  Eye,
+  Percent,
+  Plus,
+  UserRound,
+} from "lucide-react";
+import { uploadLoanRequest, fetchLoanRequests } from "../models/LoanRequestAPIs";
+import { LoanRequest, NewLoanRequest } from "../models/LoanInterfaces";
+import { clearLoanRequestState, setLoanRequestState } from "../store";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
-import { useRouter } from "next/navigation";
 import LoadingSpinner from "../common/LoadingSpinner";
-import Link from "next/link";
+
+type Feedback = { type: "success" | "error"; message: string } | null;
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+const formatRequestDate = (request: LoanRequest) => {
+  if (!request.timestamp) return "Recently added";
+  return request.timestamp.toDate().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
 const LoanRequestForm: React.FC = () => {
-  const [principalAmount, setPrincipalAmount] = useState<number>(500);
-  const [interestRate, setInterestRate] = useState<number>(5);
-  const [termWeeks, setTermWeeks] = useState<number>(1);
+  const [principalAmount, setPrincipalAmount] = useState(500);
+  const [interestRate, setInterestRate] = useState(5);
+  const [termWeeks, setTermWeeks] = useState(1);
   const [purpose, setPurpose] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [principalError, setPrincipalError] = useState<string>("");
-  const [interestError, setInterestError] = useState<string>("");
-  const [termError, setTermError] = useState<string>("");
-  const [purposeError, setPurposeError] = useState<string>("");
-  const [formTouched, setFormTouched] = useState<boolean>(false);
+  const [principalError, setPrincipalError] = useState("");
+  const [interestError, setInterestError] = useState("");
+  const [termError, setTermError] = useState("");
+  const [purposeError, setPurposeError] = useState("");
+  const [formTouched, setFormTouched] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
 
   const dispatch = useDispatch();
   const router = useRouter();
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-    });
+    const unsubscribe = onAuthStateChanged(auth, (user) => setCurrentUser(user));
     return () => unsubscribe();
   }, []);
 
-  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
   useEffect(() => {
-    const unsubscribe = fetchLoanRequests((requests) => {
-      setLoanRequests(requests);
-    });
+    const unsubscribe = fetchLoanRequests((requests) => setLoanRequests(requests));
     return () => unsubscribe();
   }, []);
+
+  const marketplaceStats = useMemo(() => {
+    const availableRequests = loanRequests.filter((request) => request.borrowedBy !== currentUser?.uid);
+    const totalRequested = loanRequests.reduce((sum, request) => sum + request.principalAmount, 0);
+    const averageRate = loanRequests.length
+      ? loanRequests.reduce((sum, request) => sum + request.interestRate, 0) / loanRequests.length
+      : 0;
+
+    return {
+      available: availableRequests.length,
+      totalRequested,
+      averageRate,
+    };
+  }, [currentUser?.uid, loanRequests]);
 
   const validateForm = (): boolean => {
     let isValid = true;
     setFormTouched(true);
-    
-    // Validate principal amount
+
     if (principalAmount < 500 || principalAmount > 10000) {
-      setPrincipalError("Principal amount must be between $500 and $10,000.");
+      setPrincipalError("Amount must be between $500 and $10,000.");
       isValid = false;
     } else {
       setPrincipalError("");
     }
-    
-    // Validate interest rate
+
     if (interestRate < 5) {
       setInterestError("Interest rate must be at least 5%.");
       isValid = false;
     } else {
       setInterestError("");
     }
-    
-    // Validate term
+
     if (termWeeks < 1) {
       setTermError("Term must be at least 1 week.");
       isValid = false;
     } else {
       setTermError("");
     }
-    
-    // Validate purpose
+
     if (!purpose.trim()) {
-      setPurposeError("Please provide a purpose for the loan.");
+      setPurposeError("Add a purpose for the loan.");
       isValid = false;
     } else {
       setPurposeError("");
     }
-    
+
     return isValid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
-    setLoading(true);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setFeedback(null);
+
+    if (!validateForm()) return;
 
     if (!currentUser) {
-      alert("Please log in to submit a loan request.");
-      setLoading(false);
+      setFeedback({ type: "error", message: "Please log in to submit a loan request." });
       return;
     }
 
@@ -106,6 +138,7 @@ const LoanRequestForm: React.FC = () => {
       purpose,
     };
 
+    setLoading(true);
     try {
       await uploadLoanRequest(newLoanRequest);
       setPrincipalAmount(500);
@@ -113,10 +146,10 @@ const LoanRequestForm: React.FC = () => {
       setTermWeeks(1);
       setPurpose("");
       setFormTouched(false);
-      alert("Loan request submitted successfully!");
+      setFeedback({ type: "success", message: "Loan request submitted and added to the marketplace." });
     } catch (error) {
       console.error("Error submitting loan request:", error);
-      alert("There was an error submitting your loan request. Please try again.");
+      setFeedback({ type: "error", message: "There was an error submitting your loan request. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -129,433 +162,209 @@ const LoanRequestForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="app-page flex flex-col">
       <Header />
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
-          <section className="mb-16">
-            <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-8 transition-all hover:shadow-lg">
-              <h2 className="text-3xl font-bold mb-8 text-gray-900 flex items-center gap-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-600"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-                New Loan Request
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Principal Amount<span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        id="principalAmount"
-                        value={principalAmount}
-                        onChange={(e) => {
-                          setPrincipalAmount(Number(e.target.value));
-                          if (formTouched) validateForm();
-                        }}
-                        className={`pl-7 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
-                          principalError
-                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
-                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                        }`}
-                        min="500"
-                        max="10000"
-                      />
-                    </div>
-                    {principalError && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {principalError}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">Loan amount must be between $500 and $10,000</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Interest Rate (%)<span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">%</span>
-                      </div>
-                      <input
-                        type="number"
-                        id="interestRate"
-                        value={interestRate}
-                        onChange={(e) => {
-                          setInterestRate(Number(e.target.value));
-                          if (formTouched) validateForm();
-                        }}
-                        className={`pl-10 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
-                          interestError
-                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
-                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                        }`}
-                        min="5"
-                      />
-                    </div>
-                    {interestError && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {interestError}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">Minimum interest rate is 5%</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Term (Weeks)<span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 text-gray-400"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <input
-                        type="number"
-                        id="termWeeks"
-                        value={termWeeks}
-                        onChange={(e) => {
-                          setTermWeeks(Number(e.target.value));
-                          if (formTouched) validateForm();
-                        }}
-                        className={`pl-10 pr-3 block w-full rounded-lg border py-3 focus:ring-2 transition-colors text-gray-900 ${
-                          termError
-                            ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
-                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                        }`}
-                        min="1"
-                      />
-                    </div>
-                    {termError && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {termError}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">Minimum term is 1 week</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Purpose<span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <textarea
-                      id="purpose"
-                      value={purpose}
-                      onChange={(e) => {
-                        setPurpose(e.target.value);
-                        if (formTouched) validateForm();
-                      }}
-                      className={`block w-full rounded-lg border py-3 px-4 focus:ring-2 h-32 text-gray-900 transition-colors ${
-                        purposeError
-                          ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-red-50"
-                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                      }`}
-                      placeholder="Briefly describe the loan purpose..."
-                    />
-                    {purposeError && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {purposeError}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="pt-6">
-                  <button
-                    type="submit"
-                    disabled={loading || !currentUser}
-                    className={`w-full py-4 px-6 flex justify-center items-center gap-2 text-lg font-semibold rounded-lg transition-all ${
-                      loading || !currentUser
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transform hover:translate-y-[-2px]"
-                    }`}
-                  >
-                    {loading ? (
-                      <>
-                        <LoadingSpinner size="small" />
-                        Submitting...
-                      </>
-                    ) : (
-                      "Submit Request"
-                    )}
-                  </button>
-
-                  {!currentUser && (
-                    <p className="mt-4 text-center text-red-600 font-medium flex items-center justify-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Please log in to submit a loan request
-                    </p>
-                  )}
-                </div>
-              </form>
+      <main className="flex-1 py-8 sm:py-10">
+        <div className="app-container space-y-6">
+          <section className="flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="section-kicker">Loan Marketplace</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Create and review peer loan requests.</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Borrowers can publish structured requests. Lenders can compare amount, rate, term, and borrower context before reviewing details.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 lg:w-[28rem]">
+              <Stat label="Available" value={marketplaceStats.available.toString()} />
+              <Stat label="Requested" value={currency.format(marketplaceStats.totalRequested)} />
+              <Stat label="Avg. rate" value={`${marketplaceStats.averageRate.toFixed(1)}%`} />
             </div>
           </section>
-          <section className="px-4 py-8">
-            {/* Section Header */}
-            <div className="flex items-center gap-4 mb-10">
-              <div className="p-2 bg-green-100 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-green-600"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                </svg>
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900">Existing Loan Requests</h2>
-            </div>
 
-            {/* No Data Message */}
-            {loanRequests.length === 0 ? (
-              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-12 text-center flex flex-col items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 text-gray-400 mb-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <p className="text-gray-600 text-lg font-medium mb-2">No loan requests found</p>
-                <p className="text-gray-500">Create a new loan request to get started</p>
+          <section className="grid gap-6 lg:grid-cols-[24rem_1fr] lg:items-start">
+            <form onSubmit={handleSubmit} className="surface-card sticky top-24 space-y-5 p-5">
+              <div>
+                <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
+                  <Plus className="h-5 w-5 text-sky-700" aria-hidden="true" />
+                  New loan request
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">Set the terms lenders will evaluate.</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {loanRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className={`relative bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border-l-4 transform hover:-translate-y-2 ${
-                      currentUser?.uid === request.borrowedBy ? "border-l-blue-600" : "border-l-green-500"
-                    }`}
-                  >
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4 flex items-center">
-                      <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                        currentUser?.uid === request.borrowedBy 
-                          ? "bg-blue-100 text-blue-800" 
-                          : "bg-green-100 text-green-800"
-                      }`}>
-                        {currentUser?.uid === request.borrowedBy ? "Your Request" : "Available"}
-                      </span>
-                      <span className="ml-2 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        #{request.id.slice(0, 6)}
-                      </span>
-                    </div>
 
-                    {/* Card Header */}
-                    <div className="flex items-center mb-6 mt-2">
-                      {currentUser?.uid === request.borrowedBy && (
-                        <span className="mr-2 text-blue-600 bg-blue-100 p-1 rounded-full">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                      )}
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {currentUser?.uid === request.borrowedBy ? (
-                          <span className="flex items-center">
-                            Your Loan Request
+              {feedback && (
+                <div className={`flex gap-3 rounded-md border p-3 text-sm ${
+                  feedback.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-red-200 bg-red-50 text-red-700"
+                }`}>
+                  {feedback.type === "success" ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  )}
+                  <p>{feedback.message}</p>
+                </div>
+              )}
+
+              <NumberField
+                label="Principal amount"
+                icon={<CircleDollarSign className="h-4 w-4" />}
+                value={principalAmount}
+                min={500}
+                max={10000}
+                onChange={(value) => {
+                  setPrincipalAmount(value);
+                  if (formTouched) validateForm();
+                }}
+                prefix="$"
+                error={principalError}
+                helper="Between $500 and $10,000"
+              />
+
+              <NumberField
+                label="Interest rate"
+                icon={<Percent className="h-4 w-4" />}
+                value={interestRate}
+                min={5}
+                onChange={(value) => {
+                  setInterestRate(value);
+                  if (formTouched) validateForm();
+                }}
+                suffix="%"
+                error={interestError}
+                helper="Minimum 5%"
+              />
+
+              <NumberField
+                label="Term"
+                icon={<CalendarDays className="h-4 w-4" />}
+                value={termWeeks}
+                min={1}
+                onChange={(value) => {
+                  setTermWeeks(value);
+                  if (formTouched) validateForm();
+                }}
+                suffix="weeks"
+                error={termError}
+                helper="Minimum 1 week"
+              />
+
+              <div>
+                <label htmlFor="purpose" className="mb-2 block text-sm font-semibold text-slate-700">
+                  Purpose
+                </label>
+                <textarea
+                  id="purpose"
+                  value={purpose}
+                  onChange={(event) => {
+                    setPurpose(event.target.value);
+                    if (formTouched) validateForm();
+                  }}
+                  className={`input-field min-h-28 resize-y ${purposeError ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/15" : ""}`}
+                  placeholder="Briefly describe the loan purpose..."
+                  aria-invalid={Boolean(purposeError)}
+                />
+                {purposeError && <FieldError message={purposeError} />}
+              </div>
+
+              <button type="submit" disabled={loading || !currentUser} className="btn-primary w-full">
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="small" />
+                    Submitting
+                  </>
+                ) : (
+                  "Submit Request"
+                )}
+              </button>
+
+              {!currentUser && (
+                <p className="rounded-md bg-amber-50 p-3 text-center text-sm font-medium text-amber-800">
+                  Log in to submit a loan request.
+                </p>
+              )}
+            </form>
+
+            <section className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-950">Existing requests</h2>
+                  <p className="mt-1 text-sm text-slate-500">Compare open requests and review lender-side details.</p>
+                </div>
+              </div>
+
+              {loanRequests.length === 0 ? (
+                <div className="rounded-md border border-dashed border-slate-300 bg-white p-12 text-center">
+                  <ClipboardList className="mx-auto h-12 w-12 text-slate-400" aria-hidden="true" />
+                  <p className="mt-4 text-sm font-semibold text-slate-800">No loan requests found</p>
+                  <p className="mt-1 text-sm text-slate-500">Create a request to populate the marketplace.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                  {loanRequests.map((request) => {
+                    const isOwnRequest = currentUser?.uid === request.borrowedBy;
+
+                    return (
+                      <article key={request.id} className="surface-card p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <span className={`badge ${isOwnRequest ? "" : "badge-success"}`}>
+                              {isOwnRequest ? "Your request" : "Available"}
+                            </span>
+                            <h3 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+                              {currency.format(request.principalAmount)}
+                            </h3>
+                            <p className="mt-1 text-sm text-slate-500">
+                              {request.interestRate}% interest over {request.termWeeks} week{request.termWeeks === 1 ? "" : "s"}
+                            </p>
+                          </div>
+                          <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500">
+                            #{request.id.slice(0, 6)}
                           </span>
-                        ) : (
-                          <Link href={`/profile?id=${request.borrowedBy}&type=lendee`} className="text-blue-600 hover:text-blue-800 flex items-center group">
-                            <span className="group-hover:underline">Borrower {request.borrowedBy.slice(0, 6)}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                            </svg>
-                          </Link>
-                        )}
-                      </h3>
-                    </div>
+                        </div>
 
-                    {/* Amount Highlight */}
-                    <div className="mb-6">
-                      <div className="text-3xl font-bold text-gray-900 flex items-baseline">
-                        <span>${request.principalAmount.toLocaleString()}</span>
-                        <span className="ml-2 text-sm font-medium text-gray-500">at {request.interestRate}% interest</span>
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        {request.termWeeks} week{request.termWeeks > 1 ? 's' : ''} term
-                      </div>
-                    </div>
+                        <div className="mt-5 rounded-md bg-slate-50 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Purpose</p>
+                          <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-700">{request.purpose}</p>
+                        </div>
 
-                    {/* Purpose Section */}
-                    <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 mr-1 text-gray-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                          />
-                        </svg>
-                        LOAN PURPOSE
-                      </h4>
-                      <p className="text-gray-700 line-clamp-3 text-sm">{request.purpose}</p>
-                    </div>
+                        <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                          <Detail label="Principal" value={currency.format(request.principalAmount)} />
+                          <Detail label="Interest" value={`${request.interestRate}%`} />
+                          <Detail label="Term" value={`${request.termWeeks} weeks`} />
+                          <Detail label="Date" value={formatRequestDate(request)} />
+                        </dl>
 
-                    {/* Key Details */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Principal</span>
-                        <span className="font-semibold text-gray-900">${request.principalAmount.toLocaleString()}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Interest</span>
-                        <span className="font-semibold text-gray-900">{request.interestRate}%</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Term</span>
-                        <span className="font-semibold text-gray-900">{request.termWeeks} weeks</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Date</span>
-                        <span className="font-semibold text-gray-900">
-                          {request.timestamp ? new Date(request.timestamp.toDate()).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          }) : "Recently added"}
-                        </span>
-                      </div>
-                    </div>
+                        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          {isOwnRequest ? (
+                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-sky-700">
+                              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                              Waiting for lender review
+                            </span>
+                          ) : (
+                            <Link
+                              href={`/profile?id=${request.borrowedBy}&type=lendee`}
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-950"
+                            >
+                              <UserRound className="h-4 w-4" aria-hidden="true" />
+                              Borrower {request.borrowedBy.slice(0, 6)}
+                            </Link>
+                          )}
 
-                    {/* Action Button */}
-                    {currentUser?.uid !== request.borrowedBy ? (
-                      <button
-                        onClick={() => handleReviewLoan(request)}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg font-medium"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                          <path
-                            fillRule="evenodd"
-                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        Review Loan Details
-                      </button>
-                    ) : (
-                      <div className="text-center">
-                        <span className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-100">
-                          Your Active Request
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                          {!isOwnRequest && (
+                            <button type="button" onClick={() => handleReviewLoan(request)} className="btn-primary px-4 py-2">
+                              <Eye className="h-4 w-4" aria-hidden="true" />
+                              Review
+                              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </section>
         </div>
       </main>
@@ -563,5 +372,79 @@ const LoanRequestForm: React.FC = () => {
     </div>
   );
 };
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{label}</dt>
+      <dd className="mt-1 font-semibold text-slate-900">{value}</dd>
+    </div>
+  );
+}
+
+function FieldError({ message }: { message: string }) {
+  return (
+    <p className="mt-2 flex items-center gap-1 text-sm font-medium text-red-600">
+      <AlertCircle className="h-4 w-4" aria-hidden="true" />
+      {message}
+    </p>
+  );
+}
+
+function NumberField({
+  label,
+  icon,
+  value,
+  min,
+  max,
+  onChange,
+  prefix,
+  suffix,
+  error,
+  helper,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  value: number;
+  min: number;
+  max?: number;
+  onChange: (value: number) => void;
+  prefix?: string;
+  suffix?: string;
+  error?: string;
+  helper: string;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>
+      <div className="relative">
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">{icon}</span>
+        {prefix && <span className="pointer-events-none absolute inset-y-0 left-10 flex items-center text-sm text-slate-500">{prefix}</span>}
+        <input
+          type="number"
+          value={value}
+          min={min}
+          max={max}
+          onChange={(event) => onChange(Number(event.target.value))}
+          className={`input-field ${prefix ? "pl-14" : "pl-10"} ${suffix ? "pr-16" : ""} ${
+            error ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500/15" : ""
+          }`}
+          aria-invalid={Boolean(error)}
+        />
+        {suffix && <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">{suffix}</span>}
+      </div>
+      {error ? <FieldError message={error} /> : <p className="mt-2 text-xs text-slate-500">{helper}</p>}
+    </div>
+  );
+}
 
 export default LoanRequestForm;

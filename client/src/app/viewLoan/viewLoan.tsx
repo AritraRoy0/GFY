@@ -1,26 +1,33 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { loadStripe } from "@stripe/stripe-js";
-import { RootState, AppDispatch } from "../store";
-import { Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from "recharts";
-import { approveLoan } from "../models/LoanRequestAPIs";
-import {
-  ClockIcon,
-  UserCircleIcon,
-  CurrencyDollarIcon,
-  ScaleIcon,
-  CalendarIcon,
-  ExclamationTriangleIcon
-} from "@heroicons/react/24/outline";
-import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  Scale,
+  UserRound,
+  XCircle,
+} from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Link from "next/link";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
+import { RootState } from "../store";
+import { approveLoan } from "../models/LoanRequestAPIs";
 
 type ButtonProps = {
   onClick: () => void;
@@ -29,64 +36,65 @@ type ButtonProps = {
   children?: React.ReactNode;
 };
 
+const money = (value: number) =>
+  value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
 const ViewLoan: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const loanRequest = useSelector((state: RootState) => state.loanRequest);
   const user = useSelector((state: RootState) => state.auth.user);
   const userId = user?.id;
   const loanId = loanRequest?.id;
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Loan calculations
-  const { totalRepayment, totalInterest } = useMemo(() => {
-    if (!loanRequest || !loanRequest.principalAmount || !loanRequest.interestRate) 
-      return { totalRepayment: 0, totalInterest: 0 };
-    
+  const { totalRepayment, totalInterest, weeklyPayment } = useMemo(() => {
+    if (!loanRequest || !loanRequest.principalAmount || !loanRequest.interestRate || !loanRequest.termWeeks) {
+      return { totalRepayment: 0, totalInterest: 0, weeklyPayment: 0 };
+    }
+
     const total = loanRequest.principalAmount * (1 + loanRequest.interestRate / 100);
+    const interest = total - loanRequest.principalAmount;
     return {
       totalRepayment: Number(total.toFixed(2)),
-      totalInterest: Number((total - loanRequest.principalAmount).toFixed(2))
+      totalInterest: Number(interest.toFixed(2)),
+      weeklyPayment: Number((total / loanRequest.termWeeks).toFixed(2)),
     };
   }, [loanRequest]);
 
-  // Weekly payments with cumulative tracking
   const weeklyPayments = useMemo(() => {
-    if (!loanRequest || !loanRequest.termWeeks || !totalRepayment) return [];
-    const weeklyPayment = totalRepayment / loanRequest.termWeeks;
+    if (!loanRequest?.termWeeks || !totalRepayment) return [];
     let cumulative = 0;
 
-    return Array.from({ length: loanRequest.termWeeks }, (_, i) => {
+    return Array.from({ length: loanRequest.termWeeks }, (_, index) => {
       cumulative += weeklyPayment;
       return {
-        week: i + 1,
-        amount: Number(weeklyPayment.toFixed(2)),
-        cumulative: Number(cumulative.toFixed(2))
+        week: index + 1,
+        amount: weeklyPayment,
+        cumulative: Number(cumulative.toFixed(2)),
       };
     });
-  }, [loanRequest, totalRepayment]);
+  }, [loanRequest?.termWeeks, totalRepayment, weeklyPayment]);
 
-  // Validation
   const isValidLoanRequest = useMemo(() => {
-    return loanRequest &&
-      loanRequest.termWeeks >= 1 &&
-      loanRequest.termWeeks <= 52 &&
-      loanRequest.principalAmount >= 500 &&
-      loanRequest.principalAmount <= 10000 &&
-      loanRequest.interestRate >= 5;
+    return Boolean(
+      loanRequest?.id &&
+        loanRequest.termWeeks >= 1 &&
+        loanRequest.termWeeks <= 52 &&
+        loanRequest.principalAmount >= 500 &&
+        loanRequest.principalAmount <= 10000 &&
+        loanRequest.interestRate >= 5
+    );
   }, [loanRequest]);
-
-  useEffect(() => {
-    if (loanId) {
-      setLoading(true);
-      setTimeout(() => setLoading(false), 1000);
-    }
-  }, [loanId]);
 
   const handleApprove = async () => {
     if (!loanRequest || !loanId || !userId) {
-      setError("Missing required loan information");
+      setError("Missing required loan information.");
       return;
     }
 
@@ -95,17 +103,10 @@ const ViewLoan: React.FC = () => {
 
     try {
       await approveLoan(loanRequest, userId);
-      toast.success("Loan approved successfully!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      setTimeout(() => router.push("/loanRequests"), 3000);
+      toast.success("Loan approved successfully.");
+      window.setTimeout(() => router.push("/loanRequests"), 1800);
     } catch (err) {
+      console.error("Failed to approve loan:", err);
       setError("Failed to approve loan. Please try again.");
     } finally {
       setLoading(false);
@@ -114,260 +115,168 @@ const ViewLoan: React.FC = () => {
 
   const handleReject = () => router.push("/loanRequests");
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-800">Week {label}</p>
-          <p className="text-sm text-indigo-600">
-            Payment: <span className="font-medium">${payload[0].value.toFixed(2)}</span>
-          </p>
-          <p className="text-sm text-gray-500">
-            Cumulative: ${payload[0].payload.cumulative.toFixed(2)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  if (loading) {
+  if (!isValidLoanRequest) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12 animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-100 rounded-xl"></div>
-          ))}
-        </div>
-        <div className="h-96 bg-gray-100 rounded-xl"></div>
-      </div>
-    );
-  }
-
-  if (!loanRequest) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="p-8 bg-red-50 rounded-xl text-center shadow-sm">
-          <ExclamationTriangleIcon className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-red-600 mb-2">Loan request not found</h2>
-          <p className="text-gray-600 mt-2 mb-4">Please check the loan ID and try again</p>
-          <button 
-            onClick={() => router.push("/loanRequests")}
-            className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
+      <div className="app-container py-12">
+        <div className="surface-card mx-auto max-w-lg p-8 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-amber-600" aria-hidden="true" />
+          <h1 className="mt-4 text-2xl font-semibold text-slate-950">Loan request not found</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Select a request from the marketplace to review its repayment schedule and approval details.
+          </p>
+          <Link href="/loanRequests" className="btn-primary mt-6">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Return to Loan Requests
-          </button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-      <ToastContainer />
-      {/* Header */}
-      <div className="pb-8 border-b border-gray-200 bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-lg">
-          <div className="flex items-center gap-4 rounded-lg">
-            <div className="p-3 bg-indigo-100 rounded-lg">
-              <CurrencyDollarIcon className="h-8 w-8 text-indigo-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loan Request Details</h1>
-              <p className="text-sm text-gray-500 mt-1">Review and manage loan request information</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-4 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-full shadow-sm">
-              Active Request
-            </span>
-          </div>
+    <div className="app-container py-8 sm:py-10">
+      <ToastContainer position="top-center" autoClose={2500} hideProgressBar={false} />
+
+      <div className="mb-6">
+        <Link href="/loanRequests" className="btn-ghost -ml-2">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to marketplace
+        </Link>
+      </div>
+
+      <section className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="section-kicker">Loan Review</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Review loan request details.</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Confirm borrower context, terms, interest, and repayment schedule before funding.
+          </p>
         </div>
-      </div>
+        <span className="badge badge-success">Active request</span>
+      </section>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <SummaryCard
-          title="Total Repayment"
-          value={`$${totalRepayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
-          trend="positive"
-          percentage={loanRequest.interestRate}
-        />
-        <SummaryCard
-          title="Total Interest"
-          value={`$${totalInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
-          trend="neutral"
-          description={`${loanRequest.termWeeks} weekly payments`}
-        />
-        <SummaryCard
-          title="Weekly Payment"
-          value={`$${(totalRepayment / loanRequest.termWeeks).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
-          trend="negative"
-          description="Average per week"
-        />
-      </div>
+      <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <SummaryCard title="Total repayment" value={money(totalRepayment)} helper={`${loanRequest.interestRate}% interest`} />
+        <SummaryCard title="Total interest" value={money(totalInterest)} helper={`${loanRequest.termWeeks} weekly payments`} />
+        <SummaryCard title="Weekly payment" value={money(weeklyPayment)} helper="Average installment" />
+      </section>
 
-      {/* Loan Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DetailCard
-          label="Borrower Information"
-          value={
-            <div className="space-y-3">
-              <Link
-                href={`/profile?id=${loanRequest.borrowedBy}&type=lendee`}
-                className="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-2 transition-colors"
-              >
-                <UserCircleIcon className="h-5 w-5" />
-                View Borrower Profile
-              </Link>
-              <p className="text-sm text-gray-600 mt-1">
-                Member since 2023 • 4 previous loans
-              </p>
-            </div>
-          }
-          icon={<UserCircleIcon className="h-6 w-6 text-indigo-600" />}
-        />
-        
-        <DetailCard
-          label="Loan Terms"
-          value={
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Principal:</span>
-                <span className="font-medium text-gray-900">${loanRequest.principalAmount?.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Interest Rate:</span>
-                <span className="font-medium text-gray-900">{loanRequest.interestRate}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Duration:</span>
-                <span className="font-medium text-gray-900">{loanRequest.termWeeks} weeks</span>
-              </div>
-            </div>
-          }
-          icon={<ScaleIcon className="h-6 w-6 text-indigo-600" />}
-        />
-
-        <div className="md:col-span-2">
+      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="space-y-4">
           <DetailCard
-            label="Loan Purpose"
-            value={<p className="text-gray-700 leading-relaxed">{loanRequest.purpose}</p>}
-            icon={<ClockIcon className="h-6 w-6 text-indigo-600" />}
-            full
+            title="Borrower"
+            icon={<UserRound className="h-5 w-5" />}
+            content={
+              <div className="space-y-2">
+                <Link
+                  href={`/profile?id=${loanRequest.borrowedBy}&type=lendee`}
+                  className="font-semibold text-sky-700 hover:text-sky-900"
+                >
+                  View borrower profile
+                </Link>
+                <p className="break-all text-sm text-slate-500">ID: {loanRequest.borrowedBy}</p>
+              </div>
+            }
+          />
+
+          <DetailCard
+            title="Loan terms"
+            icon={<Scale className="h-5 w-5" />}
+            content={
+              <dl className="grid gap-3 text-sm">
+                <Term label="Principal" value={money(loanRequest.principalAmount)} />
+                <Term label="Interest rate" value={`${loanRequest.interestRate}%`} />
+                <Term label="Duration" value={`${loanRequest.termWeeks} weeks`} />
+              </dl>
+            }
+          />
+
+          <DetailCard
+            title="Loan purpose"
+            icon={<CircleDollarSign className="h-5 w-5" />}
+            content={<p className="text-sm leading-6 text-slate-700">{loanRequest.purpose}</p>}
           />
         </div>
-      </div>
 
-      {/* Repayment Chart */}
-      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2 mb-4 md:mb-0">
-            <CalendarIcon className="h-6 w-6 text-indigo-600" />
-            Repayment Schedule Breakdown
-          </h2>
-          <div className="flex gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 bg-indigo-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Weekly Payment</span>
+        <div className="surface-card p-5">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
+                <CalendarDays className="h-5 w-5 text-sky-700" aria-hidden="true" />
+                Repayment schedule
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">Weekly installment and cumulative repayment.</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 bg-indigo-200 rounded-full"></div>
-              <span className="text-sm text-gray-600">Cumulative</span>
+            <div className="flex flex-wrap gap-3 text-xs font-medium text-slate-600">
+              <span className="inline-flex items-center gap-2">
+                <span className="h-3 w-3 rounded-sm bg-sky-600" />
+                Weekly
+              </span>
             </div>
           </div>
-        </div>
-        <div className="h-[400px] sm:h-[500px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={weeklyPayments}
-              margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-              <XAxis
-                dataKey="week"
-                tick={{ fill: "#4B5563", fontSize: 12 }}
-                tickLine={{ stroke: "#E5E7EB" }}
-                axisLine={{ stroke: "#E5E7EB" }}
-                label={{
-                  value: "Weeks",
-                  position: "bottom",
-                  fill: "#4B5563",
-                  fontSize: 14,
-                  offset: 20
-                }}
-              />
-              <YAxis
-                tickFormatter={(value) => `$${value.toLocaleString()}`}
-                tick={{ fill: "#4B5563", fontSize: 12 }}
-                tickLine={{ stroke: "#E5E7EB" }}
-                axisLine={{ stroke: "#E5E7EB" }}
-                label={{
-                  value: "Payment Amount",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "#4B5563",
-                  fontSize: 14,
-                  offset: -15
-                }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar
-                dataKey="amount"
-                radius={[6, 6, 0, 0]}
-                barSize={weeklyPayments.length > 20 ? 12 : 24}
-              >
-                <LabelList
-                  dataKey="amount"
-                  position="top"
-                  formatter={(value: number) => `$${value.toFixed(0)}`}
-                  fill="#6366F1"
-                  fontSize={10}
-                  offset={5}
-                />
-                {weeklyPayments.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={`rgba(99, 102, 241, ${0.7 + (index * 0.3) / weeklyPayments.length})`}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end border-t pt-8">
-        <Button
-          onClick={handleReject}
-          variant="secondary"
-        >
-          <XCircleIcon className="h-5 w-5" />
+          <div className="h-[380px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyPayments} margin={{ top: 24, right: 20, left: 8, bottom: 24 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                <XAxis
+                  dataKey="week"
+                  tick={{ fill: "#475569", fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  label={{ value: "Week", position: "bottom", fill: "#475569", fontSize: 12, offset: 12 }}
+                />
+                <YAxis
+                  tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
+                  tick={{ fill: "#475569", fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={72}
+                />
+                <Tooltip
+                  formatter={(value: number | string) => money(Number(value))}
+                  labelFormatter={(label) => `Week ${label}`}
+                  contentStyle={{
+                    border: "1px solid #E2E8F0",
+                    borderRadius: 8,
+                    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
+                  }}
+                />
+                <Bar dataKey="amount" name="Weekly payment" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={weeklyPayments.length > 20 ? 12 : 24}>
+                  <LabelList
+                    dataKey="amount"
+                    position="top"
+                    formatter={(value: number) => `$${value.toFixed(0)}`}
+                    fill="#0F172A"
+                    fontSize={10}
+                    offset={6}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
+        <Button onClick={handleReject} variant="secondary">
+          <XCircle className="h-4 w-4" aria-hidden="true" />
           Decline Request
         </Button>
-        <Button
-          onClick={handleApprove}
-          disabled={loading || !isValidLoanRequest}
-          variant="primary"
-        >
+        <Button onClick={handleApprove} disabled={loading || !isValidLoanRequest} variant="primary">
           {loading ? (
-            <div className="flex items-center gap-2">
-              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-              Processing Approval...
-            </div>
+            "Processing Approval..."
           ) : (
             <>
-              <CheckCircleIcon className="h-5 w-5" />
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               Approve and Fund Loan
             </>
           )}
         </Button>
-      </div>
-      
+      </section>
+
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
           {error}
         </div>
       )}
@@ -375,72 +284,36 @@ const ViewLoan: React.FC = () => {
   );
 };
 
-// Summary Card Component
-const SummaryCard: React.FC<{
-  title: string;
-  value: string;
-  trend: "positive" | "negative" | "neutral";
-  percentage?: number;
-  description?: string;
-}> = ({ title, value, trend, percentage, description }) => {
-  const trendColors = {
-    positive: "bg-green-100 text-green-800",
-    negative: "bg-red-100 text-red-800",
-    neutral: "bg-blue-100 text-blue-800"
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">{title}</h3>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
-          {description && (
-            <p className="text-sm text-gray-500 mt-2">{description}</p>
-          )}
-        </div>
-        {percentage && (
-          <span className={`${trendColors[trend]} px-3 py-1 rounded-full text-sm font-medium shadow-sm`}>
-            {trend === 'positive' && '+'}{percentage}%
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Detail Card Component
-const DetailCard: React.FC<{
-  label: string;
-  value: React.ReactNode;
-  icon: React.ReactNode;
-  full?: boolean;
-}> = ({ label, value, icon, full }) => (
-  <div className={`flex items-start gap-4 p-6 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 ${full ? "col-span-2" : ""}`}>
-    <div className="bg-indigo-50 p-3 rounded-lg shadow-sm flex-shrink-0">
-      {icon}
-    </div>
-    <div className="flex-1">
-      <dt className="text-sm font-medium text-gray-500 mb-2">{label}</dt>
-      <dd className="text-gray-900">{value}</dd>
-    </div>
+const SummaryCard: React.FC<{ title: string; value: string; helper: string }> = ({ title, value, helper }) => (
+  <div className="metric-card">
+    <p className="text-sm font-medium text-slate-500">{title}</p>
+    <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+    <p className="mt-3 text-sm text-slate-500">{helper}</p>
   </div>
 );
 
-// Button Component
+const DetailCard: React.FC<{ title: string; icon: React.ReactNode; content: React.ReactNode }> = ({ title, icon, content }) => (
+  <div className="surface-card p-5">
+    <div className="mb-4 flex items-center gap-2">
+      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</span>
+      <h2 className="text-base font-semibold text-slate-950">{title}</h2>
+    </div>
+    {content}
+  </div>
+);
+
+const Term: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+    <dt className="text-slate-500">{label}</dt>
+    <dd className="font-semibold text-slate-950">{value}</dd>
+  </div>
+);
+
 const Button: React.FC<ButtonProps> = ({ onClick, disabled, variant, children }) => {
-  const baseClasses = "inline-flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm";
-  const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:opacity-70 disabled:hover:bg-indigo-600 disabled:cursor-not-allowed",
-    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-300 disabled:opacity-70 disabled:cursor-not-allowed",
-  };
+  const className = variant === "primary" ? "btn-primary" : "btn-secondary";
 
   return (
-    <button
-      onClick={onClick}
-      className={`${baseClasses} ${variants[variant]}`}
-      disabled={disabled}
-    >
+    <button type="button" onClick={onClick} className={className} disabled={disabled}>
       {children}
     </button>
   );

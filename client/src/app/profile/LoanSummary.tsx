@@ -1,160 +1,162 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { fetchUserLoanRequests } from '../models/LoanRequestAPIs';
-import { LoanRequest } from '../models/LoanInterfaces';
 import { Timestamp } from "firebase/firestore";
-import { motion } from 'framer-motion';
+import { AlertCircle, CalendarDays, ClipboardList, LockKeyhole, Percent } from "lucide-react";
+import { fetchUserLoanRequests } from "../models/LoanRequestAPIs";
+import { LoanRequest } from "../models/LoanInterfaces";
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
 const LoanSummary: React.FC = () => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const auth = getAuth();
-        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
-        });
-        return () => unsubscribeAuth();
-    }, []);
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => setCurrentUser(user));
+    return () => unsubscribeAuth();
+  }, []);
 
-    useEffect(() => {
-        if (currentUser) {
-            setLoading(true);
-            setError(null);
-
-            const unsubscribeLoanRequests = fetchUserLoanRequests(
-                currentUser.uid,
-                (userLoanRequests) => {
-                    setLoanRequests(userLoanRequests);
-                    setLoading(false);
-                },
-                (err) => {
-                    setError("Failed to load loan requests. Please try again later.");
-                    setLoading(false);
-                }
-            );
-            return () => unsubscribeLoanRequests();
-        } else {
-            setLoanRequests([]);
-            setLoading(false);
-        }
-    }, [currentUser]);
-
-    const isTimestamp = (obj: any): obj is Timestamp => obj instanceof Timestamp;
-    const isDate = (obj: any): obj is Date => obj instanceof Date;
-
-    const convertToDate = (timestamp: Timestamp | Date | null): Date | undefined => {
-        if (isTimestamp(timestamp)) return timestamp.toDate();
-        if (isDate(timestamp)) return timestamp;
-        return undefined;
-    };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64 space-x-4">
-                {[...Array(3)].map((_, i) => (
-                    <div key={i} className="animate-pulse bg-white rounded-xl p-6 w-80 space-y-4">
-                        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="text-center p-8 bg-red-50 rounded-xl max-w-2xl mx-auto">
-                <div className="inline-flex items-center text-red-600 space-x-2">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <p className="text-lg font-medium">{error}</p>
-                </div>
-            </div>
-        );
-    }
-
+  useEffect(() => {
     if (!currentUser) {
-        return (
-            <div className="text-center p-8 bg-blue-50 rounded-xl max-w-2xl mx-auto">
-                <p className="text-lg text-blue-600 font-medium">🔒 Please log in to view your loan requests</p>
-            </div>
-        );
+      setLoanRequests([]);
+      setLoading(false);
+      return;
     }
 
-    if (loanRequests.length === 0) {
-        return (
-            <div className="text-center p-8 bg-indigo-50 rounded-xl max-w-2xl mx-auto">
-                <p className="text-lg text-indigo-600 font-medium">📭 No active loan requests found</p>
-            </div>
-        );
-    }
+    setLoading(true);
+    setError(null);
 
-    return (
-        <div className="container mx-auto px-4 py-12">
-            <h2 className="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Your Loan Portfolio
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {loanRequests.map((request, index) => {
-                    const date = convertToDate(request.timestamp);
-                    const formattedDate = date ? date.toLocaleDateString('en-US', {
-                        year: 'numeric', month: 'short', day: 'numeric'
-                    }) : "Date not available";
-
-                    return (
-                        <motion.div
-                            key={request.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100"
-                        >
-                            <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-2xl font-bold text-gray-800">
-                                        ${request.principalAmount.toLocaleString()}
-                                    </h3>
-                                    <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
-                                        {request.termWeeks} weeks
-                                    </span>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                        </svg>
-                                        <span className="text-gray-600">{request.interestRate}% Interest Rate</span>
-                                    </div>
-
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span className="text-gray-600">{request.purpose}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="p-4 bg-gray-50 border-t border-gray-100">
-                                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>Requested {formattedDate}</span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    );
-                })}
-            </div>
-        </div>
+    const unsubscribeLoanRequests = fetchUserLoanRequests(
+      currentUser.uid,
+      (userLoanRequests) => {
+        setLoanRequests(userLoanRequests);
+        setLoading(false);
+      },
+      () => {
+        setError("Failed to load loan requests. Please try again later.");
+        setLoading(false);
+      }
     );
+    return () => unsubscribeLoanRequests();
+  }, [currentUser]);
+
+  const convertToDate = (timestamp: Timestamp | Date | null): Date | undefined => {
+    if (timestamp instanceof Timestamp) return timestamp.toDate();
+    if (timestamp instanceof Date) return timestamp;
+    return undefined;
+  };
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-3">
+        {[0, 1, 2].map((item) => (
+          <div key={item} className="surface-card animate-pulse p-5">
+            <div className="h-5 w-32 rounded bg-slate-200" />
+            <div className="mt-4 h-8 w-40 rounded bg-slate-200" />
+            <div className="mt-4 h-4 w-56 rounded bg-slate-100" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <StateCard
+        icon={<AlertCircle className="h-10 w-10 text-red-600" />}
+        title="Could not load requests"
+        description={error}
+      />
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <StateCard
+        icon={<LockKeyhole className="h-10 w-10 text-slate-400" />}
+        title="Log in required"
+        description="Please log in to view your loan requests."
+      />
+    );
+  }
+
+  if (loanRequests.length === 0) {
+    return (
+      <StateCard
+        icon={<ClipboardList className="h-10 w-10 text-slate-400" />}
+        title="No active loan requests"
+        description="Requests you create in the marketplace will appear here."
+      />
+    );
+  }
+
+  return (
+    <section>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-slate-950">Your loan requests</h2>
+        <p className="mt-1 text-sm text-slate-500">Requests you have published for lender review.</p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {loanRequests.map((request) => {
+          const date = convertToDate(request.timestamp);
+          const formattedDate = date
+            ? date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            : "Date not available";
+
+          return (
+            <article key={request.id} className="surface-card p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="badge">Pending review</span>
+                  <h3 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+                    {currency.format(request.principalAmount)}
+                  </h3>
+                </div>
+                <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500">
+                  #{request.id.slice(0, 6)}
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-3 text-sm">
+                <div className="flex items-center gap-2 text-slate-700">
+                  <Percent className="h-4 w-4 text-sky-700" aria-hidden="true" />
+                  {request.interestRate}% interest
+                </div>
+                <div className="flex items-center gap-2 text-slate-700">
+                  <CalendarDays className="h-4 w-4 text-sky-700" aria-hidden="true" />
+                  {request.termWeeks} week{request.termWeeks === 1 ? "" : "s"} term
+                </div>
+                <p className="rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-600">{request.purpose}</p>
+              </div>
+
+              <p className="mt-4 border-t border-slate-100 pt-4 text-xs font-medium text-slate-500">
+                Requested {formattedDate}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 };
+
+function StateCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="rounded-md border border-dashed border-slate-300 bg-white p-10 text-center">
+      <div className="flex justify-center">{icon}</div>
+      <p className="mt-4 text-sm font-semibold text-slate-800">{title}</p>
+      <p className="mt-1 text-sm text-slate-500">{description}</p>
+    </div>
+  );
+}
 
 export default LoanSummary;

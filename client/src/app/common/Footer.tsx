@@ -1,33 +1,56 @@
-import {
-  LinkedInLogoIcon,
-  TwitterLogoIcon,
-  InstagramLogoIcon,
-} from "@radix-ui/react-icons";
+import Link from "next/link";
+import { Linkedin, Twitter, Instagram } from "lucide-react";
+import Logo from "./Logo";
+
+const footerLinks = [
+  { href: "/about", label: "About" },
+  { href: "/loanRequests", label: "Loan marketplace" },
+  { href: "/auth?tab=signup", label: "Create account" },
+];
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-      <footer className="bg-gray-900 text-gray-300 border-t border-gray-700">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row">
-          <div className="flex flex-col items-center gap-2 px-8 md:flex-row md:gap-4">
-            <p className="text-center text-sm md:text-left">
-              © 2025 Vault Technologies LLC. All rights reserved.
-            </p>
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="app-container py-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <Logo />
+            <div>
+              <p className="text-sm font-semibold text-slate-950">GoFundYourself</p>
+              <p className="text-sm text-slate-500">&copy; {year} Vault Technologies LLC</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            {([
-              { icon: TwitterLogoIcon },
-              { icon: LinkedInLogoIcon },
-              { icon: InstagramLogoIcon },
-            ] as const).map((link, index) => (
-                <div
-                    key={index}
-                    className="p-2 rounded-full hover:bg-gray-700 transition-colors"
-                >
-                  <link.icon className="h-6 w-6" />
-                </div>
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
+            {footerLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="hover:text-slate-950">
+                {link.label}
+              </Link>
             ))}
           </div>
+
+          <div className="flex items-center gap-2">
+            {[
+              { icon: Twitter, label: "Twitter" },
+              { icon: Linkedin, label: "LinkedIn" },
+              { icon: Instagram, label: "Instagram" },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <span
+                  key={item.label}
+                  aria-label={item.label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-500"
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </span>
+              );
+            })}
+          </div>
         </div>
-      </footer>
+      </div>
+    </footer>
   );
 }
