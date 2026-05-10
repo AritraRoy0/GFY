@@ -8,7 +8,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  LabelList,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -134,7 +133,7 @@ const ViewLoan: React.FC = () => {
   }
 
   return (
-    <div className="app-container py-8 sm:py-10">
+    <div className="app-container py-6 sm:py-10">
       <ToastContainer position="top-center" autoClose={2500} hideProgressBar={false} />
 
       <div className="mb-6">
@@ -147,7 +146,7 @@ const ViewLoan: React.FC = () => {
       <section className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="section-kicker">Loan Review</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Review loan request details.</h1>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Review loan request details.</h1>
           <p className="mt-2 text-sm text-slate-600">
             Confirm borrower context, terms, interest, and repayment schedule before funding.
           </p>
@@ -198,7 +197,7 @@ const ViewLoan: React.FC = () => {
           />
         </div>
 
-        <div className="surface-card p-5">
+        <div className="surface-card p-4 sm:p-5">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
@@ -215,9 +214,9 @@ const ViewLoan: React.FC = () => {
             </div>
           </div>
 
-          <div className="h-[380px]">
+          <div className="h-[300px] sm:h-[380px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyPayments} margin={{ top: 24, right: 20, left: 8, bottom: 24 }}>
+              <BarChart data={weeklyPayments} margin={{ top: 22, right: 8, left: -10, bottom: 18 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                 <XAxis
                   dataKey="week"
@@ -231,7 +230,7 @@ const ViewLoan: React.FC = () => {
                   tick={{ fill: "#475569", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
-                  width={72}
+                  width={60}
                 />
                 <Tooltip
                   formatter={(value: number | string) => money(Number(value))}
@@ -242,16 +241,7 @@ const ViewLoan: React.FC = () => {
                     boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
                   }}
                 />
-                <Bar dataKey="amount" name="Weekly payment" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={weeklyPayments.length > 20 ? 12 : 24}>
-                  <LabelList
-                    dataKey="amount"
-                    position="top"
-                    formatter={(value: number) => `$${value.toFixed(0)}`}
-                    fill="#0F172A"
-                    fontSize={10}
-                    offset={6}
-                  />
-                </Bar>
+                <Bar dataKey="amount" name="Weekly payment" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={weeklyPayments.length > 20 ? 12 : 24} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -287,7 +277,7 @@ const ViewLoan: React.FC = () => {
 const SummaryCard: React.FC<{ title: string; value: string; helper: string }> = ({ title, value, helper }) => (
   <div className="metric-card">
     <p className="text-sm font-medium text-slate-500">{title}</p>
-    <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+    <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
     <p className="mt-3 text-sm text-slate-500">{helper}</p>
   </div>
 );
@@ -310,7 +300,7 @@ const Term: React.FC<{ label: string; value: string }> = ({ label, value }) => (
 );
 
 const Button: React.FC<ButtonProps> = ({ onClick, disabled, variant, children }) => {
-  const className = variant === "primary" ? "btn-primary" : "btn-secondary";
+  const className = variant === "primary" ? "btn-primary w-full sm:w-auto" : "btn-secondary w-full sm:w-auto";
 
   return (
     <button type="button" onClick={onClick} className={className} disabled={disabled}>

@@ -73,7 +73,7 @@ const stats = [
 
 function HeroBackdrop() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block" aria-hidden="true">
       <div className="absolute left-1/2 top-10 h-[34rem] w-[58rem] -translate-x-1/2 rounded-full bg-sky-200/30 blur-3xl" />
       <div className="absolute right-[-8rem] top-24 w-[34rem] rounded-lg border border-slate-200 bg-white/60 p-5 shadow-sm backdrop-blur">
         <div className="mb-5 flex items-center justify-between">
@@ -119,7 +119,7 @@ export default function LandingPage() {
       <main>
         <section className="relative overflow-hidden border-b border-slate-200 bg-slate-50">
           <HeroBackdrop />
-          <div className="app-container relative py-20 sm:py-24 lg:py-28">
+          <div className="app-container relative py-14 sm:py-20 lg:py-28">
             <motion.div
               initial="hidden"
               animate="visible"
@@ -131,18 +131,18 @@ export default function LandingPage() {
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Peer-to-peer lending, organized
               </span>
-              <h1 className="mt-5 text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+              <h1 className="mt-5 text-4xl font-semibold tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
                 Lending software for people who need the terms to be clear.
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
                 GoFundYourself gives borrowers a focused request flow and gives lenders a clean way to evaluate, approve, and monitor loans.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/auth?tab=signup" className="btn-primary">
+                <Link href="/auth?tab=signup" className="btn-primary w-full sm:w-auto">
                   Create account
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <Link href="/loanRequests" className="btn-secondary">
+                <Link href="/loanRequests" className="btn-secondary w-full sm:w-auto">
                   View loan marketplace
                 </Link>
               </div>
@@ -158,7 +158,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="border-b border-slate-200 bg-white py-16">
+        <section className="border-b border-slate-200 bg-white py-12 sm:py-16">
           <div className="app-container grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <div>
               <p className="section-kicker">Live Product Surface</p>
@@ -184,13 +184,13 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="surface-card p-4">
+            <div className="surface-card overflow-hidden p-3 sm:p-4">
               <LoanTerminal />
             </div>
           </div>
         </section>
 
-        <section className="border-b border-slate-200 bg-slate-50 py-16">
+        <section className="border-b border-slate-200 bg-slate-50 py-12 sm:py-16">
           <div className="app-container">
             <div className="mb-10 max-w-3xl">
               <p className="section-kicker">What Improves</p>
@@ -216,7 +216,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-white py-16">
+        <section className="bg-white py-12 sm:py-16">
           <div className="app-container grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
               <p className="section-kicker">Workflow</p>
@@ -241,18 +241,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-slate-950 py-14 text-white">
+        <section className="bg-slate-950 py-12 text-white sm:py-14">
           <div className="app-container flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">Start with one request</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight">Borrow, lend, and monitor with less ambiguity.</h2>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Borrow, lend, and monitor with less ambiguity.</h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/auth?tab=signup" className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-slate-100">
+              <Link href="/auth?tab=signup" className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-slate-100 sm:w-auto">
                 Create account
                 <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link href="/about" className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">
+              <Link href="/about" className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 sm:w-auto">
                 Learn how it works
                 <BadgeDollarSign className="h-4 w-4" aria-hidden="true" />
               </Link>

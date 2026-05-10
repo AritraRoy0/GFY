@@ -37,7 +37,7 @@ function displayDate(key: string) {
 
 function EmptyChart({ title }: { title: string }) {
   return (
-    <div className="flex h-[280px] flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50 text-center">
+    <div className="flex h-[220px] flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 text-center sm:h-[280px]">
       <p className="text-sm font-semibold text-slate-700">{title}</p>
       <p className="mt-1 text-sm text-slate-500">Loan activity will appear here.</p>
     </div>
@@ -95,7 +95,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ lentLoans, borrowedLoans,
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <section className="surface-card p-5">
+      <section className="surface-card p-4 sm:p-5">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="flex items-center gap-2 text-base font-semibold text-slate-950">
@@ -108,12 +108,12 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ lentLoans, borrowedLoans,
         {fundsOverTimeData.length === 0 ? (
           <EmptyChart title="No timeline data yet" />
         ) : (
-          <div className="h-[300px]">
+          <div className="h-[240px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={fundsOverTimeData} margin={{ top: 12, right: 20, left: 0, bottom: 0 }}>
+              <LineChart data={fundsOverTimeData} margin={{ top: 12, right: 8, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                 <XAxis dataKey="date" stroke="#64748B" tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={72} />
+                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={60} />
                 <Tooltip
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{
@@ -131,7 +131,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ lentLoans, borrowedLoans,
         )}
       </section>
 
-      <section className="surface-card p-5">
+      <section className="surface-card p-4 sm:p-5">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="flex items-center gap-2 text-base font-semibold text-slate-950">
@@ -144,12 +144,12 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ lentLoans, borrowedLoans,
         {lentLoans.length === 0 && borrowedLoans.length === 0 ? (
           <EmptyChart title="No payment data yet" />
         ) : (
-          <div className="h-[300px]">
+          <div className="h-[240px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={paymentData} margin={{ top: 12, right: 20, left: 0, bottom: 0 }}>
+              <BarChart data={paymentData} margin={{ top: 12, right: 8, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                 <XAxis dataKey="name" stroke="#64748B" tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={72} />
+                <YAxis stroke="#64748B" tickLine={false} axisLine={false} tickFormatter={formatCurrency} width={60} />
                 <Tooltip
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{

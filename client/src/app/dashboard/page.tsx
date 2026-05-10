@@ -163,17 +163,17 @@ export default function DashboardPage() {
   return (
     <div className="app-page flex flex-col">
       <Header />
-      <main className="flex-1 py-8 sm:py-10">
+      <main className="flex-1 py-6 sm:py-10">
         <div className="app-container space-y-6">
           <section className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="section-kicker">Dashboard</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
                 Welcome back{user?.username ? `, ${user.username}` : ""}.
               </h1>
               <p className="mt-2 text-sm text-slate-600">Track loans you own, loans you owe, and pending request activity.</p>
             </div>
-            <Link href="/loanRequests" className="btn-primary">
+            <Link href="/loanRequests" className="btn-primary w-full md:w-auto">
               <HandCoins className="h-4 w-4" aria-hidden="true" />
               New or Review Loan
             </Link>

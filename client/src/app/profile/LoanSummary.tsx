@@ -102,7 +102,7 @@ const LoanSummary: React.FC = () => {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-slate-950">Your loan requests</h2>
+        <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">Your loan requests</h2>
         <p className="mt-1 text-sm text-slate-500">Requests you have published for lender review.</p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -113,11 +113,11 @@ const LoanSummary: React.FC = () => {
             : "Date not available";
 
           return (
-            <article key={request.id} className="surface-card p-5">
+            <article key={request.id} className="surface-card p-4 sm:p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <span className="badge">Pending review</span>
-                  <h3 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+                  <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
                     {currency.format(request.principalAmount)}
                   </h3>
                 </div>
@@ -151,7 +151,7 @@ const LoanSummary: React.FC = () => {
 
 function StateCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="rounded-md border border-dashed border-slate-300 bg-white p-10 text-center">
+    <div className="rounded-md border border-dashed border-slate-300 bg-white p-8 text-center sm:p-10">
       <div className="flex justify-center">{icon}</div>
       <p className="mt-4 text-sm font-semibold text-slate-800">{title}</p>
       <p className="mt-1 text-sm text-slate-500">{description}</p>

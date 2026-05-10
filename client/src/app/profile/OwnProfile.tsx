@@ -94,22 +94,22 @@ const OwnProfile: React.FC = () => {
   return (
     <div className="app-page flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 py-8 sm:py-10">
+      <main className="flex-1 py-6 sm:py-10">
         <div className="app-container space-y-6">
           <section className="surface-card overflow-hidden">
             <div className="border-b border-slate-200 bg-slate-950 p-6 text-white sm:p-8">
               <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div className="flex items-center gap-5">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-white/10 text-3xl font-semibold">
+                <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center sm:gap-5">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-white/10 text-2xl font-semibold sm:h-20 sm:w-20 sm:text-3xl">
                     {initial}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">Your profile</p>
-                    <h1 className="mt-2 text-3xl font-semibold tracking-tight">{displayName}</h1>
-                    <p className="mt-1 text-sm text-slate-300">{currentUser.email}</p>
+                    <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight sm:text-3xl">{displayName}</h1>
+                    <p className="mt-1 break-all text-sm text-slate-300">{currentUser.email}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:w-96">
+                <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:w-96">
                   <ProfileDate label="Member since" value={formatDate(currentUser.metadata.creationTime)} />
                   <ProfileDate label="Last sign in" value={formatDate(currentUser.metadata.lastSignInTime)} />
                 </div>
@@ -117,7 +117,7 @@ const OwnProfile: React.FC = () => {
             </div>
           </section>
 
-          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+          <div className="inline-flex w-full rounded-lg border border-slate-200 bg-white p-1 shadow-sm min-[420px]:w-auto">
             {[
               { key: "overview", label: "Overview" },
               { key: "loans", label: "Loans" },
@@ -126,7 +126,7 @@ const OwnProfile: React.FC = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key as "overview" | "loans")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors min-[420px]:flex-none ${
                   activeTab === tab.key ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
@@ -175,7 +175,7 @@ function Metric({ title, value, icon }: { title: string; value: string; icon: Re
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
         </div>
         <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</div>
       </div>

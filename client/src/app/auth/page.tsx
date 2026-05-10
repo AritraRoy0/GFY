@@ -189,22 +189,22 @@ export default function AuthPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="app-container grid min-h-screen gap-10 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <div className="app-container grid min-h-screen gap-8 py-6 sm:py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <section className="max-w-xl">
-          <Link href="/" className="mb-10 inline-flex items-center gap-3">
+          <Link href="/" className="mb-8 inline-flex items-center gap-3 sm:mb-10">
             <Logo />
             <span className="text-base font-semibold text-slate-950">GoFundYourself</span>
           </Link>
 
           <p className="section-kicker">Secure Account Access</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
             Get into the lending workspace.
           </h1>
-          <p className="mt-5 text-lg leading-8 text-slate-600">
+          <p className="mt-4 text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
             Create a borrower or lender profile, then manage loan requests, approvals, and portfolio activity from the app.
           </p>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:mt-8">
             {["Validated forms", "Profile context", "Portfolio tracking"].map((item) => (
               <div key={item} className="rounded-md border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 shadow-sm">
                 {item}
@@ -232,7 +232,7 @@ export default function AuthPage() {
             ))}
           </div>
 
-          <form onSubmit={submitHandler} className="space-y-5 p-6 sm:p-8">
+          <form onSubmit={submitHandler} className="space-y-4 p-4 sm:space-y-5 sm:p-8">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
                 {activeTab === "signup" ? "Create your account" : "Welcome back"}

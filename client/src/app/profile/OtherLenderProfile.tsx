@@ -89,27 +89,27 @@ const OtherLenderProfile: React.FC = () => {
   return (
     <div className="app-page flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 py-8 sm:py-10">
+      <main className="flex-1 py-6 sm:py-10">
         <div className="app-container space-y-6">
-          <section className="surface-card p-6 sm:p-8">
+          <section className="surface-card p-5 sm:p-8">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-5">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-3xl font-semibold text-white">
+              <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center sm:gap-5">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-2xl font-semibold text-white sm:h-20 sm:w-20 sm:text-3xl">
                   {initial}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="section-kicker">Lender profile</p>
-                  <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{displayName}</h1>
+                  <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{displayName}</h1>
                   <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
                     <span className="flex items-center gap-1 text-amber-600">
                       <Star className="h-4 w-4 fill-current" aria-hidden="true" />
                       {rating.toFixed(1)}
                     </span>
-                    <span>{lenderData.email || "Public member"}</span>
+                    <span className="break-all">{lenderData.email || "Public member"}</span>
                   </div>
                 </div>
               </div>
-              <Link href={`/loanRequests?lenderId=${lenderData.id}`} className="btn-secondary">
+              <Link href={`/loanRequests?lenderId=${lenderData.id}`} className="btn-secondary w-full md:w-auto">
                 <HandCoins className="h-4 w-4" aria-hidden="true" />
                 Request Loan
               </Link>
@@ -182,7 +182,7 @@ function NotFoundState() {
 
 function Tabs({ activeTab, onChange }: { activeTab: "overview" | "loans"; onChange: (tab: "overview" | "loans") => void }) {
   return (
-    <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+    <div className="inline-flex w-full rounded-lg border border-slate-200 bg-white p-1 shadow-sm min-[420px]:w-auto">
       {[
         { key: "overview", label: "Overview" },
         { key: "loans", label: "Loans" },
@@ -191,7 +191,7 @@ function Tabs({ activeTab, onChange }: { activeTab: "overview" | "loans"; onChan
           key={tab.key}
           type="button"
           onClick={() => onChange(tab.key as "overview" | "loans")}
-          className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors min-[420px]:flex-none ${
             activeTab === tab.key ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
           }`}
         >
@@ -208,7 +208,7 @@ function Metric({ title, value, icon }: { title: string; value: string; icon: Re
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
         </div>
         <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</div>
       </div>

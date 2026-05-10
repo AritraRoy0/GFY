@@ -52,21 +52,21 @@ export default function AboutUs() {
       <Header />
       <main>
         <section className="border-b border-slate-200 bg-white">
-          <div className="app-container py-16 sm:py-20">
+          <div className="app-container py-12 sm:py-20">
             <div className="max-w-4xl">
               <p className="section-kicker">About GoFundYourself</p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-6xl">
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-6xl">
                 Peer lending works better when both sides can see the same details.
               </h1>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600">
+              <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
                 GoFundYourself connects borrowers and lenders through a practical workflow: publish a request, review the terms, fund the loan, and monitor repayment progress.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/auth?tab=signup" className="btn-primary">
+                <Link href="/auth?tab=signup" className="btn-primary w-full sm:w-auto">
                   Create account
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <Link href="/loanRequests" className="btn-secondary">
+                <Link href="/loanRequests" className="btn-secondary w-full sm:w-auto">
                   Browse loan requests
                 </Link>
               </div>
@@ -74,7 +74,7 @@ export default function AboutUs() {
           </div>
         </section>
 
-        <section className="border-b border-slate-200 bg-slate-50 py-16">
+        <section className="border-b border-slate-200 bg-slate-50 py-12 sm:py-16">
           <div className="app-container">
             <div className="mb-10 max-w-3xl">
               <p className="section-kicker">Product Principles</p>
@@ -101,7 +101,7 @@ export default function AboutUs() {
           </div>
         </section>
 
-        <section className="bg-white py-16">
+        <section className="bg-white py-12 sm:py-16">
           <div className="app-container grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>
               <p className="section-kicker">Why Bypass Banks</p>

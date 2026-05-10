@@ -112,7 +112,7 @@ function TickerItem({ request, userName }: { request: LoanRequest; userName?: st
   const profit = (request.principalAmount * request.interestRate) / 100;
 
   return (
-    <article className="w-[17rem] shrink-0 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="w-[17rem] max-w-[calc(100vw-3rem)] shrink-0 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-slate-100 text-slate-700">
           <UserRound className="h-4 w-4" aria-hidden="true" />

@@ -169,12 +169,12 @@ const LoanRequestForm: React.FC = () => {
           <section className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="section-kicker">Loan Marketplace</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Create and review peer loan requests.</h1>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Create and review peer loan requests.</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                 Borrowers can publish structured requests. Lenders can compare amount, rate, term, and borrower context before reviewing details.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 lg:w-[28rem]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[28rem]">
               <Stat label="Available" value={marketplaceStats.available.toString()} />
               <Stat label="Requested" value={currency.format(marketplaceStats.totalRequested)} />
               <Stat label="Avg. rate" value={`${marketplaceStats.averageRate.toFixed(1)}%`} />
@@ -184,7 +184,7 @@ const LoanRequestForm: React.FC = () => {
           <section className="grid gap-6 lg:grid-cols-[26rem_1fr] lg:items-start">
             <form
               onSubmit={handleSubmit}
-              className="surface-card space-y-3 p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)]"
+              className="surface-card space-y-3 p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto"
             >
               <div>
                 <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
@@ -295,7 +295,7 @@ const LoanRequestForm: React.FC = () => {
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-950">Existing requests</h2>
+                  <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">Existing requests</h2>
                   <p className="mt-1 text-sm text-slate-500">Compare open requests and review lender-side details.</p>
                 </div>
               </div>
@@ -318,7 +318,7 @@ const LoanRequestForm: React.FC = () => {
                             <span className={`badge ${isOwnRequest ? "" : "badge-success"}`}>
                               {isOwnRequest ? "Your request" : "Available"}
                             </span>
-                            <h3 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+                            <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
                               {currency.format(request.principalAmount)}
                             </h3>
                             <p className="mt-1 text-sm text-slate-500">
@@ -335,7 +335,7 @@ const LoanRequestForm: React.FC = () => {
                           <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-700">{request.purpose}</p>
                         </div>
 
-                        <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                        <dl className="mt-5 grid grid-cols-1 gap-3 text-sm min-[380px]:grid-cols-2">
                           <Detail label="Principal" value={currency.format(request.principalAmount)} />
                           <Detail label="Interest" value={`${request.interestRate}%`} />
                           <Detail label="Term" value={`${request.termWeeks} weeks`} />
@@ -359,7 +359,7 @@ const LoanRequestForm: React.FC = () => {
                           )}
 
                           {!isOwnRequest && (
-                            <button type="button" onClick={() => handleReviewLoan(request)} className="btn-primary px-4 py-2">
+                            <button type="button" onClick={() => handleReviewLoan(request)} className="btn-primary w-full px-4 py-2 sm:w-auto">
                               <Eye className="h-4 w-4" aria-hidden="true" />
                               Review
                               <ArrowRight className="h-4 w-4" aria-hidden="true" />
