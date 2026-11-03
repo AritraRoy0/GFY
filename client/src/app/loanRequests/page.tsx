@@ -252,8 +252,8 @@ const LoanRequestForm: React.FC = () => {
     <AppShell>
       <div className="space-y-6">
         <PageHeader
-          kicker="Loan marketplace"
-          title="Create and review peer loan requests."
+          kicker="Live requests"
+          title="Peer-to-peer loan marketplace."
           description="Borrowers publish structured requests. Lenders compare amount, rate, term, and borrower context before reviewing the full schedule."
         />
 

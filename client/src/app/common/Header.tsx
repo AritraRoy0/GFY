@@ -15,6 +15,7 @@ const navLinks = [
     { href: "/loanRequests", text: "Marketplace" },
     { href: "/#calculator", text: "Calculator" },
     { href: "/#workflow", text: "How it works" },
+    { href: "/#faq", text: "FAQ" },
     { href: "/about", text: "About" },
 ];
 

@@ -14,7 +14,7 @@ const palettes = {
     series2: "#eb6834",
     surface: "#ffffff",
     grid: "#e8edf3",
-    axis: "#64748b",
+    axis: "#5f6f85",
     cursor: "#cbd5e1",
   },
   dark: {

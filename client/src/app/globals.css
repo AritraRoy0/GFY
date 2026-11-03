@@ -22,7 +22,7 @@
 
   --c-ink: 15 23 42;           /* #0f172a primary text */
   --c-ink-2: 71 85 105;        /* #475569 secondary text */
-  --c-muted: 100 116 139;      /* #64748b labels */
+  --c-muted: 95 111 133;       /* #5f6f85 labels (>= 4.5:1 on canvas, surface, and surface-2) */
   --c-faint: 148 163 184;      /* #94a3b8 placeholders, disabled */
 
   --c-accent: 14 116 144;      /* #0e7490 brand cyan, deepened for light surfaces */
@@ -336,8 +336,9 @@ body {
     @apply border-negative/25 bg-negative/10 text-negative;
   }
 
+  /* 8% tint keeps accent text above 4.5:1 on both light surfaces. */
   .badge-accent {
-    @apply border-accent/25 bg-accent/10 text-accent;
+    @apply border-accent/25 bg-accent/[0.08] text-accent;
   }
 }
 
