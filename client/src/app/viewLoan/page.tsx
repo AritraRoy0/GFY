@@ -1,21 +1,24 @@
 "use client";
 
 import React from "react";
+import { useSelector } from "react-redux";
 import ViewLoan from "./viewLoan"
-
-import Header from "../common/Header"
-import Footer from "../common/Footer"
+import AppShell from "../common/AppShell"
+import { RootState } from "../store";
+import { shortId } from "../common/format";
 
 const ViewLoanPage: React.FC = () => {
+	const loanId = useSelector((state: RootState) => state.loanRequest.id);
 
 	return (
-		<div className="app-page flex min-h-screen flex-col">
-			<Header />
-			<main className="flex-1">
-				<ViewLoan />
-			</main>
-			<Footer />
-		</div>
+		<AppShell
+			breadcrumbs={[
+				{ label: "Marketplace", href: "/loanRequests" },
+				{ label: loanId ? `Request #${shortId(loanId)}` : "Review" },
+			]}
+		>
+			<ViewLoan />
+		</AppShell>
 	)
 
 }

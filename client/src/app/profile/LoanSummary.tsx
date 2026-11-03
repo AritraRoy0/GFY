@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
-import { AlertCircle, CalendarDays, ClipboardList, LockKeyhole, Percent } from "lucide-react";
+import { AlertCircle, CalendarDays, ClipboardList, Hourglass, LockKeyhole, Percent } from "lucide-react";
 import { fetchUserLoanRequests } from "../models/LoanRequestAPIs";
-import { LoanRequest } from "../models/LoanInterfaces";
-
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+import { calculateFlatRepayment, LoanRequest } from "../models/LoanInterfaces";
+import { EmptyState, Skeleton } from "../common/ui";
+import { formatCurrency, formatDate, formatPercent, shortId } from "../common/format";
 
 const LoanSummary: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -57,12 +54,12 @@ const LoanSummary: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[0, 1, 2].map((item) => (
-          <div key={item} className="surface-card animate-pulse p-5">
-            <div className="h-5 w-32 rounded bg-slate-200" />
-            <div className="mt-4 h-8 w-40 rounded bg-slate-200" />
-            <div className="mt-4 h-4 w-56 rounded bg-slate-100" />
+          <div key={item} className="panel space-y-4 p-5">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-8 w-36" />
+            <Skeleton className="h-14 w-full" />
           </div>
         ))}
       </div>
@@ -70,77 +67,74 @@ const LoanSummary: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <StateCard
-        icon={<AlertCircle className="h-10 w-10 text-red-600" />}
-        title="Could not load requests"
-        description={error}
-      />
-    );
+    return <EmptyState icon={<AlertCircle className="text-negative" />} title="Could not load requests" description={error} />;
   }
 
   if (!currentUser) {
-    return (
-      <StateCard
-        icon={<LockKeyhole className="h-10 w-10 text-slate-400" />}
-        title="Log in required"
-        description="Please log in to view your loan requests."
-      />
-    );
+    return <EmptyState icon={<LockKeyhole />} title="Log in required" description="Please log in to view your loan requests." />;
   }
 
   if (loanRequests.length === 0) {
     return (
-      <StateCard
-        icon={<ClipboardList className="h-10 w-10 text-slate-400" />}
+      <EmptyState
+        icon={<ClipboardList />}
         title="No active loan requests"
-        description="Requests you create in the marketplace will appear here."
+        description="Requests you create in the marketplace will appear here until a lender funds them."
+        action={
+          <Link href="/loanRequests#composer" className="btn-primary btn-sm">
+            Create a request
+          </Link>
+        }
+        className="py-16"
       />
     );
   }
 
   return (
     <section>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">Your loan requests</h2>
-        <p className="mt-1 text-sm text-slate-500">Requests you have published for lender review.</p>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-base font-semibold text-ink">Your loan requests</h2>
+          <p className="mt-0.5 text-xs text-ink-muted">Published and waiting for a lender to review.</p>
+        </div>
+        <span className="badge badge-warning num">{loanRequests.length} pending</span>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {loanRequests.map((request) => {
           const date = convertToDate(request.timestamp);
-          const formattedDate = date
-            ? date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-            : "Date not available";
+          const { weeklyPayment } = calculateFlatRepayment(request.principalAmount, request.interestRate, request.termWeeks);
 
           return (
-            <article key={request.id} className="surface-card p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="badge">Pending review</span>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                    {currency.format(request.principalAmount)}
-                  </h3>
-                </div>
-                <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-500">
-                  #{request.id.slice(0, 6)}
+            <article key={request.id} className="panel card-hover flex flex-col p-5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="badge badge-warning">
+                  <Hourglass className="h-3 w-3" aria-hidden="true" />
+                  Pending review
                 </span>
+                <span className="num text-xs text-ink-faint">#{shortId(request.id)}</span>
               </div>
 
-              <div className="mt-5 grid gap-3 text-sm">
-                <div className="flex items-center gap-2 text-slate-700">
-                  <Percent className="h-4 w-4 text-sky-700" aria-hidden="true" />
-                  {request.interestRate}% interest
+              <p className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-ink">{formatCurrency(request.principalAmount)}</p>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center gap-2 text-ink-2">
+                  <Percent className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                  <span className="num">{formatPercent(request.interestRate)} interest</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-700">
-                  <CalendarDays className="h-4 w-4 text-sky-700" aria-hidden="true" />
-                  {request.termWeeks} week{request.termWeeks === 1 ? "" : "s"} term
+                <div className="flex items-center gap-2 text-ink-2">
+                  <CalendarDays className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                  <span className="num">
+                    {request.termWeeks} week{request.termWeeks === 1 ? "" : "s"}
+                  </span>
                 </div>
-                <p className="rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-600">{request.purpose}</p>
               </div>
 
-              <p className="mt-4 border-t border-slate-100 pt-4 text-xs font-medium text-slate-500">
-                Requested {formattedDate}
-              </p>
+              <p className="mt-4 line-clamp-3 flex-1 rounded-lg border border-line bg-canvas/40 p-3 text-sm leading-6 text-ink-2">{request.purpose}</p>
+
+              <div className="mt-4 flex items-center justify-between border-t border-line pt-4 text-xs">
+                <span className="text-ink-muted">Requested {date ? formatDate(date) : "just now"}</span>
+                <span className="num font-medium text-ink">{formatCurrency(weeklyPayment, { cents: true })}/wk</span>
+              </div>
             </article>
           );
         })}
@@ -148,15 +142,5 @@ const LoanSummary: React.FC = () => {
     </section>
   );
 };
-
-function StateCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
-  return (
-    <div className="rounded-md border border-dashed border-slate-300 bg-white p-8 text-center sm:p-10">
-      <div className="flex justify-center">{icon}</div>
-      <p className="mt-4 text-sm font-semibold text-slate-800">{title}</p>
-      <p className="mt-1 text-sm text-slate-500">{description}</p>
-    </div>
-  );
-}
 
 export default LoanSummary;

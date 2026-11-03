@@ -7,6 +7,7 @@ import { auth } from "../../../firebaseConfig";
 import { useDispatch } from "react-redux";
 import { logout } from "./../store";
 import LoadingSpinner from "../common/LoadingSpinner";
+import Logo from "../common/Logo";
 
 const LogoutPage: React.FC = () => {
 	const router = useRouter();
@@ -21,10 +22,15 @@ const LogoutPage: React.FC = () => {
 	}, [dispatch, router]);
 
 	return (
-		<main className="app-page flex min-h-screen items-center justify-center px-4">
-			<div className="surface-card p-8 text-center">
-				<LoadingSpinner size="large" className="mb-4 text-sky-700" />
-				<p className="text-sm font-semibold text-slate-700">Logging out...</p>
+		<main className="app-page relative flex min-h-screen items-center justify-center px-4">
+			<div className="bg-grid mask-fade-radial pointer-events-none absolute inset-0" aria-hidden="true" />
+			<div className="panel edge-glow relative w-full max-w-sm p-8 text-center">
+				<div className="flex justify-center">
+					<Logo />
+				</div>
+				<LoadingSpinner size="medium" className="mt-6 text-accent" label="Signing out" />
+				<p className="mt-4 text-sm font-medium text-ink">Signing you out</p>
+				<p className="mt-1 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-muted">Closing secure session</p>
 			</div>
 		</main>
 	);

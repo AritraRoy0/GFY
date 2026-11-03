@@ -1,193 +1,174 @@
 "use client";
 
-import React, { useState } from "react";
-import { CheckCircle2, ClipboardCheck, Copy, FileText, WalletCards } from "lucide-react";
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { FileText, WalletCards } from "lucide-react";
+import { toast } from "react-toastify";
 import { Loan } from "../models/LoanInterfaces";
+import { Avatar, CopyButton, EmptyState, Meter } from "../common/ui";
+import { formatCurrency, formatDate, formatPercent, shortId } from "../common/format";
+import { memberName, useUserDirectory } from "../common/useUserDirectory";
 
 interface OutstandingLoansTableProps {
-  userId: string;
   type: "owed" | "owned";
   loans: Loan[];
 }
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+function loanProgress(loan: Loan) {
+  const paidAmount = loan.paymentsMade.reduce((sum, payment) => sum + payment.amount, 0);
+  const paidPercent = loan.principalAmount > 0 ? Math.min(100, Math.round((paidAmount / loan.principalAmount) * 100)) : 0;
+  return { paidAmount, paidPercent };
+}
 
 const OutstandingLoansTable: React.FC<OutstandingLoansTableProps> = ({ type, loans }) => {
-  const [copiedLoanId, setCopiedLoanId] = useState<string | null>(null);
+  const counterpartyIds = useMemo(() => loans.map((loan) => (type === "owned" ? loan.borrowedBy : loan.ownedBy)), [loans, type]);
+  const members = useUserDirectory(counterpartyIds);
+  const counterpartyRole = type === "owned" ? "Borrower" : "Lender";
+  const profileType = type === "owned" ? "lendee" : "lender";
 
   const handleMakePayment = (loanId: string) => {
     console.log(`Making payment for loan ID: ${loanId}`);
-  };
-
-  const handleCopyId = async (id: string) => {
-    try {
-      await navigator.clipboard.writeText(id);
-      setCopiedLoanId(id);
-      window.setTimeout(() => setCopiedLoanId(null), 2000);
-    } catch (error) {
-      console.error("Could not copy loan participant ID:", error);
-    }
+    toast.info("Payment processing isn't connected yet. No money has moved.");
   };
 
   if (loans.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-        <FileText className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
-        <p className="mt-4 text-sm font-semibold text-slate-800">No outstanding loans</p>
-        <p className="mt-1 text-sm text-slate-500">
-          {type === "owned" ? "Funded loans will show up here." : "Borrowed loans will show up here."}
-        </p>
-      </div>
+      <EmptyState
+        icon={<FileText />}
+        title={type === "owned" ? "No loans funded yet" : "No borrowed loans"}
+        description={type === "owned" ? "Loans you fund from the marketplace show up here." : "Approved requests you borrowed against show up here."}
+        action={
+          <Link href={type === "owned" ? "/loanRequests" : "/loanRequests#composer"} className="btn-secondary btn-sm">
+            {type === "owned" ? "Browse open requests" : "Create a request"}
+          </Link>
+        }
+      />
     );
   }
 
   return (
     <>
-    <div className="grid gap-3 md:hidden">
-      {loans.map((loan) => {
-        const participantId = type === "owned" ? loan.borrowedBy : loan.ownedBy;
-        const participantLabel = `${participantId.slice(0, 12)}${participantId.length > 12 ? "..." : ""}`;
-        const paidAmount = loan.paymentsMade.reduce((sum, payment) => sum + payment.amount, 0);
-        const paidPercent = loan.principalAmount > 0 ? Math.min(100, Math.round((paidAmount / loan.principalAmount) * 100)) : 0;
+      <div className="grid gap-3 md:hidden">
+        {loans.map((loan) => {
+          const participantId = type === "owned" ? loan.borrowedBy : loan.ownedBy;
+          const name = memberName(participantId, members[participantId]);
+          const { paidAmount, paidPercent } = loanProgress(loan);
 
-        return (
-          <article key={loan.id} className="rounded-md border border-slate-200 bg-white p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Amount</p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                  {currency.format(loan.principalAmount)}
-                </p>
+          return (
+            <article key={loan.id} className="rounded-lg border border-line bg-canvas/40 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="num text-[11px] text-ink-faint">#{shortId(loan.id)}</p>
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-ink">{formatCurrency(loan.principalAmount)}</p>
+                  <p className="num mt-0.5 text-xs text-ink-muted">
+                    {formatPercent(loan.interestRate)} · {loan.termWeeks}w
+                  </p>
+                </div>
+                <span className={`badge ${paidPercent >= 100 ? "badge-success" : "badge-accent"}`}>{paidPercent >= 100 ? "Repaid" : "Active"}</span>
               </div>
-              <span className="badge badge-success">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Active
-              </span>
-            </div>
 
-            <div className="mt-4 flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold text-slate-700">
-                {participantId.charAt(0).toUpperCase()}
+              <Link href={`/profile?id=${participantId}&type=${profileType}`} className="mt-4 flex items-center gap-3 rounded-md">
+                <Avatar id={participantId} name={name} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="data-label">{counterpartyRole}</p>
+                  <p className="truncate text-sm font-medium text-ink">{name}</p>
+                </div>
+              </Link>
+
+              <div className="mt-4">
+                <div className="mb-1.5 flex justify-between text-[11px] text-ink-muted">
+                  <span className="num">{formatCurrency(paidAmount)} repaid</span>
+                  <span className="num">{paidPercent}%</span>
+                </div>
+                <Meter value={paidPercent} max={100} tone={paidPercent >= 100 ? "positive" : "accent"} />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-                  {type === "owned" ? "Borrower" : "Lender"}
-                </p>
-                <p className="truncate text-sm font-semibold text-slate-800">{participantLabel}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleCopyId(participantId)}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500"
-                aria-label={`Copy participant ID ${participantId}`}
-              >
-                {copiedLoanId === participantId ? (
-                  <ClipboardCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                ) : (
-                  <Copy className="h-4 w-4" aria-hidden="true" />
-                )}
-              </button>
-            </div>
 
-            <div className="mt-4">
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-emerald-500" style={{ width: `${paidPercent}%` }} />
-              </div>
-            </div>
+              {type === "owed" && (
+                <button
+                  type="button"
+                  onClick={() => handleMakePayment(loan.id)}
+                  className="btn-secondary btn-sm mt-4 w-full"
+                  aria-label={`Make payment for loan ID ${loan.id}`}
+                >
+                  <WalletCards className="h-3.5 w-3.5" aria-hidden="true" />
+                  Make payment
+                </button>
+              )}
+            </article>
+          );
+        })}
+      </div>
 
-            {type === "owed" && (
-              <button
-                type="button"
-                onClick={() => handleMakePayment(loan.id)}
-                className="btn-secondary mt-4 w-full px-3 py-2 text-xs"
-                aria-label={`Make payment for loan ID ${loan.id}`}
-              >
-                <WalletCards className="h-4 w-4" aria-hidden="true" />
-                Make Payment
-              </button>
-            )}
-          </article>
-        );
-      })}
-    </div>
+      <div className="-mx-4 hidden overflow-x-auto sm:-mx-5 md:block">
+        <table className="min-w-full text-left text-sm">
+          <thead>
+            <tr className="border-y border-line bg-canvas/40">
+              <th className="data-label py-2.5 pl-4 pr-3 font-medium sm:pl-5">{counterpartyRole}</th>
+              <th className="data-label px-3 py-2.5 text-right font-medium">Principal</th>
+              <th className="data-label px-3 py-2.5 text-right font-medium">Terms</th>
+              <th className="data-label px-3 py-2.5 font-medium">Repaid</th>
+              <th className="data-label hidden px-3 py-2.5 font-medium 2xl:table-cell">Opened</th>
+              <th className="data-label py-2.5 pl-3 pr-4 text-right font-medium sm:pr-5">
+                <span className="sr-only">Action</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {loans.map((loan) => {
+              const participantId = type === "owned" ? loan.borrowedBy : loan.ownedBy;
+              const name = memberName(participantId, members[participantId]);
+              const { paidPercent } = loanProgress(loan);
 
-    <div className="hidden overflow-x-auto md:block">
-      <table className="min-w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            <th className="py-3 pr-4">Amount</th>
-            <th className="px-4 py-3">{type === "owned" ? "Borrower" : "Lender"}</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="py-3 pl-4 text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {loans.map((loan) => {
-            const participantId = type === "owned" ? loan.borrowedBy : loan.ownedBy;
-            const participantLabel = `${participantId.slice(0, 10)}${participantId.length > 10 ? "..." : ""}`;
-            const paidAmount = loan.paymentsMade.reduce((sum, payment) => sum + payment.amount, 0);
-            const paidPercent = loan.principalAmount > 0 ? Math.min(100, Math.round((paidAmount / loan.principalAmount) * 100)) : 0;
-
-            return (
-              <tr key={loan.id} className="align-middle">
-                <td className="py-4 pr-4 font-semibold text-slate-950">{currency.format(loan.principalAmount)}</td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold text-slate-700">
-                      {participantId.charAt(0).toUpperCase()}
+              return (
+                <tr key={loan.id} className="transition-colors hover:bg-surface-2/50">
+                  <td className="py-3 pl-4 pr-3 sm:pl-5">
+                    <div className="flex items-center gap-3">
+                      <Avatar id={participantId} name={name} size="sm" />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/profile?id=${participantId}&type=${profileType}`}
+                          className="block max-w-[12rem] truncate font-medium text-ink hover:text-accent"
+                        >
+                          {name}
+                        </Link>
+                        <CopyButton value={participantId} label={`ID ${shortId(participantId)}`} className="-ml-1" />
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-slate-800">{participantLabel}</p>
+                  </td>
+                  <td className="num px-3 py-3 text-right font-medium text-ink">{formatCurrency(loan.principalAmount)}</td>
+                  <td className="num whitespace-nowrap px-3 py-3 text-right text-xs text-ink-2">
+                    {formatPercent(loan.interestRate)} <span className="text-ink-faint">·</span> {loan.termWeeks}w
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <Meter className="w-16 lg:w-20" value={paidPercent} max={100} tone={paidPercent >= 100 ? "positive" : "accent"} />
+                      <span className="num w-9 text-xs text-ink-muted">{paidPercent}%</span>
+                    </div>
+                  </td>
+                  <td className="hidden whitespace-nowrap px-3 py-3 text-xs text-ink-muted 2xl:table-cell">
+                    {loan.timestamp ? formatDate(loan.timestamp) : "Pending"}
+                  </td>
+                  <td className="py-3 pl-3 pr-4 text-right sm:pr-5">
+                    {type === "owed" ? (
                       <button
                         type="button"
-                        onClick={() => handleCopyId(participantId)}
-                        className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-sky-700"
-                        aria-label={`Copy participant ID ${participantId}`}
+                        onClick={() => handleMakePayment(loan.id)}
+                        className="btn-secondary btn-sm"
+                        aria-label={`Make payment for loan ID ${loan.id}`}
                       >
-                        {copiedLoanId === participantId ? (
-                          <ClipboardCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-                        )}
-                        {copiedLoanId === participantId ? "Copied" : "Copy ID"}
+                        <WalletCards className="h-3.5 w-3.5" aria-hidden="true" />
+                        Pay
                       </button>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="badge badge-success">
-                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    Active
-                  </span>
-                  <div className="mt-2 h-1.5 w-28 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${paidPercent}%` }} />
-                  </div>
-                </td>
-                <td className="py-4 pl-4 text-right">
-                  {type === "owed" ? (
-                    <button
-                      type="button"
-                      onClick={() => handleMakePayment(loan.id)}
-                      className="btn-secondary px-3 py-2 text-xs"
-                      aria-label={`Make payment for loan ID ${loan.id}`}
-                    >
-                      <WalletCards className="h-4 w-4" aria-hidden="true" />
-                      Pay
-                    </button>
-                  ) : (
-                    <span className="text-sm text-slate-400">-</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                    ) : (
+                      <span className={`badge ${paidPercent >= 100 ? "badge-success" : "badge-accent"}`}>{paidPercent >= 100 ? "Repaid" : "Active"}</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };

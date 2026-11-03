@@ -1,156 +1,156 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { CalendarDays, CircleDollarSign, Percent, TrendingUp, UserRound } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, CircleDollarSign } from "lucide-react";
 import { fetchLoanRequests } from "../models/LoanRequestAPIs";
 import { LoanRequest } from "../models/LoanInterfaces";
+import { formatCurrency, formatPercent, shortId } from "./format";
+import { memberName, useUserDirectory } from "./useUserDirectory";
+import { LiveDot, Skeleton } from "./ui";
 
-interface User {
-  uid: string;
-  displayName?: string;
-  email?: string;
-}
+const SCROLL_THRESHOLD = 6;
 
+/** Live feed of open loan requests, styled as a market terminal. */
 const LoanRequestCarousel: React.FC = () => {
   const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
-  const [userMap, setUserMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
+  const knownIds = useRef<Set<string> | null>(null);
 
   useEffect(() => {
-    const unsubscribe = fetchLoanRequests((requests) => {
-      setLoanRequests(requests);
-      setLoading(false);
-    });
+    const unsubscribe = fetchLoanRequests(
+      (requests) => {
+        // Highlight requests that arrive after the first snapshot.
+        if (knownIds.current) {
+          const arrivals = requests.filter((request) => !knownIds.current?.has(request.id)).map((request) => request.id);
+          if (arrivals.length) {
+            setFreshIds(new Set(arrivals));
+            window.setTimeout(() => setFreshIds(new Set()), 2400);
+          }
+        }
+        knownIds.current = new Set(requests.map((request) => request.id));
+        setLoanRequests(requests);
+        setLoading(false);
+      },
+      () => {
+        setError("Live feed unavailable right now.");
+        setLoading(false);
+      }
+    );
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const fetchAllUserDetails = async () => {
-      const uniqueUids = Array.from(new Set(loanRequests.map((req) => req.borrowedBy)));
-      const userPromises = uniqueUids.map((uid) => fetchUserDetails(uid));
-      try {
-        const users = await Promise.all(userPromises);
-        const nextUserMap: Record<string, string> = {};
-        users.forEach((user) => {
-          nextUserMap[user.uid] = user.displayName || user.email || user.uid;
-        });
-        setUserMap(nextUserMap);
-      } catch (err) {
-        console.error("Error fetching user details:", err);
-        setError("Failed to load user details.");
-      }
-    };
+  const sorted = useMemo(
+    () => [...loanRequests].sort((a, b) => (b.timestamp?.toMillis?.() ?? 0) - (a.timestamp?.toMillis?.() ?? 0)),
+    [loanRequests]
+  );
+  const members = useUserDirectory(useMemo(() => sorted.map((request) => request.borrowedBy), [sorted]));
 
-    if (loanRequests.length > 0) fetchAllUserDetails();
-  }, [loanRequests]);
+  const totals = useMemo(() => {
+    const volume = sorted.reduce((sum, request) => sum + request.principalAmount, 0);
+    const averageRate = sorted.length ? sorted.reduce((sum, request) => sum + request.interestRate, 0) / sorted.length : 0;
+    return { volume, averageRate };
+  }, [sorted]);
 
-  if (loading) {
-    return (
-      <div className="w-full">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
-            <div className="mt-2 h-3 w-60 animate-pulse rounded bg-slate-100" />
-          </div>
-          <div className="h-8 w-24 animate-pulse rounded bg-slate-100" />
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {[0, 1, 2].map((item) => (
-            <div key={item} className="h-32 animate-pulse rounded-md border border-slate-200 bg-slate-50" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-        {error}
-      </div>
-    );
-  }
-
-  if (loanRequests.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-        <CircleDollarSign className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
-        <p className="mt-4 text-sm font-semibold text-slate-800">No live requests yet</p>
-        <p className="mt-1 text-sm text-slate-500">Published borrower requests will appear in this live view.</p>
-      </div>
-    );
-  }
-
-  const requests = loanRequests.length > 3 ? [...loanRequests, ...loanRequests] : loanRequests;
+  const scrolling = sorted.length > SCROLL_THRESHOLD;
+  const rows = scrolling ? [...sorted, ...sorted] : sorted;
 
   return (
-    <div className="w-full overflow-hidden">
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="section-kicker">Live requests</p>
-          <h3 className="mt-1 text-lg font-semibold text-slate-950">Lending opportunities</h3>
+    <div className="overflow-hidden rounded-xl border border-line-strong bg-surface shadow-lift">
+      <div className="flex items-center gap-3 border-b border-line bg-canvas/50 px-4 py-2.5">
+        <div className="flex gap-1.5" aria-hidden="true">
+          <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
+          <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
+          <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
         </div>
-        <span className="badge">{loanRequests.length} open</span>
+        <p className="flex-1 truncate font-mono text-[11px] text-ink-muted">gfy://marketplace/open-requests</p>
+        <LiveDot label={loading ? "Connecting" : "Live"} tone={error ? "negative" : loading ? "warning" : "positive"} />
       </div>
 
-      <motion.div
-        className="flex gap-3"
-        animate={loanRequests.length > 3 ? { x: ["0%", "-50%"] } : undefined}
-        transition={loanRequests.length > 3 ? { duration: loanRequests.length * 5, repeat: Infinity, ease: "linear" } : undefined}
-      >
-        {requests.map((request, index) => (
-          <TickerItem key={`${request.id}-${index}`} request={request} userName={userMap[request.borrowedBy]} />
+      <div className="grid grid-cols-[4.5rem_1fr_5.5rem_3.5rem] gap-3 border-b border-line px-4 py-2 sm:grid-cols-[4.5rem_1fr_6rem_4rem_4rem_5rem]">
+        {["ID", "Borrower", "Principal", "Rate"].map((label) => (
+          <span key={label} className={`data-label ${label === "Principal" || label === "Rate" ? "text-right" : ""}`}>
+            {label}
+          </span>
         ))}
-      </motion.div>
+        <span className="data-label hidden text-right sm:block">Term</span>
+        <span className="data-label hidden text-right sm:block">Yield</span>
+      </div>
+
+      <div className="group relative h-[22rem] overflow-hidden">
+        {loading ? (
+          <div className="space-y-px p-2">
+            {Array.from({ length: 7 }).map((_, index) => (
+              <Skeleton key={index} className="h-11" />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="flex h-full items-center justify-center px-6 text-center text-sm text-negative">{error}</div>
+        ) : sorted.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+            <CircleDollarSign className="h-8 w-8 text-ink-faint" aria-hidden="true" />
+            <p className="mt-3 text-sm font-medium text-ink">No open requests right now</p>
+            <p className="mt-1 text-xs text-ink-muted">New borrower requests stream in here the moment they are published.</p>
+          </div>
+        ) : (
+          <>
+            <ul
+              className={scrolling ? "animate-marquee-y group-hover:[animation-play-state:paused]" : ""}
+              style={scrolling ? { animationDuration: `${sorted.length * 3.5}s` } : undefined}
+              aria-label="Open loan requests"
+            >
+              {rows.map((request, index) => {
+                const interest = (request.principalAmount * request.interestRate) / 100;
+                const isFresh = freshIds.has(request.id) && index < sorted.length;
+                return (
+                  <li
+                    key={`${request.id}-${index}`}
+                    aria-hidden={index >= sorted.length ? true : undefined}
+                    className={`grid grid-cols-[4.5rem_1fr_5.5rem_3.5rem] items-center gap-3 border-b border-line/60 px-4 py-3 text-sm transition-colors duration-700 hover:bg-surface-2 sm:grid-cols-[4.5rem_1fr_6rem_4rem_4rem_5rem] ${
+                      isFresh ? "bg-accent/10" : ""
+                    }`}
+                  >
+                    <span className="num text-xs text-ink-muted">#{shortId(request.id)}</span>
+                    <span className="truncate text-ink-2">{memberName(request.borrowedBy, members[request.borrowedBy])}</span>
+                    <span className="num text-right font-medium text-ink">{formatCurrency(request.principalAmount)}</span>
+                    <span className="num text-right text-ink-2">{formatPercent(request.interestRate)}</span>
+                    <span className="num hidden text-right text-ink-muted sm:block">{request.termWeeks}w</span>
+                    <span className="num hidden text-right text-positive sm:block">+{formatCurrency(interest)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-surface to-transparent" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent" aria-hidden="true" />
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-3 divide-x divide-line border-t border-line bg-canvas/40">
+        <TerminalStat label="Open" value={loading ? "--" : sorted.length.toString()} />
+        <TerminalStat label="Volume" value={loading ? "--" : formatCurrency(totals.volume)} />
+        <TerminalStat label="Avg rate" value={loading ? "--" : formatPercent(totals.averageRate)} />
+      </div>
+      <Link
+        href="/loanRequests"
+        className="flex items-center justify-between border-t border-line px-4 py-3 text-xs font-medium text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink"
+      >
+        Open the full marketplace
+        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+      </Link>
     </div>
   );
 };
 
-function TickerItem({ request, userName }: { request: LoanRequest; userName?: string }) {
-  const profit = (request.principalAmount * request.interestRate) / 100;
-
+function TerminalStat({ label, value }: { label: string; value: string }) {
   return (
-    <article className="w-[17rem] max-w-[calc(100vw-3rem)] shrink-0 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-slate-100 text-slate-700">
-          <UserRound className="h-4 w-4" aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">{userName || `User ${request.borrowedBy.slice(0, 5)}`}</p>
-          <p className="text-xs text-slate-500">Borrower request</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <DataPoint icon={<CircleDollarSign className="h-4 w-4" />} label="Principal" value={`$${request.principalAmount.toLocaleString()}`} />
-        <DataPoint icon={<Percent className="h-4 w-4" />} label="Interest" value={`${request.interestRate}%`} />
-        <DataPoint icon={<CalendarDays className="h-4 w-4" />} label="Term" value={`${request.termWeeks} wks`} />
-        <DataPoint icon={<TrendingUp className="h-4 w-4" />} label="Interest" value={`+$${profit.toLocaleString()}`} />
-      </div>
-    </article>
-  );
-}
-
-function DataPoint({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <span className="mt-0.5 text-sky-700">{icon}</span>
-      <span>
-        <span className="block text-xs text-slate-500">{label}</span>
-        <span className="block font-semibold text-slate-900">{value}</span>
-      </span>
+    <div className="px-4 py-3">
+      <p className="data-label">{label}</p>
+      <p className="num mt-1 truncate text-sm font-medium text-ink">{value}</p>
     </div>
   );
 }
-
-const fetchUserDetails = async (uid: string): Promise<User> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ uid, displayName: `User ${uid.slice(0, 5)}` });
-    }, 100);
-  });
-};
 
 export default LoanRequestCarousel;

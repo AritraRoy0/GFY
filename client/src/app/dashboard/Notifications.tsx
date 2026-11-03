@@ -2,7 +2,9 @@
 
 import React from "react";
 import { format } from "date-fns";
-import { Bell, Info } from "lucide-react";
+import { Bell, Clock3 } from "lucide-react";
+import { EmptyState } from "../common/ui";
+import { formatRelative } from "../common/format";
 
 interface Notification {
   id: string;
@@ -17,29 +19,32 @@ interface NotificationsProps {
 
 const Notifications: React.FC<NotificationsProps> = ({ notifications }) => {
   if (notifications.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-        <Bell className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
-        <p className="mt-4 text-sm font-semibold text-slate-800">No notifications</p>
-        <p className="mt-1 text-sm text-slate-500">Loan request updates will appear here.</p>
-      </div>
-    );
+    return <EmptyState icon={<Bell />} title="All caught up" description="Updates on your loan requests appear here." />;
   }
 
+  const sorted = [...notifications].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
   return (
-    <ul className="divide-y divide-slate-100">
-      {notifications.map((notification) => (
-        <li key={notification.id} className="flex items-start gap-3 py-4">
-          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-sky-50 text-sky-700">
-            <Info className="h-4 w-4" aria-hidden="true" />
+    <ol className="relative space-y-1">
+      <span className="absolute bottom-3 left-[0.9375rem] top-3 w-px bg-line" aria-hidden="true" />
+      {sorted.map((notification) => (
+        <li key={notification.id} className="relative flex items-start gap-3 rounded-lg py-2.5 pr-2">
+          <span className="relative z-10 mt-0.5 flex h-[1.875rem] w-[1.875rem] shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface text-warning">
+            <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-slate-900">{notification.message}</p>
-            <p className="mt-1 text-xs text-slate-500">{format(notification.timestamp, "PP p")}</p>
+            <p className="text-sm leading-5 text-ink">{notification.message}</p>
+            <time
+              dateTime={notification.timestamp.toISOString()}
+              title={format(notification.timestamp, "PP p")}
+              className="num mt-1 block text-[11px] text-ink-muted"
+            >
+              {formatRelative(notification.timestamp)}
+            </time>
           </div>
         </li>
       ))}
-    </ul>
+    </ol>
   );
 };
 

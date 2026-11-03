@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
-import { ArrowDownRight, ArrowUpRight, Landmark, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Landmark, Scale, TrendingDown, TrendingUp } from "lucide-react";
 import { Loan } from "@/app/models/LoanInterfaces";
+import { StatCard } from "@/app/common/ui";
+import { formatCurrency, pluralize } from "@/app/common/format";
 
 interface SummarySectionProps {
   totalOwned: number;
@@ -12,12 +14,6 @@ interface SummarySectionProps {
   borrowedLoans: Loan[];
 }
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 function calculateTrend(loans: Loan[]): { value: number; isPositive: boolean } {
   if (loans.length === 0) return { value: 0, isPositive: true };
 
@@ -26,11 +22,13 @@ function calculateTrend(loans: Loan[]): { value: number; isPositive: boolean } {
   const previousMonth = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
 
   const currentMonthTotal = loans.reduce((sum, loan) => {
+    if (!loan.timestamp) return sum;
     const loanDate = new Date(loan.timestamp);
     return loanDate >= lastMonth ? sum + loan.principalAmount : sum;
   }, 0);
 
   const previousMonthTotal = loans.reduce((sum, loan) => {
+    if (!loan.timestamp) return sum;
     const loanDate = new Date(loan.timestamp);
     return loanDate < lastMonth && loanDate >= previousMonth ? sum + loan.principalAmount : sum;
   }, 0);
@@ -44,40 +42,22 @@ function calculateTrend(loans: Loan[]): { value: number; isPositive: boolean } {
   };
 }
 
-const SummaryCard: React.FC<{
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-  helper: string;
-  trend?: { value: number; isPositive: boolean };
-}> = ({ title, value, icon, helper, trend }) => {
-  const TrendIcon = trend?.isPositive ? ArrowUpRight : ArrowDownRight;
-
+function TrendChip({ trend, upIsGood }: { trend: { value: number; isPositive: boolean }; upIsGood: boolean }) {
+  if (trend.value === 0) return null;
+  const Icon = trend.isPositive ? ArrowUpRight : ArrowDownRight;
+  const good = trend.isPositive === upIsGood;
   return (
-    <div className="metric-card">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-950 text-white">
-          {icon}
-        </div>
-      </div>
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-        <p className="text-sm text-slate-500">{helper}</p>
-        {trend && (
-          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
-            trend.isPositive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-          }`}>
-            <TrendIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {Math.abs(trend.value)}%
-          </span>
-        )}
-      </div>
-    </div>
+    <span
+      className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 font-mono text-[10.5px] font-medium ${
+        good ? "bg-positive/10 text-positive" : "bg-negative/10 text-negative"
+      }`}
+      title="Change in new principal vs. the previous 30 days"
+    >
+      <Icon className="h-3 w-3" aria-hidden="true" />
+      {Math.abs(trend.value)}%
+    </span>
   );
-};
+}
 
 const SummarySection: React.FC<SummarySectionProps> = ({
   totalOwned,
@@ -90,28 +70,50 @@ const SummarySection: React.FC<SummarySectionProps> = ({
     owned: calculateTrend(lentLoans),
     owed: calculateTrend(borrowedLoans),
   };
+  const projectedInterest = lentLoans.reduce((sum, loan) => sum + (loan.principalAmount * loan.interestRate) / 100, 0);
+  const netPosition = totalOwned - totalOwed;
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <SummaryCard
-        title="Loans owed to you"
-        value={currency.format(totalOwned)}
-        icon={<TrendingUp className="h-5 w-5" aria-hidden="true" />}
-        trend={trends.owned}
-        helper={`${lentLoans.length} active lent loan${lentLoans.length === 1 ? "" : "s"}`}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <StatCard
+        label="Capital lent"
+        value={formatCurrency(totalOwned)}
+        icon={<TrendingUp />}
+        tone="accent"
+        chip={<TrendChip trend={trends.owned} upIsGood />}
+        hint={
+          <>
+            {pluralize(lentLoans.length, "active loan")}
+            {projectedInterest > 0 && <span className="text-positive"> · +{formatCurrency(projectedInterest)} projected interest</span>}
+          </>
+        }
       />
-      <SummaryCard
-        title="Available reserves"
-        value={currency.format(totalReserves)}
-        icon={<Landmark className="h-5 w-5" aria-hidden="true" />}
-        helper="Demo reserve balance"
+      <StatCard
+        label="Outstanding debt"
+        value={formatCurrency(totalOwed)}
+        icon={<TrendingDown />}
+        tone="warning"
+        chip={<TrendChip trend={trends.owed} upIsGood={false} />}
+        hint={pluralize(borrowedLoans.length, "active borrowed loan")}
       />
-      <SummaryCard
-        title="Loans you owe"
-        value={currency.format(totalOwed)}
-        icon={<TrendingDown className="h-5 w-5" aria-hidden="true" />}
-        trend={trends.owed}
-        helper={`${borrowedLoans.length} active borrowed loan${borrowedLoans.length === 1 ? "" : "s"}`}
+      <StatCard
+        label="Net position"
+        value={
+          <span className={netPosition < 0 ? "text-negative" : undefined}>
+            {netPosition > 0 ? "+" : ""}
+            {formatCurrency(netPosition)}
+          </span>
+        }
+        icon={<Scale />}
+        tone={netPosition < 0 ? "negative" : "positive"}
+        hint="Capital lent minus debt owed"
+      />
+      <StatCard
+        label="Reserves"
+        value={formatCurrency(totalReserves)}
+        icon={<Landmark />}
+        chip={<span className="badge px-1.5 py-0 font-mono text-[10px] uppercase tracking-wider">Demo</span>}
+        hint="Placeholder balance, not connected to a bank"
       />
     </div>
   );
