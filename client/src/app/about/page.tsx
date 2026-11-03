@@ -71,7 +71,7 @@ export default function AboutUs() {
           <div className="bg-grid mask-fade-radial pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="pointer-events-none absolute left-1/2 top-0 h-[28rem] w-[50rem] -translate-x-1/2 rounded-full bg-accent-2/[0.08] blur-[120px]" aria-hidden="true" />
           <div className="app-container relative py-20 sm:py-28">
-            <div className="max-w-4xl animate-fade-up">
+            <div className="max-w-4xl">
               <p className="section-kicker">About GoFundYourself</p>
               <h1 className="mt-6 text-4xl font-semibold leading-[1.05] tracking-[-0.04em] text-ink sm:text-6xl">
                 Peer lending works better when both sides can see <span className="text-gradient">the same details.</span>

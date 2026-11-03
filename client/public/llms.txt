@@ -1,0 +1,18 @@
+# GoFundYourself
+
+> GoFundYourself is a peer-to-peer lending marketplace. Borrowers publish loan requests with their own amount, interest rate, term, and purpose; other members review the full repayment schedule and fund the requests they choose. Both sides track funded loans on a realtime dashboard.
+
+Key facts:
+
+- Loan requests range from $500 to $10,000 each.
+- The minimum interest rate is 5%. Repayment terms run from 1 to 52 weeks.
+- Interest is flat-rate: the rate is applied once to the principal and the total is split into equal weekly payments (for example, $2,500 at 8% over 12 weeks is $2,700 total, $225 per week).
+- Creating an account is free.
+- Operated by Vault Technologies LLC.
+
+## Pages
+
+- [Home](https://gofundyourselfinc.com/): Overview, live feed of open loan requests, repayment calculator, and FAQ.
+- [Loan marketplace](https://gofundyourselfinc.com/loanRequests): Browse and compare open peer-to-peer loan requests, or post a new one.
+- [About](https://gofundyourselfinc.com/about): How the platform works and why it bypasses banks.
+- [Create an account](https://gofundyourselfinc.com/auth?tab=signup): Sign up to borrow or lend.

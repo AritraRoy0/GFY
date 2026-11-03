@@ -309,7 +309,7 @@ export function SegmentedControl<T extends string>({
           >
             {option.label}
             {option.count !== undefined && (
-              <span className={cx("num rounded px-1 text-[10px]", active ? "bg-accent/15 text-accent" : "bg-surface-2 text-ink-muted")}>
+              <span className={cx("num rounded px-1 text-[10px]", active ? "bg-accent/[0.08] text-accent" : "bg-surface-2 text-ink-muted")}>
                 {option.count}
               </span>
             )}
