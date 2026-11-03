@@ -1,8 +1,26 @@
 import { firestore } from "../../../firebaseConfig";
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Loan } from './LoanInterfaces';
 
 const db = firestore;
+
+/**
+ * Maps a Firestore loan document to a Loan. `timestamp` is a Firestore Timestamp (set via serverTimestamp)
+ * and is converted to a Date; it can be briefly null while a server timestamp is pending.
+ */
+function toLoan(doc: QueryDocumentSnapshot<DocumentData>): Loan {
+	const data = doc.data();
+	return {
+		id: doc.id,
+		borrowedBy: data.borrowedBy,
+		ownedBy: data.ownedBy,
+		principalAmount: data.principalAmount,
+		interestRate: data.interestRate,
+		termWeeks: data.termWeeks,
+		paymentsMade: data.paymentsMade ?? [],
+		timestamp: data.timestamp?.toDate?.() ?? null,
+	} as Loan;
+}
 
 export function fetchBorrowedLoans(
 	userId: string,
@@ -15,19 +33,7 @@ export function fetchBorrowedLoans(
 	const unsubscribe = onSnapshot(
 		qBorrowed,
 		(snapshot) => {
-			const borrowedLoans = snapshot.docs.map((doc) => {
-				const data = doc.data();
-				return {
-					id: doc.id,
-					borrowedBy: data.borrowedBy,
-					ownedBy: data.ownedBy,
-					principalAmount: data.principalAmount,
-					interestRate: data.interestRate,
-					termWeeks: data.termWeeks,
-					paymentsMade: data.paymentsMade,
-				} as Loan;
-			});
-			callback(borrowedLoans);
+			callback(snapshot.docs.map(toLoan));
 		},
 		(error) => {
 			console.error('Error fetching borrowed loans:', error);
@@ -49,19 +55,7 @@ export function fetchLentLoans(
 	const unsubscribe = onSnapshot(
 		qLent,
 		(snapshot) => {
-			const lentLoans = snapshot.docs.map((doc) => {
-				const data = doc.data();
-				return {
-					id: doc.id,
-					borrowedBy: data.borrowedBy,
-					ownedBy: data.ownedBy,
-					principalAmount: data.principalAmount,
-					interestRate: data.interestRate,
-					termWeeks: data.termWeeks,
-					paymentsMade: data.paymentsMade,
-				} as Loan;
-			});
-			callback(lentLoans);
+			callback(snapshot.docs.map(toLoan));
 		},
 		(error) => {
 			console.error('Error fetching lent loans:', error);
@@ -90,19 +84,7 @@ export function fetchLoans(
 	const unsubscribe = onSnapshot(
 		q,
 		(snapshot) => {
-			const allLoans: Loan[] = snapshot.docs.map((doc) => {
-				const data = doc.data();
-				return {
-					id: doc.id,
-					borrowedBy: data.borrowedBy,
-					ownedBy: data.ownedBy,
-					principalAmount: data.principalAmount,
-					interestRate: data.interestRate,
-					termWeeks: data.termWeeks,
-					paymentsMade: data.paymentsMade,
-				} as Loan;
-			});
-			callback(allLoans);
+			callback(snapshot.docs.map(toLoan));
 		},
 		(error) => {
 			console.error('Error fetching all loans:', error);

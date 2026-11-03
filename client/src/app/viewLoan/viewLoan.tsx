@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Bar,
-  BarChart,
+  Area,
+  AreaChart,
   CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,41 +18,42 @@ import {
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   CalendarDays,
   CheckCircle2,
-  CircleDollarSign,
-  Scale,
+  FileText,
+  LogIn,
+  ShieldCheck,
   UserRound,
   XCircle,
 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { RootState } from "../store";
 import { approveLoan } from "../models/LoanRequestAPIs";
+import LoadingSpinner from "../common/LoadingSpinner";
+import { Avatar, CopyButton, PageHeader, Panel, SegmentedControl, StatCard, StatePanel } from "../common/ui";
+import { ChartTooltip, useChartColors } from "../common/chartTheme";
+import { formatCompactCurrency, formatCurrency, formatDate, formatPercent, shortId } from "../common/format";
+import { memberName, useUserDirectory } from "../common/useUserDirectory";
 
-type ButtonProps = {
-  onClick: () => void;
-  disabled?: boolean;
-  variant: "primary" | "secondary";
-  children?: React.ReactNode;
-};
-
-const money = (value: number) =>
-  value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+const money = (value: number) => formatCurrency(value, { cents: true });
 
 const ViewLoan: React.FC = () => {
   const router = useRouter();
   const loanRequest = useSelector((state: RootState) => state.loanRequest);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, initialized } = useSelector((state: RootState) => state.auth);
   const userId = user?.id;
   const loanId = loanRequest?.id;
   const [loading, setLoading] = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scheduleView, setScheduleView] = useState<"chart" | "table">("chart");
+  const chartColors = useChartColors();
+  const { axisTick } = chartColors;
+
+  const members = useUserDirectory(useMemo(() => (loanRequest?.borrowedBy ? [loanRequest.borrowedBy] : []), [loanRequest?.borrowedBy]));
+  const borrowerName = loanRequest?.borrowedBy ? memberName(loanRequest.borrowedBy, members[loanRequest.borrowedBy]) : "";
 
   const { totalRepayment, totalInterest, weeklyPayment } = useMemo(() => {
     if (!loanRequest || !loanRequest.principalAmount || !loanRequest.interestRate || !loanRequest.termWeeks) {
@@ -76,9 +79,14 @@ const ViewLoan: React.FC = () => {
         week: index + 1,
         amount: weeklyPayment,
         cumulative: Number(cumulative.toFixed(2)),
+        remaining: Math.max(0, Number((totalRepayment - cumulative).toFixed(2))),
       };
     });
   }, [loanRequest?.termWeeks, totalRepayment, weeklyPayment]);
+
+  // Week 0 anchors the cumulative curve at zero.
+  const chartData = useMemo(() => [{ week: 0, cumulative: 0, remaining: totalRepayment }, ...weeklyPayments], [totalRepayment, weeklyPayments]);
+  const breakEvenWeek = weeklyPayments.find((row) => row.cumulative >= (loanRequest?.principalAmount ?? Infinity))?.week;
 
   const isValidLoanRequest = useMemo(() => {
     return Boolean(
@@ -91,6 +99,8 @@ const ViewLoan: React.FC = () => {
     );
   }, [loanRequest]);
 
+  const isOwnRequest = Boolean(userId && loanRequest?.borrowedBy === userId);
+
   const handleApprove = async () => {
     if (!loanRequest || !loanId || !userId) {
       setError("Missing required loan information.");
@@ -102,11 +112,14 @@ const ViewLoan: React.FC = () => {
 
     try {
       await approveLoan(loanRequest, userId);
-      toast.success("Loan approved successfully.");
+      setApproved(true);
+      setConfirmOpen(false);
+      toast.success("Loan approved and funded.");
       window.setTimeout(() => router.push("/loanRequests"), 1800);
     } catch (err) {
       console.error("Failed to approve loan:", err);
       setError("Failed to approve loan. Please try again.");
+      setConfirmOpen(false);
     } finally {
       setLoading(false);
     }
@@ -116,197 +129,335 @@ const ViewLoan: React.FC = () => {
 
   if (!isValidLoanRequest) {
     return (
-      <div className="app-container py-12">
-        <div className="surface-card mx-auto max-w-lg p-8 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-amber-600" aria-hidden="true" />
-          <h1 className="mt-4 text-2xl font-semibold text-slate-950">Loan request not found</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Select a request from the marketplace to review its repayment schedule and approval details.
-          </p>
-          <Link href="/loanRequests" className="btn-primary mt-6">
+      <StatePanel
+        icon={<AlertCircle />}
+        tone="warning"
+        title="Loan request not found"
+        description="Select a request from the marketplace to review its repayment schedule and approval details."
+        action={
+          <Link href="/loanRequests" className="btn-primary">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Return to Loan Requests
+            Return to marketplace
           </Link>
-        </div>
-      </div>
+        }
+      />
     );
   }
 
   return (
-    <div className="app-container py-6 sm:py-10">
-      <ToastContainer position="top-center" autoClose={2500} hideProgressBar={false} />
+    <div className="space-y-6">
+      <PageHeader
+        kicker="Loan review"
+        title={
+          <>
+            {formatCurrency(loanRequest.principalAmount)} <span className="text-ink-muted">at</span> {formatPercent(loanRequest.interestRate)}{" "}
+            <span className="text-ink-muted">for</span> {loanRequest.termWeeks} weeks
+          </>
+        }
+        description="Confirm borrower context, terms, interest, and repayment schedule before funding."
+        meta={
+          <>
+            <span className={`badge ${approved ? "badge-accent" : "badge-success"}`}>{approved ? "Funded" : "Open request"}</span>
+            <span className="badge num">#{shortId(loanRequest.id)}</span>
+            {loanRequest.timestamp?.toDate && <span className="text-xs text-ink-muted">Posted {formatDate(loanRequest.timestamp.toDate())}</span>}
+          </>
+        }
+        actions={
+          <Link href="/loanRequests" className="btn-ghost">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to marketplace
+          </Link>
+        }
+      />
 
-      <div className="mb-6">
-        <Link href="/loanRequests" className="btn-ghost -ml-2">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to marketplace
-        </Link>
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem] lg:items-start xl:grid-cols-[1fr_24rem]">
+        <div className="min-w-0 space-y-6">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <StatCard label="Total repayment" value={money(totalRepayment)} hint={`Principal + ${formatPercent(loanRequest.interestRate)} interest`} />
+            <StatCard label="Lender interest" value={`+${money(totalInterest)}`} tone="positive" hint={`Earned over ${loanRequest.termWeeks} weeks`} />
+            <StatCard label="Weekly installment" value={money(weeklyPayment)} tone="accent" hint={`${loanRequest.termWeeks} equal payments`} />
+          </section>
+
+          <Panel
+            icon={<CalendarDays />}
+            title="Repayment schedule"
+            description={
+              breakEvenWeek
+                ? `Cumulative repayment to the lender. Principal is recovered in week ${breakEvenWeek}.`
+                : "Cumulative repayment to the lender."
+            }
+            actions={
+              <SegmentedControl
+                label="Schedule view"
+                value={scheduleView}
+                onChange={setScheduleView}
+                options={[
+                  { value: "chart", label: "Chart" },
+                  { value: "table", label: "Table" },
+                ]}
+              />
+            }
+          >
+            {scheduleView === "chart" ? (
+              <div className="h-[280px] sm:h-[340px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 16, right: 20, left: 0, bottom: 4 }}>
+                    <defs>
+                      <linearGradient id="fill-schedule" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={chartColors.series1} stopOpacity={0.16} />
+                        <stop offset="100%" stopColor={chartColors.series1} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke={chartColors.grid} vertical={false} />
+                    <XAxis
+                      dataKey="week"
+                      tick={axisTick}
+                      tickLine={false}
+                      axisLine={{ stroke: chartColors.grid }}
+                      tickFormatter={(week) => `W${week}`}
+                      minTickGap={16}
+                    />
+                    <YAxis tick={axisTick} tickLine={false} axisLine={false} tickFormatter={formatCompactCurrency} width={64} />
+                    <ReferenceLine
+                      y={loanRequest.principalAmount}
+                      stroke={chartColors.axis}
+                      strokeOpacity={0.6}
+                      label={{ value: "Principal", position: "insideTopLeft", fill: chartColors.axis, fontSize: 11, fontFamily: "var(--font-mono)" }}
+                    />
+                    <Tooltip
+                      cursor={{ stroke: chartColors.cursor, strokeWidth: 1 }}
+                      content={
+                        <ChartTooltip
+                          labelFormatter={(week) => (Number(week) === 0 ? "Funding day" : `Week ${week}`)}
+                          valueFormatter={money}
+                        />
+                      }
+                    />
+                    <Area
+                      type="linear"
+                      dataKey="cumulative"
+                      name="Repaid to date"
+                      stroke={chartColors.series1}
+                      strokeWidth={2}
+                      fill="url(#fill-schedule)"
+                      animationDuration={700}
+                      dot={false}
+                      activeDot={{ r: 4, stroke: chartColors.surface, strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="max-h-[340px] overflow-auto rounded-lg border border-line">
+                <table className="w-full text-left text-sm">
+                  <thead className="sticky top-0 bg-surface-2">
+                    <tr>
+                      <th className="data-label px-4 py-2.5 font-medium">Week</th>
+                      <th className="data-label px-4 py-2.5 text-right font-medium">Payment</th>
+                      <th className="data-label px-4 py-2.5 text-right font-medium">Repaid to date</th>
+                      <th className="data-label px-4 py-2.5 text-right font-medium">Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line">
+                    {weeklyPayments.map((row) => (
+                      <tr key={row.week} className={row.week === breakEvenWeek ? "bg-accent/[0.06]" : undefined}>
+                        <td className="num px-4 py-2.5 text-ink-2">
+                          {row.week}
+                          {row.week === breakEvenWeek && <span className="badge badge-accent ml-2 py-0 text-[10px]">Principal recovered</span>}
+                        </td>
+                        <td className="num px-4 py-2.5 text-right text-ink">{money(row.amount)}</td>
+                        <td className="num px-4 py-2.5 text-right text-ink">{money(row.cumulative)}</td>
+                        <td className="num px-4 py-2.5 text-right text-ink-muted">{money(row.remaining)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+
+          <Panel icon={<FileText />} title="Loan purpose" description="In the borrower's words.">
+            <p className="whitespace-pre-line text-sm leading-7 text-ink-2">{loanRequest.purpose}</p>
+          </Panel>
+        </div>
+
+        <aside className="space-y-4 lg:sticky lg:top-20">
+          <Panel icon={<UserRound />} title="Borrower">
+            <div className="flex items-center gap-3">
+              <Avatar id={loanRequest.borrowedBy} name={borrowerName} size="md" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-ink">{borrowerName}</p>
+                <CopyButton value={loanRequest.borrowedBy} label={`ID ${shortId(loanRequest.borrowedBy, 8)}`} className="-ml-1" />
+              </div>
+            </div>
+            <Link href={`/profile?id=${loanRequest.borrowedBy}&type=lendee`} className="btn-secondary btn-sm mt-4 w-full">
+              View borrowing history
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </Panel>
+
+          <section className="panel edge-glow p-5" aria-labelledby="decision-heading">
+            <h2 id="decision-heading" className="flex items-center gap-2 text-sm font-semibold text-ink">
+              <ShieldCheck className="h-4 w-4 text-accent" aria-hidden="true" />
+              Funding decision
+            </h2>
+
+            <dl className="mt-4 space-y-3 text-sm">
+              <DecisionRow label="You fund" value={formatCurrency(loanRequest.principalAmount)} />
+              <DecisionRow label="You receive" value={money(totalRepayment)} />
+              <DecisionRow label="Schedule" value={`${loanRequest.termWeeks} × ${money(weeklyPayment)}`} />
+              <div className="flex items-center justify-between border-t border-line pt-3">
+                <dt className="text-ink-2">Return</dt>
+                <dd className="num font-semibold text-positive">
+                  +{money(totalInterest)} <span className="text-xs font-medium text-ink-muted">({formatPercent(loanRequest.interestRate)})</span>
+                </dd>
+              </div>
+            </dl>
+
+            {error && (
+              <div role="alert" className="mt-4 flex gap-2 rounded-lg border border-negative/30 bg-negative/10 p-3 text-xs text-negative">
+                <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {error}
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-2">
+              {approved ? (
+                <div className="flex items-center justify-center gap-2 rounded-lg border border-positive/30 bg-positive/10 px-4 py-3 text-sm font-medium text-positive">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  Funded. Returning to marketplace...
+                </div>
+              ) : initialized && !userId ? (
+                <Link href="/auth?tab=login" className="btn-primary w-full">
+                  <LogIn className="h-4 w-4" aria-hidden="true" />
+                  Sign in to fund
+                </Link>
+              ) : isOwnRequest ? (
+                <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-center text-xs text-warning">
+                  This is your own request. Another member has to fund it.
+                </p>
+              ) : (
+                <button type="button" onClick={() => setConfirmOpen(true)} disabled={loading || !userId} className="btn-primary w-full py-3">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  Approve and fund loan
+                </button>
+              )}
+              {!approved && (
+                <button type="button" onClick={handleReject} className="btn-ghost w-full">
+                  <XCircle className="h-4 w-4" aria-hidden="true" />
+                  Decline request
+                </button>
+              )}
+            </div>
+          </section>
+        </aside>
       </div>
 
-      <section className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="section-kicker">Loan Review</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Review loan request details.</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Confirm borrower context, terms, interest, and repayment schedule before funding.
-          </p>
-        </div>
-        <span className="badge badge-success">Active request</span>
-      </section>
-
-      <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <SummaryCard title="Total repayment" value={money(totalRepayment)} helper={`${loanRequest.interestRate}% interest`} />
-        <SummaryCard title="Total interest" value={money(totalInterest)} helper={`${loanRequest.termWeeks} weekly payments`} />
-        <SummaryCard title="Weekly payment" value={money(weeklyPayment)} helper="Average installment" />
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="space-y-4">
-          <DetailCard
-            title="Borrower"
-            icon={<UserRound className="h-5 w-5" />}
-            content={
-              <div className="space-y-2">
-                <Link
-                  href={`/profile?id=${loanRequest.borrowedBy}&type=lendee`}
-                  className="font-semibold text-sky-700 hover:text-sky-900"
-                >
-                  View borrower profile
-                </Link>
-                <p className="break-all text-sm text-slate-500">ID: {loanRequest.borrowedBy}</p>
-              </div>
-            }
-          />
-
-          <DetailCard
-            title="Loan terms"
-            icon={<Scale className="h-5 w-5" />}
-            content={
-              <dl className="grid gap-3 text-sm">
-                <Term label="Principal" value={money(loanRequest.principalAmount)} />
-                <Term label="Interest rate" value={`${loanRequest.interestRate}%`} />
-                <Term label="Duration" value={`${loanRequest.termWeeks} weeks`} />
-              </dl>
-            }
-          />
-
-          <DetailCard
-            title="Loan purpose"
-            icon={<CircleDollarSign className="h-5 w-5" />}
-            content={<p className="text-sm leading-6 text-slate-700">{loanRequest.purpose}</p>}
-          />
-        </div>
-
-        <div className="surface-card p-4 sm:p-5">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                <CalendarDays className="h-5 w-5 text-sky-700" aria-hidden="true" />
-                Repayment schedule
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">Weekly installment and cumulative repayment.</p>
-            </div>
-            <div className="flex flex-wrap gap-3 text-xs font-medium text-slate-600">
-              <span className="inline-flex items-center gap-2">
-                <span className="h-3 w-3 rounded-sm bg-sky-600" />
-                Weekly
-              </span>
-            </div>
-          </div>
-
-          <div className="h-[300px] sm:h-[380px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyPayments} margin={{ top: 22, right: 8, left: -10, bottom: 18 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis
-                  dataKey="week"
-                  tick={{ fill: "#475569", fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
-                  label={{ value: "Week", position: "bottom", fill: "#475569", fontSize: 12, offset: 12 }}
-                />
-                <YAxis
-                  tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
-                  tick={{ fill: "#475569", fontSize: 12 }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={60}
-                />
-                <Tooltip
-                  formatter={(value: number | string) => money(Number(value))}
-                  labelFormatter={(label) => `Week ${label}`}
-                  contentStyle={{
-                    border: "1px solid #E2E8F0",
-                    borderRadius: 8,
-                    boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
-                  }}
-                />
-                <Bar dataKey="amount" name="Weekly payment" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={weeklyPayments.length > 20 ? 12 : 24} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-        <Button onClick={handleReject} variant="secondary">
-          <XCircle className="h-4 w-4" aria-hidden="true" />
-          Decline Request
-        </Button>
-        <Button onClick={handleApprove} disabled={loading || !isValidLoanRequest} variant="primary">
-          {loading ? (
-            "Processing Approval..."
-          ) : (
-            <>
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-              Approve and Fund Loan
-            </>
-          )}
-        </Button>
-      </section>
-
-      {error && (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
-          {error}
-        </div>
-      )}
+      <ConfirmFundingDialog
+        open={confirmOpen}
+        loading={loading}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleApprove}
+        borrowerName={borrowerName}
+        principal={formatCurrency(loanRequest.principalAmount)}
+        total={money(totalRepayment)}
+        schedule={`${loanRequest.termWeeks} weekly payments of ${money(weeklyPayment)}`}
+      />
     </div>
   );
 };
 
-const SummaryCard: React.FC<{ title: string; value: string; helper: string }> = ({ title, value, helper }) => (
-  <div className="metric-card">
-    <p className="text-sm font-medium text-slate-500">{title}</p>
-    <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
-    <p className="mt-3 text-sm text-slate-500">{helper}</p>
-  </div>
-);
-
-const DetailCard: React.FC<{ title: string; icon: React.ReactNode; content: React.ReactNode }> = ({ title, icon, content }) => (
-  <div className="surface-card p-5">
-    <div className="mb-4 flex items-center gap-2">
-      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</span>
-      <h2 className="text-base font-semibold text-slate-950">{title}</h2>
+function DecisionRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="num font-medium text-ink">{value}</dd>
     </div>
-    {content}
-  </div>
-);
+  );
+}
 
-const Term: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-    <dt className="text-slate-500">{label}</dt>
-    <dd className="font-semibold text-slate-950">{value}</dd>
-  </div>
-);
+function ConfirmFundingDialog({
+  open,
+  loading,
+  onCancel,
+  onConfirm,
+  borrowerName,
+  principal,
+  total,
+  schedule,
+}: {
+  open: boolean;
+  loading: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  borrowerName: string;
+  principal: string;
+  total: string;
+  schedule: string;
+}) {
+  const confirmRef = useRef<HTMLButtonElement>(null);
 
-const Button: React.FC<ButtonProps> = ({ onClick, disabled, variant, children }) => {
-  const className = variant === "primary" ? "btn-primary w-full sm:w-auto" : "btn-secondary w-full sm:w-auto";
+  useEffect(() => {
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => confirmRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !loading) onCancel();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [loading, onCancel, open]);
 
   return (
-    <button type="button" onClick={onClick} className={className} disabled={disabled}>
-      {children}
-    </button>
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[90] flex items-center justify-center px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <div className="scrim absolute inset-0" onClick={() => !loading && onCancel()} aria-hidden="true" />
+          <motion.div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-funding-title"
+            aria-describedby="confirm-funding-description"
+            className="panel edge-glow relative w-full max-w-md bg-surface p-6"
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ duration: 0.16 }}
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/30 bg-accent/10 text-accent">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 id="confirm-funding-title" className="mt-4 text-lg font-semibold tracking-tight text-ink">
+              Fund {principal} to {borrowerName}?
+            </h2>
+            <p id="confirm-funding-description" className="mt-2 text-sm leading-6 text-ink-2">
+              You&apos;ll receive <span className="num font-medium text-ink">{total}</span> as {schedule}. The request leaves the marketplace once funded, so this can&apos;t be undone here.
+            </p>
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button type="button" onClick={onCancel} disabled={loading} className="btn-secondary">
+                Cancel
+              </button>
+              <button ref={confirmRef} type="button" onClick={onConfirm} disabled={loading} className="btn-primary">
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="small" label="Processing approval" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    Confirm and fund
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
-};
+}
 
 export default ViewLoan;

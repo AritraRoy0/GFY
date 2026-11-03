@@ -2,20 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --app-bg: #f6f8fb;
-  --app-panel: #ffffff;
-  --app-panel-muted: #f1f5f9;
-  --app-border: #dbe3ee;
-  --app-ink: #0f172a;
-  --app-muted: #64748b;
-  --app-primary: #0f172a;
-  --app-primary-hover: #1e293b;
-  --app-accent: #0ea5e9;
-  --app-success: #059669;
-  --app-warning: #d97706;
-  --app-danger: #dc2626;
-  --app-focus: 14 165 233;
+/*
+ * Design tokens. Stored as RGB triplets so Tailwind can apply opacity modifiers
+ * (see tailwind.config.js). Light is the default theme; dark applies when <html data-theme="dark">
+ * (set before paint by the boot script in layout.tsx, toggled by ThemeProvider).
+ * Text tokens meet WCAG AA against both the surface and canvas in each theme.
+ */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --c-canvas: 246 248 251;     /* #f6f8fb page plane */
+  --c-surface: 255 255 255;    /* #ffffff panels & charts */
+  --c-surface-2: 241 245 249;  /* #f1f5f9 inputs, raised rows */
+  --c-surface-3: 226 232 240;  /* #e2e8f0 hover, tracks */
+  --c-elevated: 255 255 255;   /* selected chip inside a tinted track */
+  --c-line: 226 232 240;       /* #e2e8f0 hairlines */
+  --c-line-strong: 203 213 225;/* #cbd5e1 control borders */
+
+  --c-ink: 15 23 42;           /* #0f172a primary text */
+  --c-ink-2: 71 85 105;        /* #475569 secondary text */
+  --c-muted: 100 116 139;      /* #64748b labels */
+  --c-faint: 148 163 184;      /* #94a3b8 placeholders, disabled */
+
+  --c-accent: 14 116 144;      /* #0e7490 brand cyan, deepened for light surfaces */
+  --c-accent-strong: 21 94 117;/* #155e75 hover */
+  --c-accent-2: 79 70 229;     /* #4f46e5 indigo */
+  --c-on-accent: 255 255 255;  /* text on accent fills */
+  --c-grad-1: 8 145 178;       /* gradient text & logo */
+  --c-grad-2: 2 132 199;
+  --c-grad-3: 79 70 229;
+
+  --c-positive: 4 120 87;      /* #047857 */
+  --c-negative: 225 29 72;     /* #e11d48 */
+  --c-warning: 180 83 9;       /* #b45309 */
+
+  --c-scrim: 15 23 42;
+  --scrim-alpha: 0.35;
+  --glow-alpha: 0.08;
+
+  --shadow-panel: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.05);
+  --shadow-lift: 0 1px 2px 0 rgb(15 23 42 / 0.05), 0 20px 40px -20px rgb(15 23 42 / 0.25);
+
+  --toastify-font-family: var(--font-sans);
+  --toastify-color-success: rgb(var(--c-positive));
+  --toastify-color-error: rgb(var(--c-negative));
+  --toastify-color-info: rgb(var(--c-accent));
+  --toastify-color-warning: rgb(var(--c-warning));
+  --toastify-color-progress-light: rgb(var(--c-accent));
+  --toastify-color-progress-dark: rgb(var(--c-accent));
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-canvas: 5 7 12;          /* #05070c page plane */
+  --c-surface: 11 15 23;       /* #0b0f17 panels & charts */
+  --c-surface-2: 17 22 33;     /* #111621 inputs, raised rows */
+  --c-surface-3: 25 31 45;     /* #191f2d hover */
+  --c-elevated: 25 31 45;
+  --c-line: 30 37 51;          /* #1e2533 hairlines */
+  --c-line-strong: 44 53 72;   /* #2c3548 control borders */
+
+  --c-ink: 232 237 245;        /* #e8edf5 primary text */
+  --c-ink-2: 168 179 196;      /* #a8b3c4 secondary text */
+  --c-muted: 118 130 148;      /* #768294 labels */
+  --c-faint: 78 88 106;        /* #4e586a placeholders, disabled */
+
+  --c-accent: 34 211 238;      /* #22d3ee brand cyan */
+  --c-accent-strong: 103 232 249;
+  --c-accent-2: 129 140 248;   /* #818cf8 indigo */
+  --c-on-accent: 5 7 12;
+  --c-grad-1: 103 232 249;
+  --c-grad-2: 34 211 238;
+  --c-grad-3: 129 140 248;
+
+  --c-positive: 52 211 153;    /* #34d399 */
+  --c-negative: 251 113 133;   /* #fb7185 */
+  --c-warning: 251 191 36;     /* #fbbf24 */
+
+  --c-scrim: 5 7 12;
+  --scrim-alpha: 0.7;
+  --glow-alpha: 0.07;
+
+  --shadow-panel: inset 0 1px 0 0 rgb(255 255 255 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-lift: inset 0 1px 0 0 rgb(255 255 255 / 0.05), 0 24px 48px -24px rgb(0 0 0 / 0.8);
+
+  --toastify-color-dark: rgb(var(--c-surface-2));
+}
+
+/* Applied for a frame while switching themes so every element changes color at once. */
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+  transition: none !important;
 }
 
 * {
@@ -24,17 +104,25 @@
 
 html {
   scroll-behavior: smooth;
+  background: rgb(var(--c-canvas));
 }
 
 body {
   min-height: 100vh;
-  color: var(--app-ink);
-  background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 32rem),
-    linear-gradient(180deg, #fbfdff 0%, var(--app-bg) 38%, #eef3f8 100%);
-  font-feature-settings: "rlig" 1, "calt" 1;
+  color: rgb(var(--c-ink));
+  background-color: rgb(var(--c-canvas));
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(var(--c-grad-1) / var(--glow-alpha)), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgb(var(--c-grad-3) / calc(var(--glow-alpha) * 0.7)), transparent 70%);
+  background-attachment: fixed;
+  font-feature-settings: "cv11", "ss01", "ss03";
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(var(--c-accent) / 0.28);
+  color: rgb(var(--c-ink));
 }
 
 @layer base {
@@ -52,93 +140,204 @@ body {
   input,
   textarea,
   select {
-    @apply text-slate-950 placeholder:text-slate-400;
+    @apply text-ink placeholder:text-ink-faint;
   }
 
   :focus-visible {
-    outline: 3px solid rgb(var(--app-focus) / 0.28);
+    outline: 2px solid rgb(var(--c-accent) / 0.7);
     outline-offset: 2px;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 }
 
-
 @layer components {
   .app-page {
-    background: var(--app-bg);
-    @apply min-h-screen overflow-x-hidden text-slate-950;
+    @apply min-h-screen overflow-x-hidden text-ink;
   }
 
   .app-container {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
+  /* ---------- Type ---------- */
+
   .section-kicker {
-    @apply text-xs font-semibold uppercase tracking-[0.18em] text-sky-700;
+    @apply inline-flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-accent;
   }
 
   .section-title {
-    @apply text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl;
+    @apply text-3xl font-semibold tracking-[-0.03em] text-ink sm:text-5xl;
+    text-wrap: balance;
   }
 
   .section-copy {
-    @apply max-w-2xl text-sm leading-6 text-slate-600 sm:text-base sm:leading-7;
+    @apply max-w-2xl text-[15px] leading-7 text-ink-2 sm:text-base sm:leading-7;
   }
 
-  .surface-card,
-  .glass-card {
-    @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+  .data-label {
+    @apply font-mono text-[10.5px] font-medium uppercase tracking-[0.16em] text-ink-muted;
   }
 
-  .surface-card-muted {
-    @apply rounded-lg border border-slate-200 bg-slate-50 shadow-sm;
-  }
-
-  .gradient-bg {
-    background: var(--app-bg);
-  }
-
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950;
-  }
-
-  .input-field {
-    @apply w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 shadow-sm transition-colors focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15;
-  }
-
-  .card-hover {
-    @apply transition-shadow duration-200 hover:shadow-md;
+  .num {
+    @apply font-mono tabular-nums;
   }
 
   .text-gradient {
-    @apply text-sky-700;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, rgb(var(--c-grad-1)), rgb(var(--c-grad-2)), rgb(var(--c-grad-3)));
+  }
+
+  /* Backdrop behind dialogs and drawers. */
+  .scrim {
+    background: rgb(var(--c-scrim) / var(--scrim-alpha));
+    @apply backdrop-blur-sm;
+  }
+
+  /* ---------- Surfaces ---------- */
+
+  .surface-card,
+  .glass-card,
+  .panel {
+    @apply rounded-xl border border-line bg-surface/80 shadow-panel;
+  }
+
+  .surface-card-muted {
+    @apply rounded-xl border border-line bg-surface-2/60;
   }
 
   .metric-card {
-    @apply rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5;
+    @apply relative overflow-hidden rounded-xl border border-line bg-surface/80 p-4 shadow-panel sm:p-5;
   }
 
+  .panel-header {
+    @apply flex flex-wrap items-start justify-between gap-3 border-b border-line px-4 py-3.5 sm:px-5;
+  }
+
+  .card-hover {
+    @apply transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lift;
+  }
+
+  .gradient-bg {
+    background: rgb(var(--c-canvas));
+  }
+
+  /* Hairline grid used behind heroes. Pair with .mask-fade-* to feather the edges. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--c-line) / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--c-line) / 0.55) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(rgb(var(--c-line-strong) / 0.6) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  .mask-fade-radial {
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 75%);
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 40%, transparent);
+  }
+
+  /* Accent hairline across the top edge of a panel. */
+  .edge-glow {
+    @apply relative;
+  }
+
+  .edge-glow::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-6 top-0 h-px;
+    background: linear-gradient(90deg, transparent, rgb(var(--c-accent) / 0.6), transparent);
+  }
+
+  /* ---------- Controls ---------- */
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-[background-color,box-shadow,transform] duration-150 hover:bg-accent-strong hover:shadow-glow active:translate-y-px disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-ink-faint disabled:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong bg-surface-2 px-4 py-2.5 text-sm font-semibold text-ink transition-colors duration-150 hover:border-ink-faint hover:bg-surface-3 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-negative/30 bg-negative/10 px-4 py-2.5 text-sm font-semibold text-negative transition-colors duration-150 hover:bg-negative/15;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-line-strong bg-canvas/60 px-3 py-2.5 text-sm text-ink transition-[border-color,box-shadow] duration-150 hover:border-ink-faint focus:border-accent/70 focus:outline-none focus:ring-4 focus:ring-accent/10;
+  }
+
+  .input-error {
+    @apply border-negative/60 bg-negative/[0.04] focus:border-negative focus:ring-negative/10;
+  }
+
+  .kbd {
+    @apply inline-flex h-5 min-w-5 items-center justify-center rounded border border-line-strong bg-surface-2 px-1 font-mono text-[10px] font-medium text-ink-muted;
+  }
+
+  /* Native range input restyle. --fill is set inline as a percentage. */
+  .range {
+    @apply h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-3;
+    background-image: linear-gradient(90deg, rgb(var(--c-accent)), rgb(var(--c-accent)));
+    background-size: var(--fill, 0%) 100%;
+    background-repeat: no-repeat;
+  }
+
+  .range::-webkit-slider-thumb {
+    @apply h-4 w-4 appearance-none rounded-full border-2 border-accent bg-canvas transition-transform;
+    box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.15);
+  }
+
+  .range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .range::-moz-range-thumb {
+    @apply h-4 w-4 rounded-full border-2 border-accent bg-canvas;
+    box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.15);
+  }
+
+  /* ---------- Badges ---------- */
+
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700;
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-line-strong bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-2;
   }
 
   .badge-success {
-    @apply border-emerald-200 bg-emerald-50 text-emerald-700;
+    @apply border-positive/25 bg-positive/10 text-positive;
   }
 
   .badge-warning {
-    @apply border-amber-200 bg-amber-50 text-amber-700;
+    @apply border-warning/25 bg-warning/10 text-warning;
   }
 
   .badge-danger {
-    @apply border-red-200 bg-red-50 text-red-700;
+    @apply border-negative/25 bg-negative/10 text-negative;
+  }
+
+  .badge-accent {
+    @apply border-accent/25 bg-accent/10 text-accent;
   }
 }
 
@@ -147,16 +346,16 @@ body {
     text-wrap: balance;
   }
 
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-float {
     animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .animate-bounce-slow {
-    animation: bounce 3s infinite;
   }
 
   .animate-fade-in {
@@ -166,14 +365,6 @@ body {
   .animate-slide-up {
     animation: slideUp 0.5s ease-out;
   }
-
-  .animate-slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
-  }
-
-  .animate-slide-in-right {
-    animation: slideInRight 0.5s ease-out;
-  }
 }
 
 @keyframes float {
@@ -181,7 +372,7 @@ body {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-12px);
   }
 }
 
@@ -196,7 +387,7 @@ body {
 
 @keyframes slideUp {
   from {
-    transform: translateY(30px);
+    transform: translateY(16px);
     opacity: 0;
   }
   to {
@@ -205,50 +396,44 @@ body {
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    transform: translateX(-30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-.fade-in {
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+/* ---------- Third-party ---------- */
+
+.Toastify__toast {
+  @apply rounded-lg border border-line-strong text-sm text-ink shadow-lift;
 }
 
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+/* Recharts: keep focus rings off the SVG surface, tooltips handle keyboard users via the table views. */
+.recharts-surface:focus,
+.recharts-wrapper:focus,
+.recharts-sector:focus {
+  outline: none;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-100;
+  background: rgb(var(--c-canvas));
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-slate-300;
+  border: 3px solid rgb(var(--c-canvas));
+  @apply rounded-full bg-surface-3;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400;
+  @apply bg-line-strong;
 }

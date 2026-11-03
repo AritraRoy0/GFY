@@ -2,34 +2,38 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { CalendarDays, HandCoins, LockKeyhole, LogOut, Plus, UserRound, WalletCards } from "lucide-react";
-import Header from "../common/Header";
-import Footer from "../common/Footer";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  Fingerprint,
+  HandCoins,
+  LayoutDashboard,
+  LockKeyhole,
+  LogOut,
+  Mail,
+  Plus,
+  WalletCards,
+  Zap,
+} from "lucide-react";
+import AppShell from "../common/AppShell";
+import { PageLoader } from "../common/LoadingSpinner";
+import { CopyButton, Panel, SegmentedControl, StatCard, StatePanel } from "../common/ui";
+import { formatCurrency, formatDate } from "../common/format";
 import LoanSummary from "./LoanSummary";
+import { InfoRow, ProfileHero, ProfileTab } from "./ProfileUI";
 import { fetchBorrowedLoans, fetchLentLoans } from "../models/LoanAPIs";
 import { Loan, calculateWeeklyAveragedInstallment } from "../models/LoanInterfaces";
-
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
-const formatDate = (value?: string | null) => {
-  if (!value) return "N/A";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "N/A"
-    : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};
+import { RootState } from "../store";
 
 const OwnProfile: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [borrowedLoans, setBorrowedLoans] = useState<Loan[]>([]);
   const [lentLoans, setLentLoans] = useState<Loan[]>([]);
-  const [activeTab, setActiveTab] = useState<"overview" | "loans">("overview");
+  const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
+  const username = useSelector((state: RootState) => state.auth.user?.username);
 
   useEffect(() => {
     const auth = getAuth();
@@ -63,134 +67,132 @@ const OwnProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="app-page flex min-h-screen items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-sky-200 border-t-sky-700" />
-      </div>
+      <AppShell>
+        <PageLoader label="Loading profile" />
+      </AppShell>
     );
   }
 
   if (!currentUser) {
     return (
-      <div className="app-page flex min-h-screen flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center px-4 py-16">
-          <div className="surface-card max-w-md p-8 text-center">
-            <LockKeyhole className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
-            <h1 className="mt-4 text-2xl font-semibold text-slate-950">Authentication required</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Sign in to view your profile and loan activity.</p>
-            <Link href="/auth?tab=login" className="btn-primary mt-6">
-              Go to Login
+      <AppShell>
+        <StatePanel
+          icon={<LockKeyhole />}
+          title="Authentication required"
+          description="Sign in to view your profile and loan activity."
+          action={
+            <Link href="/auth?tab=login" className="btn-primary">
+              Sign in
             </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
+          }
+        />
+      </AppShell>
     );
   }
 
-  const displayName = currentUser.displayName || currentUser.email?.split("@")[0] || "Member";
-  const initial = displayName.charAt(0).toUpperCase();
+  const displayName = username || currentUser.displayName || currentUser.email?.split("@")[0] || "Member";
 
   return (
-    <div className="app-page flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 py-6 sm:py-10">
-        <div className="app-container space-y-6">
-          <section className="surface-card overflow-hidden">
-            <div className="border-b border-slate-200 bg-slate-950 p-6 text-white sm:p-8">
-              <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center sm:gap-5">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-white/10 text-2xl font-semibold sm:h-20 sm:w-20 sm:text-3xl">
-                    {initial}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">Your profile</p>
-                    <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight sm:text-3xl">{displayName}</h1>
-                    <p className="mt-1 break-all text-sm text-slate-300">{currentUser.email}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:w-96">
-                  <ProfileDate label="Member since" value={formatDate(currentUser.metadata.creationTime)} />
-                  <ProfileDate label="Last sign in" value={formatDate(currentUser.metadata.lastSignInTime)} />
-                </div>
-              </div>
-            </div>
-          </section>
+    <AppShell>
+      <div className="space-y-6">
+        <ProfileHero
+          id={currentUser.uid}
+          name={displayName}
+          subtitle={currentUser.email}
+          role="Your profile"
+          meta={[
+            { label: "Member since", value: formatDate(currentUser.metadata.creationTime) },
+            { label: "Last sign in", value: formatDate(currentUser.metadata.lastSignInTime) },
+            { label: "Loans lent", value: <span className="num">{lentLoans.length}</span> },
+            { label: "Loans borrowed", value: <span className="num">{borrowedLoans.length}</span> },
+          ]}
+          actions={
+            <Link href="/dashboard" className="btn-secondary">
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              Open dashboard
+            </Link>
+          }
+        />
 
-          <div className="inline-flex w-full rounded-lg border border-slate-200 bg-white p-1 shadow-sm min-[420px]:w-auto">
-            {[
-              { key: "overview", label: "Overview" },
-              { key: "loans", label: "Loans" },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveTab(tab.key as "overview" | "loans")}
-                className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors min-[420px]:flex-none ${
-                  activeTab === tab.key ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <SegmentedControl
+          label="Profile sections"
+          value={activeTab}
+          onChange={setActiveTab}
+          className="w-full sm:w-auto"
+          options={[
+            { value: "overview", label: "Overview" },
+            { value: "loans", label: "My requests" },
+          ]}
+        />
 
-          {activeTab === "overview" ? (
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Metric title="Total borrowed" value={currency.format(stats.totalBorrowed)} icon={<WalletCards className="h-5 w-5" />} />
-              <Metric title="Total lent" value={currency.format(stats.totalLent)} icon={<HandCoins className="h-5 w-5" />} />
-              <Metric title="Weekly payments" value={currency.format(stats.weeklyPayments)} icon={<CalendarDays className="h-5 w-5" />} />
-
-              <div className="surface-card p-5 md:col-span-3">
-                <h2 className="text-base font-semibold text-slate-950">Quick actions</h2>
-                <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  <ActionLink href="/loanRequests" title="New loan request" description="Apply for a new loan" icon={<Plus className="h-5 w-5" />} />
-                  <ActionLink href="/loanRequests" title="View marketplace" description="Review open requests" icon={<HandCoins className="h-5 w-5" />} />
-                  <ActionLink href="/logout" title="Logout" description="Sign out of your account" icon={<LogOut className="h-5 w-5" />} />
-                </div>
-              </div>
+        {activeTab === "overview" ? (
+          <div className="space-y-4">
+            <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <StatCard label="Total borrowed" value={formatCurrency(stats.totalBorrowed)} icon={<WalletCards />} tone="warning" />
+              <StatCard label="Total lent" value={formatCurrency(stats.totalLent)} icon={<HandCoins />} tone="accent" />
+              <StatCard label="Weekly payments" value={formatCurrency(stats.weeklyPayments)} icon={<CalendarDays />} hint="Across loans you owe" />
             </section>
-          ) : (
-            <LoanSummary />
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Panel icon={<Zap />} title="Quick actions">
+                <div className="grid gap-2">
+                  <ActionLink href="/loanRequests#composer" title="New loan request" description="Publish terms for lenders to review" icon={<Plus />} />
+                  <ActionLink href="/loanRequests" title="View marketplace" description="Review and fund open requests" icon={<HandCoins />} />
+                  <ActionLink href="/logout" title="Log out" description="Sign out of this device" icon={<LogOut />} danger />
+                </div>
+              </Panel>
+
+              <Panel icon={<Fingerprint />} title="Account">
+                <div className="grid gap-2">
+                  <InfoRow icon={<Mail />} label="Email" value={currentUser.email || "Not provided"} />
+                  <InfoRow
+                    icon={<Fingerprint />}
+                    label="Member ID"
+                    value={<span className="num text-xs">{currentUser.uid}</span>}
+                    action={<CopyButton value={currentUser.uid} />}
+                  />
+                </div>
+              </Panel>
+            </div>
+          </div>
+        ) : (
+          <LoanSummary />
+        )}
+      </div>
+    </AppShell>
   );
 };
 
-function ProfileDate({ label, value }: { label: string; value: string }) {
+function ActionLink({
+  href,
+  title,
+  description,
+  icon,
+  danger,
+}: {
+  href: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  danger?: boolean;
+}) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/5 p-3">
-      <p className="text-xs text-slate-300">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
-function Metric({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
-  return (
-    <div className="metric-card">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</div>
-      </div>
-    </div>
-  );
-}
-
-function ActionLink({ href, title, description, icon }: { href: string; title: string; description: string; icon: React.ReactNode }) {
-  return (
-    <Link href={href} className="flex items-center gap-4 rounded-md border border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-white">
-      <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-sky-700 shadow-sm">{icon}</span>
-      <span>
-        <span className="block text-sm font-semibold text-slate-950">{title}</span>
-        <span className="mt-1 block text-sm text-slate-500">{description}</span>
+    <Link
+      href={href}
+      className="group flex items-center gap-4 rounded-lg border border-line bg-canvas/40 p-3.5 transition-colors hover:border-line-strong hover:bg-surface-2"
+    >
+      <span
+        className={`flex h-9 w-9 items-center justify-center rounded-lg border border-line-strong bg-surface-2 [&>svg]:h-4 [&>svg]:w-4 ${
+          danger ? "text-negative" : "text-accent"
+        }`}
+      >
+        {icon}
       </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-ink">{title}</span>
+        <span className="mt-0.5 block text-xs text-ink-muted">{description}</span>
+      </span>
+      <ArrowUpRight className="h-4 w-4 text-ink-faint transition-colors group-hover:text-ink" aria-hidden="true" />
     </Link>
   );
 }

@@ -16,6 +16,8 @@ interface AuthState {
 	isAuthenticated: boolean;
 	user: User | null;
 	token: string | null;
+	// False until Firebase reports the first auth state, so pages can avoid flashing a signed-out view.
+	initialized: boolean;
 }
 
 // Initial state
@@ -23,6 +25,7 @@ const initialState: AuthState = {
 	isAuthenticated: false,
 	user: null,
 	token: null,
+	initialized: false,
 };
 
 
@@ -45,11 +48,13 @@ const authSlice = createSlice({
 		setUser: (state, action: PayloadAction<User>) => {
 			state.isAuthenticated = true;
 			state.user = action.payload;
+			state.initialized = true;
 		},
 		clearUser: (state) => {
 			state.isAuthenticated = false;
 			state.user = null;
 			state.token = null;
+			state.initialized = true;
 		},
 		logout: (state) => {
 			state.isAuthenticated = false;

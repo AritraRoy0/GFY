@@ -45,6 +45,27 @@ export interface Loan {
 
 
   /**
+   * Flat-rate repayment used when a request is reviewed: the interest rate applies once to the principal
+   * and the total is split evenly across the term.
+   * @param principalAmount - The principal amount of the loan.
+   * @param interestRate - The interest rate in percentage, applied once over the full term.
+   * @param termWeeks - The loan term in weeks.
+   * @returns Total repayment, total interest, and the even weekly installment.
+   */
+  export function calculateFlatRepayment(
+	principalAmount: number,
+	interestRate: number,
+	termWeeks: number
+  ): { totalRepayment: number; totalInterest: number; weeklyPayment: number } {
+	const totalRepayment = principalAmount * (1 + interestRate / 100);
+	return {
+		totalRepayment,
+		totalInterest: totalRepayment - principalAmount,
+		weeklyPayment: termWeeks > 0 ? totalRepayment / termWeeks : 0,
+	};
+  }
+
+  /**
    * Calculates the weekly installment for a loan using the amortization formula.
    * @param principalAmount - The principal amount of the loan.
    * @param annualInterestRate - The annual interest rate in percentage.

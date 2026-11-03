@@ -3,11 +3,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import { AlertCircle, Bell, HandCoins, RefreshCcw, UserRound, UsersRound } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Bell, Briefcase, LockKeyhole, RefreshCcw } from "lucide-react";
 import { RootState } from "../store";
-import Header from "../common/Header";
-import Footer from "../common/Footer";
-import LoadingSpinner from "../common/LoadingSpinner";
+import AppShell from "../common/AppShell";
+import { PageLoader } from "../common/LoadingSpinner";
+import { LiveDot, PageHeader, Panel, SegmentedControl, StatePanel } from "../common/ui";
 import Notifications from "./Notifications";
 import OutstandingLoansTable from "./LoanTable";
 import SummarySection from "./SummarySection";
@@ -17,7 +17,7 @@ import { fetchUserLoanRequests } from "@/app/models/LoanRequestAPIs";
 import { Loan, LoanRequest } from "@/app/models/LoanInterfaces";
 
 export default function DashboardPage() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, initialized } = useSelector((state: RootState) => state.auth);
   const userId = user?.id || null;
 
   const [lentLoans, setLentLoans] = useState<Loan[]>([]);
@@ -30,18 +30,19 @@ export default function DashboardPage() {
       timestamp: Date;
     }[]
   >([]);
-  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState({ lent: false, borrowed: false, requests: false });
   const [error, setError] = useState<string | null>(null);
+  const [positionsTab, setPositionsTab] = useState<"owned" | "owed">("owned");
 
   useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
     const unsubscribe = fetchLentLoans(
       userId,
-      (loans) => setLentLoans(loans),
+      (loans) => {
+        setLentLoans(loans);
+        setLoaded((value) => ({ ...value, lent: true }));
+      },
       (err) => {
         console.error("Error fetching lent loans:", err);
         setError("Failed to load lent loans.");
@@ -56,7 +57,10 @@ export default function DashboardPage() {
 
     const unsubscribe = fetchBorrowedLoans(
       userId,
-      (loans) => setBorrowedLoans(loans),
+      (loans) => {
+        setBorrowedLoans(loans);
+        setLoaded((value) => ({ ...value, borrowed: true }));
+      },
       (err) => {
         console.error("Error fetching borrowed loans:", err);
         setError("Failed to load borrowed loans.");
@@ -69,7 +73,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!userId) {
       setNotifications([]);
-      setLoading(false);
       return;
     }
 
@@ -80,16 +83,15 @@ export default function DashboardPage() {
           id: `loan_${request.id}`,
           message: `Your loan request for $${request.principalAmount.toLocaleString()} is pending review.`,
           type: "info" as const,
-          timestamp: request.timestamp.toDate(),
+          timestamp: request.timestamp?.toDate?.() ?? new Date(),
         }));
 
         setNotifications(requestNotifications);
-        setLoading(false);
+        setLoaded((value) => ({ ...value, requests: true }));
       },
       (err) => {
         console.error("Error fetching user loan requests:", err);
         setError("Failed to load notifications.");
-        setLoading(false);
       }
     );
 
@@ -104,133 +106,119 @@ export default function DashboardPage() {
     };
   }, [borrowedLoans, lentLoans]);
 
-  if (loading) {
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+  if (!initialized || (userId && !error && !(loaded.lent && loaded.borrowed && loaded.requests))) {
     return (
-      <div className="app-page flex flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center">
-          <div className="surface-card p-8 text-center">
-            <LoadingSpinner size="large" className="mb-4" />
-            <p className="text-sm font-semibold text-slate-700">Loading dashboard data...</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <AppShell>
+        <PageLoader label="Syncing portfolio" />
+      </AppShell>
     );
   }
 
   if (!userId) {
     return (
-      <div className="app-page flex flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center px-4 py-16">
-          <div className="surface-card max-w-md p-8 text-center">
-            <UserRound className="mx-auto h-10 w-10 text-slate-400" aria-hidden="true" />
-            <h1 className="mt-4 text-2xl font-semibold text-slate-950">Sign in to view your dashboard</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Your portfolio overview, loan activity, and notifications are tied to your account.
-            </p>
-            <Link href="/auth?tab=login" className="btn-primary mt-6">
-              Go to Login
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <AppShell>
+        <StatePanel
+          icon={<LockKeyhole />}
+          title="Sign in to view your dashboard"
+          description="Your portfolio overview, loan activity, and notifications are tied to your account."
+          action={
+            <>
+              <Link href="/auth?tab=login" className="btn-primary">
+                Sign in
+              </Link>
+              <Link href="/auth?tab=signup" className="btn-secondary">
+                Create account
+              </Link>
+            </>
+          }
+        />
+      </AppShell>
     );
   }
 
   if (error) {
     return (
-      <div className="app-page flex flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center px-4 py-16">
-          <div className="surface-card max-w-md p-8 text-center">
-            <AlertCircle className="mx-auto h-10 w-10 text-red-600" aria-hidden="true" />
-            <h1 className="mt-4 text-2xl font-semibold text-slate-950">Dashboard unavailable</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{error}</p>
-            <button type="button" onClick={() => window.location.reload()} className="btn-secondary mt-6">
+      <AppShell>
+        <StatePanel
+          icon={<AlertCircle />}
+          tone="negative"
+          title="Dashboard unavailable"
+          description={error}
+          action={
+            <button type="button" onClick={() => window.location.reload()} className="btn-secondary">
               <RefreshCcw className="h-4 w-4" aria-hidden="true" />
               Retry
             </button>
-          </div>
-        </main>
-        <Footer />
-      </div>
+          }
+        />
+      </AppShell>
     );
   }
 
   return (
-    <div className="app-page flex flex-col">
-      <Header />
-      <main className="flex-1 py-6 sm:py-10">
-        <div className="app-container space-y-6">
-          <section className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="section-kicker">Dashboard</p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                Welcome back{user?.username ? `, ${user.username}` : ""}.
-              </h1>
-              <p className="mt-2 text-sm text-slate-600">Track loans you own, loans you owe, and pending request activity.</p>
-            </div>
-            <Link href="/loanRequests" className="btn-primary w-full md:w-auto">
-              <HandCoins className="h-4 w-4" aria-hidden="true" />
-              New or Review Loan
+    <AppShell>
+      <div className="space-y-6">
+        <PageHeader
+          kicker={
+            <>
+              <LiveDot />
+              Portfolio · {today}
+            </>
+          }
+          title={<>Welcome back{user?.username ? <>, <span className="text-gradient">{user.username}</span></> : ""}.</>}
+          description="Track loans you own, loans you owe, and pending request activity in realtime."
+          actions={
+            <Link href="/loanRequests" className="btn-secondary">
+              Browse marketplace
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          </section>
+          }
+        />
 
-          <SummarySection
-            totalOwned={totals.totalOwned}
-            totalOwed={totals.totalOwed}
-            totalReserves={totals.totalReserves}
-            lentLoans={lentLoans}
-            borrowedLoans={borrowedLoans}
-          />
+        <SummarySection
+          totalOwned={totals.totalOwned}
+          totalOwed={totals.totalOwed}
+          totalReserves={totals.totalReserves}
+          lentLoans={lentLoans}
+          borrowedLoans={borrowedLoans}
+        />
 
-          <ChartsSection
-            lentLoans={lentLoans}
-            borrowedLoans={borrowedLoans}
-            totalReserves={totals.totalReserves}
-          />
+        <ChartsSection lentLoans={lentLoans} borrowedLoans={borrowedLoans} />
 
-          <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="surface-card p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                    <UsersRound className="h-5 w-5 text-sky-700" aria-hidden="true" />
-                    Loans you own
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">Loans where you are the lender.</p>
-                </div>
-              </div>
-              <OutstandingLoansTable userId={userId} type="owned" loans={lentLoans} />
-            </div>
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <Panel
+            className="xl:col-span-2"
+            icon={<Briefcase />}
+            title="Positions"
+            description={positionsTab === "owned" ? "Loans where you are the lender." : "Loans where you are the borrower."}
+            actions={
+              <SegmentedControl
+                label="Position type"
+                value={positionsTab}
+                onChange={setPositionsTab}
+                options={[
+                  { value: "owned", label: "Lent", count: lentLoans.length },
+                  { value: "owed", label: "Borrowed", count: borrowedLoans.length },
+                ]}
+              />
+            }
+          >
+            <OutstandingLoansTable type={positionsTab} loans={positionsTab === "owned" ? lentLoans : borrowedLoans} />
+          </Panel>
 
-            <div className="surface-card p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="flex items-center gap-2 text-base font-semibold text-slate-950">
-                    <UserRound className="h-5 w-5 text-red-600" aria-hidden="true" />
-                    Loans you owe
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">Loans where you are the borrower.</p>
-                </div>
-              </div>
-              <OutstandingLoansTable userId={userId} type="owed" loans={borrowedLoans} />
-            </div>
-          </section>
-
-          <section className="surface-card p-5">
-            <div className="mb-2 flex items-center gap-2">
-              <Bell className="h-5 w-5 text-amber-600" aria-hidden="true" />
-              <h2 className="text-base font-semibold text-slate-950">Recent notifications</h2>
-            </div>
+          <Panel
+            icon={<Bell />}
+            title="Activity"
+            description="Requests awaiting a lender."
+            actions={notifications.length > 0 && <span className="badge badge-warning num">{notifications.length} pending</span>}
+            bodyClassName="max-h-[28rem] overflow-y-auto p-4 sm:p-5"
+          >
             <Notifications notifications={notifications} />
-          </section>
-        </div>
-      </main>
-      <Footer />
-    </div>
+          </Panel>
+        </section>
+      </div>
+    </AppShell>
   );
 }

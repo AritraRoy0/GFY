@@ -1,10 +1,15 @@
 "use client";
 
 import React, {Suspense} from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { AlertCircle } from "lucide-react";
 import OwnProfile from "./OwnProfile";
 import OtherLenderProfile from "./OtherLenderProfile";
 import OtherLendeeProfile from "./OtherLendeeProfile";
+import AppShell from "../common/AppShell";
+import { PageLoader } from "../common/LoadingSpinner";
+import { StatePanel } from "../common/ui";
 
 const ProfilePageContent: React.FC = () => {
   // useSearchParams hook gives access to URL search params
@@ -26,18 +31,31 @@ const ProfilePageContent: React.FC = () => {
 
   // Fallback if an unknown type is provided.
   return (
-    <div className="app-page flex min-h-screen items-center justify-center px-4">
-      <div className="surface-card max-w-md p-8 text-center">
-        <h1 className="text-2xl font-semibold text-slate-950">Invalid profile type</h1>
-        <p className="mt-2 text-sm text-slate-600">Use lender or lendee profile links from the marketplace.</p>
-      </div>
-    </div>
+    <AppShell>
+      <StatePanel
+        icon={<AlertCircle />}
+        tone="warning"
+        title="Invalid profile type"
+        description="Use lender or borrower profile links from the marketplace or your dashboard."
+        action={
+          <Link href="/loanRequests" className="btn-primary">
+            Open marketplace
+          </Link>
+        }
+      />
+    </AppShell>
   );
 };
 // Main ProfilePage component with Suspense boundary
 const ProfilePage: React.FC = () => {
   return (
-    <Suspense fallback={<div className="app-page flex min-h-screen items-center justify-center">Loading profile...</div>}>
+    <Suspense
+      fallback={
+        <AppShell>
+          <PageLoader label="Loading profile" />
+        </AppShell>
+      }
+    >
       <ProfilePageContent />
     </Suspense>
   );

@@ -4,9 +4,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { AlertCircle, CalendarDays, HandCoins, Mail, UserRound, WalletCards } from "lucide-react";
-import Header from "../common/Header";
-import Footer from "../common/Footer";
+import { AlertCircle, CalendarDays, Contact, HandCoins, Mail, UserRound, WalletCards } from "lucide-react";
+import AppShell from "../common/AppShell";
+import { PageLoader } from "../common/LoadingSpinner";
+import { Panel, SegmentedControl, StatCard, StatePanel } from "../common/ui";
+import { formatCurrency } from "../common/format";
+import { InfoRow, LoanHistory, ProfileHero, ProfileTab } from "./ProfileUI";
 import { firestore } from "../../../firebaseConfig";
 import { fetchBorrowedLoans, fetchLentLoans } from "../models/LoanAPIs";
 import { Loan, calculateWeeklyAveragedInstallment } from "../models/LoanInterfaces";
@@ -20,11 +23,7 @@ interface LendeeProfileData {
   lastActive?: string;
 }
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+const breadcrumbs = [{ label: "Marketplace", href: "/loanRequests" }, { label: "Borrower profile" }];
 
 const OtherLendeeProfile: React.FC = () => {
   const searchParams = useSearchParams();
@@ -33,7 +32,7 @@ const OtherLendeeProfile: React.FC = () => {
   const [borrowedLoans, setBorrowedLoans] = useState<Loan[]>([]);
   const [lentLoans, setLentLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "loans">("overview");
+  const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
 
   useEffect(() => {
     if (!id) {
@@ -76,195 +75,90 @@ const OtherLendeeProfile: React.FC = () => {
     const weeklyPayments = borrowedLoans.reduce((sum, loan) => {
       return sum + calculateWeeklyAveragedInstallment(loan.principalAmount, loan.interestRate, loan.termWeeks);
     }, 0);
+    const completed = borrowedLoans.filter((loan) => loan.paymentsMade.length === loan.termWeeks).length;
 
-    return { totalBorrowed, totalLent, weeklyPayments };
+    return { totalBorrowed, totalLent, weeklyPayments, completed };
   }, [borrowedLoans, lentLoans]);
 
   if (loading) {
-    return <LoadingState />;
+    return (
+      <AppShell breadcrumbs={breadcrumbs}>
+        <PageLoader label="Loading profile" />
+      </AppShell>
+    );
   }
 
   if (!lendeeData) {
-    return <NotFoundState />;
+    return (
+      <AppShell breadcrumbs={breadcrumbs}>
+        <StatePanel
+          icon={<AlertCircle />}
+          tone="negative"
+          title="Profile not found"
+          description="The requested borrower profile could not be found."
+          action={
+            <Link href="/loanRequests" className="btn-primary">
+              Return to marketplace
+            </Link>
+          }
+        />
+      </AppShell>
+    );
   }
 
   const displayName = lendeeData.name || lendeeData.username || lendeeData.email?.split("@")[0] || "Borrower";
-  const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="app-page flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 py-6 sm:py-10">
-        <div className="app-container space-y-6">
-          <ProfileHero
-            label="Borrower profile"
-            name={displayName}
-            subtitle={lendeeData.username ? `@${lendeeData.username}` : lendeeData.email || "Public member"}
-            initial={initial}
-          />
+    <AppShell breadcrumbs={breadcrumbs}>
+      <div className="space-y-6">
+        <ProfileHero
+          id={lendeeData.id}
+          name={displayName}
+          subtitle={lendeeData.username ? `@${lendeeData.username}` : lendeeData.email || "Public member"}
+          role="Borrower profile"
+          meta={[
+            { label: "Loans borrowed", value: <span className="num">{borrowedLoans.length}</span> },
+            { label: "Fully repaid", value: <span className="num">{stats.completed}</span> },
+            { label: "Loans lent", value: <span className="num">{lentLoans.length}</span> },
+            { label: "Weekly obligations", value: <span className="num">{formatCurrency(stats.weeklyPayments)}</span> },
+          ]}
+        />
 
-          <Tabs activeTab={activeTab} onChange={setActiveTab} />
+        <SegmentedControl
+          label="Profile sections"
+          value={activeTab}
+          onChange={setActiveTab}
+          className="w-full sm:w-auto"
+          options={[
+            { value: "overview", label: "Overview" },
+            { value: "loans", label: "Loan history", count: borrowedLoans.length + lentLoans.length },
+          ]}
+        />
 
-          {activeTab === "overview" ? (
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Metric title="Total borrowed" value={currency.format(stats.totalBorrowed)} icon={<WalletCards className="h-5 w-5" />} />
-              <Metric title="Total lent" value={currency.format(stats.totalLent)} icon={<HandCoins className="h-5 w-5" />} />
-              <Metric title="Weekly payments" value={currency.format(stats.weeklyPayments)} icon={<CalendarDays className="h-5 w-5" />} />
+        {activeTab === "overview" ? (
+          <div className="space-y-4">
+            <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <StatCard label="Total borrowed" value={formatCurrency(stats.totalBorrowed)} icon={<WalletCards />} tone="warning" />
+              <StatCard label="Total lent" value={formatCurrency(stats.totalLent)} icon={<HandCoins />} tone="accent" />
+              <StatCard label="Weekly payments" value={formatCurrency(stats.weeklyPayments)} icon={<CalendarDays />} hint="Across active borrowed loans" />
+            </section>
 
-              <div className="surface-card p-5 md:col-span-3">
-                <h2 className="text-base font-semibold text-slate-950">Contact information</h2>
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <InfoRow icon={<Mail className="h-5 w-5" />} label="Email" value={lendeeData.email || "Not provided" } />
-                  <InfoRow icon={<UserRound className="h-5 w-5" />} label="Username" value={lendeeData.username ? `@${lendeeData.username}` : "Not provided"} />
-                </div>
+            <Panel icon={<Contact />} title="Contact information">
+              <div className="grid gap-2 md:grid-cols-2">
+                <InfoRow icon={<Mail />} label="Email" value={lendeeData.email || "Not provided"} />
+                <InfoRow icon={<UserRound />} label="Username" value={lendeeData.username ? `@${lendeeData.username}` : "Not provided"} />
               </div>
-            </section>
-          ) : (
-            <section className="grid gap-4 lg:grid-cols-2">
-              <LoanList title="Borrowing history" empty="No loans borrowed yet" loans={borrowedLoans} paymentLabel="payments made" />
-              <LoanList title="Lending history" empty="No loans lent yet" loans={lentLoans} paymentLabel="payments received" />
-            </section>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+            </Panel>
+          </div>
+        ) : (
+          <section className="grid gap-4 xl:grid-cols-2">
+            <LoanHistory title="Borrowing history" empty="No loans borrowed yet" loans={borrowedLoans} paymentLabel="payments made" />
+            <LoanHistory title="Lending history" empty="No loans lent yet" loans={lentLoans} paymentLabel="payments received" />
+          </section>
+        )}
+      </div>
+    </AppShell>
   );
 };
-
-function LoadingState() {
-  return (
-    <div className="app-page flex min-h-screen items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-sky-200 border-t-sky-700" />
-    </div>
-  );
-}
-
-function NotFoundState() {
-  return (
-    <div className="app-page flex min-h-screen flex-col">
-      <Header />
-      <main className="flex flex-1 items-center justify-center px-4 py-16">
-        <div className="surface-card max-w-md p-8 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-red-600" aria-hidden="true" />
-          <h1 className="mt-4 text-2xl font-semibold text-slate-950">Profile not found</h1>
-          <p className="mt-2 text-sm text-slate-600">The requested borrower profile could not be found.</p>
-          <Link href="/loanRequests" className="btn-primary mt-6">Return to marketplace</Link>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
-}
-
-function ProfileHero({ label, name, subtitle, initial }: { label: string; name: string; subtitle: string; initial: string }) {
-  return (
-    <section className="surface-card border-slate-200 bg-white p-5 sm:p-8">
-      <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center sm:gap-5">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-2xl font-semibold text-white sm:h-20 sm:w-20 sm:text-3xl">
-          {initial}
-        </div>
-        <div className="min-w-0">
-          <p className="section-kicker">{label}</p>
-          <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{name}</h1>
-          <p className="mt-1 break-all text-sm text-slate-500">{subtitle}</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Tabs({ activeTab, onChange }: { activeTab: "overview" | "loans"; onChange: (tab: "overview" | "loans") => void }) {
-  return (
-    <div className="inline-flex w-full rounded-lg border border-slate-200 bg-white p-1 shadow-sm min-[420px]:w-auto">
-      {[
-        { key: "overview", label: "Overview" },
-        { key: "loans", label: "Loans" },
-      ].map((tab) => (
-        <button
-          key={tab.key}
-          type="button"
-          onClick={() => onChange(tab.key as "overview" | "loans")}
-          className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors min-[420px]:flex-none ${
-            activeTab === tab.key ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-100"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function Metric({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
-  return (
-    <div className="metric-card">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">{value}</p>
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sky-50 text-sky-700">{icon}</div>
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-md border border-slate-200 bg-slate-50 p-4">
-      <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-sky-700 shadow-sm">{icon}</span>
-      <span>
-        <span className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">{label}</span>
-        <span className="mt-1 block break-all text-sm font-semibold text-slate-900">{value}</span>
-      </span>
-    </div>
-  );
-}
-
-function LoanList({ title, empty, loans, paymentLabel }: { title: string; empty: string; loans: Loan[]; paymentLabel: string }) {
-  return (
-    <div className="surface-card p-5">
-      <h2 className="text-base font-semibold text-slate-950">{title}</h2>
-      {loans.length === 0 ? (
-        <div className="mt-4 rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
-          {empty}
-        </div>
-      ) : (
-        <div className="mt-4 divide-y divide-slate-100">
-          {loans.map((loan) => (
-            <LoanRow key={loan.id} loan={loan} paymentLabel={paymentLabel} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function LoanRow({ loan, paymentLabel }: { loan: Loan; paymentLabel: string }) {
-  const weekly = calculateWeeklyAveragedInstallment(loan.principalAmount, loan.interestRate, loan.termWeeks);
-  const completed = loan.paymentsMade.length === loan.termWeeks;
-
-  return (
-    <div className="py-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-semibold text-slate-950">
-            {currency.format(loan.principalAmount)} <span className="text-sm font-medium text-slate-500">at {loan.interestRate}%</span>
-          </p>
-          <p className="mt-1 text-sm text-slate-500">
-            {loan.termWeeks} weeks - {loan.paymentsMade.length} {paymentLabel}
-          </p>
-        </div>
-        <div className="text-left sm:text-right">
-          <p className="text-sm font-semibold text-slate-950">{currency.format(weekly)} / week</p>
-          <span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${completed ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-            {completed ? "Completed" : "In progress"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default OtherLendeeProfile;
